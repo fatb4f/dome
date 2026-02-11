@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "state.space",
+  "type": "object",
+  "required": [
+    "version",
+    "memory",
+    "task_preferences",
+    "work_items"
+  ],
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "memory": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "claim",
+          "provenance"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "claim": {
+            "type": "string"
+          },
+          "provenance": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "task_preferences": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "work_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "work_id",
+          "status",
+          "node"
+        ],
+        "properties": {
+          "work_id": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "QUEUED",
+              "CLAIMED",
+              "RUNNING",
+              "GATED",
+              "DONE",
+              "BLOCKED"
+            ]
+          },
+          "node": {
+            "type": "object",
+            "required": [
+              "reqs",
+              "deps",
+              "provs",
+              "assert"
+            ],
+            "properties": {
+              "reqs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "deps": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "provs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "assert": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

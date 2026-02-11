@@ -1,0 +1,22 @@
+{
+  "version": "0.2.0",
+  "ranking": {
+    "weights": {
+      "evidence_first": 1.0,
+      "risk_avoidance": 0.5
+    }
+  },
+  "tie_breakers": [
+    "priority_score_desc",
+    "created_at_asc",
+    "work_id_asc"
+  ],
+  "tool_preferences": {
+    "tests": 1.0,
+    "lint": 0.8,
+    "fmt": 0.7
+  },
+  "stop_thresholds": {
+    "max_failures": 3
+  }
+}

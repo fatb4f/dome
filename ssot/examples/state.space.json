@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "memory": [],
+  "task_preferences": {
+    "default_priority": 0
+  },
+  "work_items": [
+    {
+      "work_id": "W001",
+      "status": "QUEUED",
+      "node": {
+        "reqs": [],
+        "deps": [],
+        "provs": [
+          "evidence_bundle"
+        ],
+        "assert": [
+          "gate_passes"
+        ]
+      }
+    }
+  ]
+}

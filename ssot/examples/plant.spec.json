@@ -1,0 +1,20 @@
+{
+  "version": "0.2.0",
+  "actions": [
+    "RUN_TOOL",
+    "WRITE_FILE",
+    "UPDATE_STATE"
+  ],
+  "constraints": [
+    "PLAN_EXECUTE_GATE",
+    "DONE_REQUIRES_EVIDENCE"
+  ],
+  "obligations": [
+    "CAPTURE_EVIDENCE_BUNDLE",
+    "RECORD_PROVENANCE"
+  ],
+  "budgets": {
+    "max_iterations": 50,
+    "max_attempts": 3
+  }
+}
