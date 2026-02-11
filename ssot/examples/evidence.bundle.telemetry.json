@@ -1,0 +1,21 @@
+{
+  "otel": {
+    "backend": "langfuse",
+    "trace_id_hex": "0123456789abcdef0123456789abcdef",
+    "span_id_hex": "0123456789abcdef",
+    "project": "mvpv0.2",
+    "run_id": "run-0001"
+  },
+  "signals": {
+    "tool.exit_code": 0,
+    "gate.schema_valid": true,
+    "gate.assertions_pass": true
+  },
+  "artifacts": [
+    {
+      "path": "apps/python-demo/out/state.space.json",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "bytes": 1234
+    }
+  ]
+}

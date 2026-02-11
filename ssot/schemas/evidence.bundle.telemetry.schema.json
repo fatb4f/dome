@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "evidence.bundle.telemetry",
+  "type": "object",
+  "required": ["otel", "signals"],
+  "properties": {
+    "otel": {
+      "type": "object",
+      "required": ["backend", "trace_id_hex", "span_id_hex"],
+      "properties": {
+        "backend": {"type": "string", "description": "e.g., langfuse"},
+        "trace_id_hex": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        "span_id_hex": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{16}$"
+        },
+        "project": {"type": "string"},
+        "run_id": {"type": "string"}
+      },
+      "additionalProperties": true
+    },
+    "signals": {
+      "type": "object",
+      "description": "A telemetry-derived key/value map used for deterministic gating.",
+      "additionalProperties": {
+        "type": ["string", "number", "boolean", "null"]
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": {"type": "string"},
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "bytes": {"type": "integer", "minimum": 0}
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

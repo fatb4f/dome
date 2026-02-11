@@ -99,6 +99,21 @@
             },
             "additionalProperties": true
           }
+          ,
+          "telemetry": {
+            "$ref": "./evidence.bundle.telemetry.schema.json",
+            "description": "Telemetry-derived evidence bundle for this work item. Gating MUST use only this bundle."
+          },
+          "gate": {
+            "type": "object",
+            "required": ["status"],
+            "properties": {
+              "status": {"enum": ["DONE", "BLOCKED"]},
+              "reason_code": {"type": ["string", "null"]},
+              "notes": {"type": ["string", "null"]}
+            },
+            "additionalProperties": true
+          }
         },
         "additionalProperties": true
       }

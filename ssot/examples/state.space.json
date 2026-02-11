@@ -2,7 +2,8 @@
   "version": "0.2.0",
   "memory": [],
   "task_preferences": {
-    "default_priority": 0
+    "default_priority": 0,
+    "telemetry_is_ssot": true
   },
   "work_items": [
     {
@@ -12,11 +13,53 @@
         "reqs": [],
         "deps": [],
         "provs": [
-          "evidence_bundle"
+          "telemetry"
         ],
         "assert": [
           "gate_passes"
         ]
+      }
+    },
+    {
+      "work_id": "W002",
+      "status": "DONE",
+      "node": {
+        "reqs": [
+          "tool available: python"
+        ],
+        "deps": [],
+        "provs": [
+          "telemetry"
+        ],
+        "assert": [
+          "exit_code == 0"
+        ]
+      },
+      "telemetry": {
+        "otel": {
+          "backend": "langfuse",
+          "trace_id_hex": "0123456789abcdef0123456789abcdef",
+          "span_id_hex": "0123456789abcdef",
+          "project": "mvpv0.2",
+          "run_id": "run-0001"
+        },
+        "signals": {
+          "tool.exit_code": 0,
+          "gate.schema_valid": true,
+          "gate.assertions_pass": true
+        },
+        "artifacts": [
+          {
+            "path": "apps/python-demo/out/state.space.json",
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "bytes": 1234
+          }
+        ]
+      },
+      "gate": {
+        "status": "DONE",
+        "reason_code": null,
+        "notes": null
       }
     }
   ]

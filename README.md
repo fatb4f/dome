@@ -10,8 +10,13 @@ The SSOT is `.specify/memory/constitution.md`.
 ## Workflow (Plan → Execute → Gate)
 
 - **Plan:** produce a bounded work DAG (`{reqs,deps,provs,assert}`) and evidence obligations.
-- **Execute:** run tools with rich signals (exit codes, stdout/stderr, logs, artifacts, hashes).
-- **Gate:** update state **only** from gathered evidence. DONE requires satisfied obligations.
+- **Execute:** run tools with rich signals and emit all decision-relevant signals into telemetry.
+- **Gate:** update state **only** from telemetry-derived evidence (trace data). DONE requires satisfied obligations and a recorded trace pointer.
+
+## Telemetry wiring (Option A + Langfuse)
+
+- `ops/observability/` contains an OpenTelemetry Collector config that forwards OTLP/HTTP traces to Langfuse.
+- `apps/python-demo/` contains a minimal runnable demo.
 
 ## Spec Kit layout
 
