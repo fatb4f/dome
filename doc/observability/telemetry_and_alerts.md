@@ -18,3 +18,6 @@ Minimum alert thresholds:
 - Promotion block when gate status is `REJECT` or `NEEDS_HUMAN`
 - Retry-storm warning when aggregate retries per run exceed threshold
 - Error budget breach when failed task ratio exceeds SLO target
+
+Machine-checkable alert gate:
+- `tools/orchestrator/alert_gate.py --summary <run_summary.json> --max-fail-ratio 0.05 --max-total-retries 10`

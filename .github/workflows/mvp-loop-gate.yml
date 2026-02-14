@@ -51,6 +51,10 @@ jobs:
           git restore --worktree ops/runtime || true
           test -z "$(git status --porcelain)"
 
+      - name: Enforce no tracked generated runtime outputs
+        run: |
+          test -z "$(git ls-files 'ops/runtime/runs/**' 'ops/runtime/mcp_events.jsonl')"
+
   smoke-otel:
     runs-on: ubuntu-latest
     continue-on-error: true

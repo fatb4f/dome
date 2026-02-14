@@ -24,3 +24,7 @@ node_modules/
 # Artifacts
 dist/
 build/
+
+# Generated runtime outputs (curated evidence lives under ops/demo_artifacts/ and ops/runtime/m*/).
+ops/runtime/runs/
+ops/runtime/mcp_events.jsonl

@@ -7,6 +7,8 @@
   - capped by `retry-max-ms`
 - DLQ semantics:
   - when transient failures exhaust retry budget, task is persisted to `ops/runtime/runs/<run_id>/dlq/<task>.dlq.json`.
+  - reprocessing entrypoint: `tools/orchestrator/dlq_reprocess.py`
+  - default action is manual review classification output, not automatic replay.
 
 Reason code mapping:
 - transient -> `TRANSIENT.*`

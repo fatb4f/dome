@@ -11,3 +11,7 @@ Atomic persistence policy:
 Thread-safety guarantees:
 - duplicate `event_id` publishes are ignored (idempotent)
 - event sequence order is stable for replay.
+
+Idempotency cache scope:
+- current duplicate suppression cache is in-memory for process lifetime.
+- restart-safe persistent idempotency cache is documented in `doc/event_idempotency.md`.

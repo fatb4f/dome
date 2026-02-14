@@ -11,3 +11,7 @@ Legal transitions:
 
 Runtime enforcement lives in `tools/orchestrator/state_machine.py`.
 Invalid transitions emit reason codes of form `STATE.INVALID_TRANSITION.<from>.<signal>`.
+
+Versioning:
+- transition table version is currently `0.2.0` aligned with runtime artifact schema version.
+- when state shape evolves, transition compatibility rules must preserve deterministic replay for prior manifests.
