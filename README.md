@@ -25,6 +25,7 @@ The SSOT is `.specify/memory/constitution.md`.
 - `ssot/schemas/reason.codes.schema.json` — typed reason-code catalog
 - `tools/orchestrator/mcp_loop.py` — MCP-first concurrent orchestrator scaffold
 - `tools/orchestrator/transports/` — MCP + A2A adapters and bridge (`A2A -> MCP` normalization)
+- `tools/orchestrator/planner.py` — translate `xtrlv2` pre-contract into `dome` `work.queue`
 
 Matching examples live in `ssot/examples/`.
 
@@ -46,4 +47,12 @@ See GitHub Spec Kit docs for setup and supported agents. (https://github.com/git
 ```bash
 python -m pip install pytest jsonschema
 pytest -q
+```
+
+Pre-contract translation example:
+
+```bash
+python tools/orchestrator/planner.py \
+  --pre-contract /home/src404/src/xtrlv2/packets/engineering/migration_xtrlv2_cutover/pkt-v2-migrate-0002-runner-cutover.pre_contract.json \
+  --out ops/runtime/work.queue.json
 ```
