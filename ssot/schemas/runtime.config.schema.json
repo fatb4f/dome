@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "dome Runtime Config",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "default_profile",
+    "profiles"
+  ],
+  "properties": {
+    "version": {
+      "const": "0.2.0"
+    },
+    "default_profile": {
+      "type": "string",
+      "minLength": 1
+    },
+    "profiles": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "models": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "planner": {
+                "type": "string"
+              },
+              "orchestrator": {
+                "type": "string"
+              },
+              "implementers": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "checker": {
+                "type": "string"
+              }
+            }
+          },
+          "budgets": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "max_retries": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "risk_threshold": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "max_workers": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "iteration_budget": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "time_minutes": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          "pattern": {
+            "type": "string",
+            "enum": [
+              "tdd",
+              "refactor",
+              "hotfix"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

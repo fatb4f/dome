@@ -29,6 +29,7 @@ from tools.orchestrator.promote import (
     persist_promotion_decision,
     validate_promotion_schema,
 )
+from tools.orchestrator.runtime_config import load_runtime_profile
 from tools.orchestrator.state_writer import update_state_space
 
 
@@ -58,7 +59,9 @@ def run_demo(
     event_log: Path,
     risk_threshold: int = 60,
     max_retries: int = 1,
+    worker_models: list[str] | None = None,
     otel_export: bool = False,
+    runtime_profile: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     pre_contract = json.loads(pre_contract_path.read_text(encoding="utf-8"))
     work_queue = pre_contract_to_work_queue(pre_contract)
@@ -70,7 +73,12 @@ def run_demo(
     (run_dir / "work.queue.json").write_text(json.dumps(work_queue, indent=2), encoding="utf-8")
 
     bus = EventBus(event_log=event_log)
-    implementers = ImplementerHarness(bus=bus, run_root=run_root, max_retries=max_retries)
+    implementers = ImplementerHarness(
+        bus=bus,
+        run_root=run_root,
+        max_retries=max_retries,
+        worker_models=worker_models,
+    )
     run_summary = implementers.run(work_queue)
 
     reason_codes_payload = json.loads(reason_codes_path.read_text(encoding="utf-8"))
@@ -118,6 +126,11 @@ def run_demo(
         "runtime": {
             "python_version": sys.version.split(" ")[0],
             "trace_source": trace_source,
+            "runtime_profile": (runtime_profile or {}).get("name"),
+            "runtime_pattern": (runtime_profile or {}).get("pattern"),
+            "max_retries": max_retries,
+            "risk_threshold": risk_threshold,
+            "worker_models": worker_models or ["gpt-5.3", "gpt-5.2"],
         },
     }
     manifest_path = run_dir / "run.manifest.json"
@@ -142,23 +155,45 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--state-space", type=Path, default=Path("ssot/examples/state.space.json"))
     parser.add_argument("--reason-codes", type=Path, default=Path("ssot/policy/reason.codes.json"))
     parser.add_argument("--event-log", type=Path, default=Path("ops/runtime/mcp_events.jsonl"))
-    parser.add_argument("--risk-threshold", type=int, default=60)
-    parser.add_argument("--max-retries", type=int, default=1)
+    parser.add_argument("--runtime-config", type=Path)
+    parser.add_argument("--profile")
+    parser.add_argument("--worker-models")
+    parser.add_argument("--risk-threshold", type=int)
+    parser.add_argument("--max-retries", type=int)
     parser.add_argument("--otel-export", action="store_true")
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
+    runtime_profile = load_runtime_profile(
+        runtime_config_path=args.runtime_config,
+        profile=args.profile,
+        schema_path=ROOT / "ssot/schemas/runtime.config.schema.json",
+    )
+    models_cfg = runtime_profile.get("models", {}).get("implementers", [])
+    worker_models = (
+        [item.strip() for item in args.worker_models.split(",") if item.strip()]
+        if isinstance(args.worker_models, str) and args.worker_models.strip()
+        else list(models_cfg)
+    )
+    if not worker_models:
+        worker_models = ["gpt-5.3", "gpt-5.2"]
+    budget_cfg = runtime_profile.get("budgets", {})
+    risk_threshold = int(args.risk_threshold) if args.risk_threshold is not None else int(budget_cfg.get("risk_threshold", 60))
+    max_retries = int(args.max_retries) if args.max_retries is not None else int(budget_cfg.get("max_retries", 1))
+
     summary = run_demo(
         pre_contract_path=args.pre_contract,
         run_root=args.run_root,
         state_space_path=args.state_space,
         reason_codes_path=args.reason_codes,
         event_log=args.event_log,
-        risk_threshold=args.risk_threshold,
-        max_retries=args.max_retries,
+        risk_threshold=risk_threshold,
+        max_retries=max_retries,
+        worker_models=worker_models,
         otel_export=args.otel_export,
+        runtime_profile=runtime_profile,
     )
     print(json.dumps(summary, sort_keys=True))
     return 0

@@ -1,0 +1,44 @@
+{
+  "version": "0.2.0",
+  "default_profile": "tdd",
+  "profiles": {
+    "tdd": {
+      "pattern": "tdd",
+      "models": {
+        "planner": "gpt-5.3-codex-high",
+        "orchestrator": "gpt-5.3-codex-high",
+        "implementers": [
+          "gpt-5.3",
+          "gpt-5.2"
+        ],
+        "checker": "gpt-5.3"
+      },
+      "budgets": {
+        "max_retries": 2,
+        "risk_threshold": 60,
+        "max_workers": 2,
+        "iteration_budget": 3,
+        "time_minutes": 30
+      }
+    },
+    "refactor": {
+      "pattern": "refactor",
+      "models": {
+        "planner": "gpt-5.3-codex-high",
+        "orchestrator": "gpt-5.3-codex-high",
+        "implementers": [
+          "gpt-5.3-codex-high",
+          "gpt-5.3"
+        ],
+        "checker": "gpt-5.3"
+      },
+      "budgets": {
+        "max_retries": 1,
+        "risk_threshold": 50,
+        "max_workers": 2,
+        "iteration_budget": 2,
+        "time_minutes": 20
+      }
+    }
+  }
+}

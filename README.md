@@ -110,6 +110,18 @@ python tools/orchestrator/run_demo.py \
   --reason-codes ssot/policy/reason.codes.json
 ```
 
+Runtime-configured demo profile (models + budgets + pattern):
+
+```bash
+python tools/orchestrator/run_demo.py \
+  --pre-contract ssot/examples/demo.pre_contract.json \
+  --run-root ops/runtime/runs \
+  --state-space ssot/examples/state.space.json \
+  --reason-codes ssot/policy/reason.codes.json \
+  --runtime-config ssot/examples/runtime.config.json \
+  --profile tdd
+```
+
 Just-based pipeline:
 
 ```bash
