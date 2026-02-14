@@ -1,0 +1,13 @@
+{
+  "run_id": "pkt-dome-demo-0001",
+  "scenarios": [
+    "failed worker exception",
+    "corrupted event log"
+  ],
+  "expected_steps": [
+    "triage",
+    "collect evidence",
+    "decide resume or restart",
+    "record outcome"
+  ]
+}

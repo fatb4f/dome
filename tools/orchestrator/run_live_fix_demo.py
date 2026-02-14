@@ -6,6 +6,8 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
+import platform
 import shlex
 import subprocess
 import sys
@@ -22,6 +24,7 @@ from tools.orchestrator.checkers import (  # noqa: E402
     validate_gate_decision_schema,
 )
 from tools.orchestrator.implementers import ImplementerHarness  # noqa: E402
+from tools.orchestrator.io_utils import atomic_write_json  # noqa: E402
 from tools.orchestrator.mcp_loop import EventBus, TOPIC_TASK_RESULT_RAW, replay_task_result_events  # noqa: E402
 from tools.orchestrator.promote import (  # noqa: E402
     create_promotion_decision,
@@ -39,6 +42,19 @@ def _sha256_path(path: Path) -> str:
         for chunk in iter(lambda: fh.read(1024 * 1024), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+def _git_commit_sha() -> str:
+    try:
+        proc = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        return proc.stdout.strip()
+    except Exception:
+        return "unknown"
 
 
 def _write_buggy_project(workbench: Path) -> None:
@@ -156,7 +172,7 @@ def run_live_fix_demo(
             },
         ],
     }
-    (run_dir / "work.queue.json").write_text(json.dumps(work_queue, indent=2), encoding="utf-8")
+    atomic_write_json(run_dir / "work.queue.json", work_queue)
 
     attempts: dict[str, int] = {}
 
@@ -264,7 +280,7 @@ def run_live_fix_demo(
             }
         )
     loop_path = run_dir / "iteration.loop.json"
-    loop_path.write_text(json.dumps({"run_id": run_id, "iterations": iterations}, indent=2), encoding="utf-8")
+    atomic_write_json(loop_path, {"run_id": run_id, "iterations": iterations})
 
     reason_codes_payload = json.loads(reason_codes_path.read_text(encoding="utf-8"))
     reason_codes_catalog = {item["code"] for item in reason_codes_payload.get("codes", [])}
@@ -292,14 +308,21 @@ def run_live_fix_demo(
         promotion_decision=promotion,
     )
     state_out_path = run_dir / "state.space.json"
-    state_out_path.write_text(json.dumps(updated_state, indent=2), encoding="utf-8")
+    atomic_write_json(state_out_path, updated_state)
+
+    input_hashes = {
+        "work_queue_sha256": _sha256_path(run_dir / "work.queue.json"),
+        "state_space_sha256": _sha256_path(state_space_path),
+        "reason_codes_sha256": _sha256_path(reason_codes_path),
+    }
 
     manifest = {
         "version": "0.2.0",
         "run_id": run_id,
         "inputs": {
             "workbench_path": str(workbench),
-            "work_queue_sha256": _sha256_path(run_dir / "work.queue.json"),
+            "work_queue_sha256": input_hashes["work_queue_sha256"],
+            "input_hashes": input_hashes,
         },
         "commands": ["implementers", "checkers", "promote", "state_writer"],
         "artifacts": {
@@ -312,7 +335,13 @@ def run_live_fix_demo(
             "iteration_loop_path": str(loop_path),
         },
         "runtime": {
-            "python_version": sys.version.split(" ")[0],
+            "repo_commit_sha": _git_commit_sha(),
+            "tool_versions": {"python": sys.version.split(" ")[0]},
+            "environment_fingerprint": {
+                "platform": platform.platform(),
+                "python_implementation": platform.python_implementation(),
+                "cwd": os.getcwd(),
+            },
             "trace_source": trace_source,
             "runtime_profile": (runtime_profile or {}).get("name"),
             "runtime_pattern": (runtime_profile or {}).get("pattern"),
@@ -322,7 +351,7 @@ def run_live_fix_demo(
         },
     }
     manifest_path = run_dir / "run.manifest.json"
-    manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    atomic_write_json(manifest_path, manifest)
 
     return {
         "run_id": run_id,

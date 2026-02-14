@@ -1,0 +1,27 @@
+{
+  "run_id": "pkt-dome-demo-0001",
+  "manifest_path": "ops/runtime/runs/pkt-dome-demo-0001/run.manifest.json",
+  "work_queue_path": "ops/runtime/runs/pkt-dome-demo-0001/work.queue.json",
+  "summary_path": "ops/runtime/runs/pkt-dome-demo-0001/summary.json",
+  "gate_decision_path": "ops/runtime/runs/pkt-dome-demo-0001/gate/gate.decision.json",
+  "hashes": {
+    "work_queue_sha256": "9184beca0413e93ba61fb2f8ba8209545ad21da3ab7454db922680ab1d93d2bb",
+    "summary_sha256": "b71754d5c5258c80284e3c0a59566be3093fbfc7e227b28be2ba37a60762ccf2",
+    "gate_sha256": "bb526d9f097425df602958a75d4089963a133d74065540fcd5258615794a6ca4",
+    "manifest_sha256": "19cd413c7ce0ad10650d4565afad700aeb779f7e3aa40ec377d53ca9aea33097"
+  },
+  "evidence_bundles": [
+    {
+      "path": "ops/runtime/runs/pkt-dome-demo-0001/evidence/pkt-dome-demo-0001-implement.evidence.bundle.telemetry.json",
+      "sha256": "3dfe89948b52dcd403465142f8eb3396191dd0863015d5894dddbc0758a05b7b"
+    },
+    {
+      "path": "ops/runtime/runs/pkt-dome-demo-0001/evidence/pkt-dome-demo-0001-plan.evidence.bundle.telemetry.json",
+      "sha256": "9998fdfdbeb4c90a86fcc11fcc774d507d4632936dbebb42c2c275c9ce017360"
+    },
+    {
+      "path": "ops/runtime/runs/pkt-dome-demo-0001/evidence/pkt-dome-demo-0001-verify.evidence.bundle.telemetry.json",
+      "sha256": "efe0d5d5a1a2c06d0a3e6b46af0d1333c89a37a5dc667e8f79dfe92a9e39aace"
+    }
+  ]
+}

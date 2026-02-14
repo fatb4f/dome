@@ -16,6 +16,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from tools.orchestrator.mcp_loop import Event, EventBus, TOPIC_PROMOTION_DECISION
+from tools.orchestrator.io_utils import atomic_write_json
 from tools.orchestrator.security import assert_runtime_path
 
 
@@ -62,7 +63,7 @@ def persist_promotion_decision(run_root: Path, run_id: str, payload: dict[str, A
     out_dir = run_root / run_id / "promotion"
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / "promotion.decision.json"
-    out_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    atomic_write_json(out_path, payload)
     return out_path
 
 

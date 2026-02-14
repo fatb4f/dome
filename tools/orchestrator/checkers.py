@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from tools.orchestrator.io_utils import atomic_write_json
 from tools.orchestrator.mcp_loop import Event, EventBus, TOPIC_GATE_REQUESTED, TOPIC_GATE_VERDICT
 from tools.orchestrator.security import assert_runtime_path
 
@@ -134,7 +135,7 @@ def persist_gate_decision(run_root: Path, run_id: str, decision: dict[str, Any])
     gate_dir = run_root / run_id / "gate"
     gate_dir.mkdir(parents=True, exist_ok=True)
     out_path = gate_dir / "gate.decision.json"
-    out_path.write_text(json.dumps(decision, indent=2), encoding="utf-8")
+    atomic_write_json(out_path, decision)
     return out_path
 
 

@@ -7,19 +7,26 @@
     "run_id": "pkt-dome-demo-0001"
   },
   "signals": {
+    "run.id": "pkt-dome-demo-0001",
+    "task.id": "pkt-dome-demo-0001-plan",
     "task.status": "PASS",
-    "task.attempts": 1
+    "task.attempts": 1,
+    "task.retry_backoff_ms": 0,
+    "task.notes": "implementer synthetic worker result",
+    "task.reason_code": null,
+    "task.worker_model": "gpt-5.3",
+    "task.duration_ms": 0
   },
   "artifacts": [
     {
       "path": "ops/runtime/runs/pkt-dome-demo-0001/task_results/pkt-dome-demo-0001-plan.result.json",
-      "sha256": "b5a8413009f58bbd7a8536c64e7f9267e225b8d79f559d1a658e10438e192861",
-      "bytes": 388
+      "sha256": "b89aeeca47d31953abf1add63b8fbc9e419ef10c9fe01c0de3654f520488682b",
+      "bytes": 459
     },
     {
       "path": "ops/runtime/runs/pkt-dome-demo-0001/attempts/pkt-dome-demo-0001-plan.attempts.json",
-      "sha256": "ba9127e91df2a2eb24e18af14712ade10650d9f609c04f9a63f81a98b6fcc9ab",
-      "bytes": 175
+      "sha256": "ddddb430784b08d5da9bdeaa02b83344277d868683361c4cc7ef94df25ded077",
+      "bytes": 198
     }
   ]
 }

@@ -8,6 +8,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from tools.orchestrator.io_utils import atomic_write_json
+
 
 def _required(payload: dict[str, Any], key: str) -> Any:
     if key not in payload:
@@ -111,8 +113,7 @@ def main() -> int:
     args = parse_args()
     contract = json.loads(args.pre_contract.read_text(encoding="utf-8"))
     work_queue = pre_contract_to_work_queue(contract)
-    args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(work_queue, indent=2), encoding="utf-8")
+    atomic_write_json(args.out, work_queue)
     print(str(args.out))
     return 0
 

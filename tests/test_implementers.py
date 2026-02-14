@@ -74,3 +74,58 @@ def test_implementers_retry_transient_failure_then_pass(tmp_path: Path) -> None:
     assert result["attempt_history"][1]["status"] == "PASS"
     attempt_path = tmp_path / "wave-phase2-retry" / "attempts" / "t1.attempts.json"
     assert attempt_path.exists()
+
+
+def test_retry_backoff_is_monotonic_non_decreasing() -> None:
+    sleeps: list[float] = []
+
+    def always_transient(task: dict) -> dict:
+        return {
+            "task_id": task["task_id"],
+            "status": "FAIL",
+            "transient": True,
+            "reason_code": "TRANSIENT.NETWORK",
+        }
+
+    from tools.orchestrator.implementers import RetryingWorker
+
+    worker = RetryingWorker(
+        worker_fn=always_transient,
+        max_retries=3,
+        base_backoff_ms=20,
+        max_backoff_ms=200,
+        sleep_fn=lambda s: sleeps.append(s),
+    )
+    out = worker({"task_id": "t-retry"})
+    assert out["status"] == "FAIL"
+    assert out["attempts"] == 4
+    backoffs = out["retry_backoff_ms"]
+    assert len(backoffs) == 3
+    assert backoffs[0] <= backoffs[1] <= backoffs[2]
+    assert len(sleeps) == 3
+
+
+def test_transient_failure_exhaustion_writes_dlq(tmp_path: Path) -> None:
+    def always_transient(task: dict) -> dict:
+        return {
+            "task_id": task["task_id"],
+            "status": "FAIL",
+            "transient": True,
+            "reason_code": "TRANSIENT.TIMEOUT",
+        }
+
+    bus = EventBus()
+    harness = ImplementerHarness(bus=bus, run_root=tmp_path, worker_fn=always_transient, max_retries=1)
+    summary = harness.run(
+        {
+            "version": "0.2.0",
+            "run_id": "wave-phase2-dlq",
+            "base_ref": "main",
+            "max_workers": 1,
+            "tasks": [{"task_id": "t1", "goal": "retry", "status": "QUEUED", "dependencies": []}],
+        }
+    )
+    result = summary["results"][0]
+    assert result["status"] == "FAIL"
+    assert result["dlq_path"]
+    assert Path(result["dlq_path"]).exists()

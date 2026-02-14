@@ -14,7 +14,10 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from tools.orchestrator.io_utils import atomic_write_json
+from tools.orchestrator.mcp_loop import replay_task_result_events
 from tools.orchestrator.security import assert_runtime_path
+from tools.orchestrator.state_machine import apply_transition
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -48,7 +51,14 @@ def update_state_space(
             raise ValueError(f"missing evidence bundle path for task {task_id}")
         evidence = _validate_evidence_bundle(evidence_path)
         approved = promotion_decision.get("decision") == "APPROVE" and result.get("status") == "PASS"
-        work_status = "DONE" if approved else "BLOCKED"
+        transitions = [apply_transition("QUEUED", "claim"), apply_transition("CLAIMED", "run")]
+        transitions.append(apply_transition("RUNNING", "gate_pass" if approved else "gate_fail"))
+        if approved:
+            transitions.append(apply_transition("GATED", "gate_pass"))
+        if not all(item.ok for item in transitions):
+            first_fail = next(item for item in transitions if not item.ok)
+            raise ValueError(f"illegal state transition for {task_id}: {first_fail.reason_code}")
+        work_status = transitions[-1].next_state
         gate_status = "DONE" if approved else "BLOCKED"
         reason_code = None
         if not approved:
@@ -68,7 +78,7 @@ def update_state_space(
                 "telemetry": evidence,
                 "gate": {
                     "status": gate_status,
-                    "reason_code": reason_code,
+                    "reason_code": reason_code or transitions[-1].reason_code,
                     "notes": "; ".join(gate_decision.get("notes", [])) if gate_decision.get("notes") else None,
                 },
             }
@@ -80,6 +90,44 @@ def update_state_space(
     out.setdefault("task_preferences", {"telemetry_is_ssot": True})
     out["work_items"] = new_items
     return out
+
+
+def replay_state_space_from_events(
+    state_space: dict[str, Any],
+    work_queue: dict[str, Any],
+    event_log: Path,
+    run_id: str,
+    gate_decision: dict[str, Any],
+    promotion_decision: dict[str, Any],
+) -> dict[str, Any]:
+    events = replay_task_result_events(event_log=event_log, run_id=run_id)
+    latest: dict[str, dict[str, Any]] = {}
+    for event in events:
+        if event.get("topic") != "task.result":
+            continue
+        payload = dict(event.get("payload", {}))
+        task_id = str(payload.get("task_id", ""))
+        if task_id:
+            latest[task_id] = payload
+
+    run_summary = {
+        "run_id": run_id,
+        "results": [
+            {
+                "task_id": task_id,
+                "status": item.get("status"),
+                "evidence_bundle_path": item.get("evidence_bundle_path"),
+            }
+            for task_id, item in latest.items()
+        ],
+    }
+    return update_state_space(
+        state_space=state_space,
+        work_queue=work_queue,
+        run_summary=run_summary,
+        gate_decision=gate_decision,
+        promotion_decision=promotion_decision,
+    )
 
 
 def parse_args() -> argparse.Namespace:
@@ -108,7 +156,7 @@ def main() -> int:
         promotion_decision=promotion_decision,
     )
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(updated, indent=2), encoding="utf-8")
+    atomic_write_json(args.out, updated)
     print(str(args.out))
     return 0
 

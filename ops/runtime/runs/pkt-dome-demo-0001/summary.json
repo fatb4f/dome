@@ -1,33 +1,19 @@
 {
   "run_id": "pkt-dome-demo-0001",
   "dispatched_count": 3,
+  "execution_order": [
+    "pkt-dome-demo-0001-plan",
+    "pkt-dome-demo-0001-implement",
+    "pkt-dome-demo-0001-verify"
+  ],
   "results": [
-    {
-      "task_id": "pkt-dome-demo-0001-implement",
-      "status": "PASS",
-      "notes": "implementer synthetic worker result",
-      "worker_model": "gpt-5.2",
-      "attempt": 1,
-      "attempts": 1,
-      "attempt_history": [
-        {
-          "task_id": "pkt-dome-demo-0001-implement",
-          "status": "PASS",
-          "notes": "implementer synthetic worker result",
-          "worker_model": "gpt-5.2",
-          "attempt": 1
-        }
-      ],
-      "task_result_path": "ops/runtime/runs/pkt-dome-demo-0001/task_results/pkt-dome-demo-0001-implement.result.json",
-      "attempt_history_path": "ops/runtime/runs/pkt-dome-demo-0001/attempts/pkt-dome-demo-0001-implement.attempts.json",
-      "evidence_bundle_path": "ops/runtime/runs/pkt-dome-demo-0001/evidence/pkt-dome-demo-0001-implement.evidence.bundle.telemetry.json"
-    },
     {
       "task_id": "pkt-dome-demo-0001-plan",
       "status": "PASS",
       "notes": "implementer synthetic worker result",
       "worker_model": "gpt-5.3",
       "attempt": 1,
+      "duration_ms": 0,
       "attempts": 1,
       "attempt_history": [
         {
@@ -35,12 +21,39 @@
           "status": "PASS",
           "notes": "implementer synthetic worker result",
           "worker_model": "gpt-5.3",
-          "attempt": 1
+          "attempt": 1,
+          "duration_ms": 0
         }
       ],
+      "retry_backoff_ms": [],
       "task_result_path": "ops/runtime/runs/pkt-dome-demo-0001/task_results/pkt-dome-demo-0001-plan.result.json",
       "attempt_history_path": "ops/runtime/runs/pkt-dome-demo-0001/attempts/pkt-dome-demo-0001-plan.attempts.json",
-      "evidence_bundle_path": "ops/runtime/runs/pkt-dome-demo-0001/evidence/pkt-dome-demo-0001-plan.evidence.bundle.telemetry.json"
+      "evidence_bundle_path": "ops/runtime/runs/pkt-dome-demo-0001/evidence/pkt-dome-demo-0001-plan.evidence.bundle.telemetry.json",
+      "dlq_path": null
+    },
+    {
+      "task_id": "pkt-dome-demo-0001-implement",
+      "status": "PASS",
+      "notes": "implementer synthetic worker result",
+      "worker_model": "gpt-5.2",
+      "attempt": 1,
+      "duration_ms": 0,
+      "attempts": 1,
+      "attempt_history": [
+        {
+          "task_id": "pkt-dome-demo-0001-implement",
+          "status": "PASS",
+          "notes": "implementer synthetic worker result",
+          "worker_model": "gpt-5.2",
+          "attempt": 1,
+          "duration_ms": 0
+        }
+      ],
+      "retry_backoff_ms": [],
+      "task_result_path": "ops/runtime/runs/pkt-dome-demo-0001/task_results/pkt-dome-demo-0001-implement.result.json",
+      "attempt_history_path": "ops/runtime/runs/pkt-dome-demo-0001/attempts/pkt-dome-demo-0001-implement.attempts.json",
+      "evidence_bundle_path": "ops/runtime/runs/pkt-dome-demo-0001/evidence/pkt-dome-demo-0001-implement.evidence.bundle.telemetry.json",
+      "dlq_path": null
     },
     {
       "task_id": "pkt-dome-demo-0001-verify",
@@ -48,6 +61,7 @@
       "notes": "implementer synthetic worker result",
       "worker_model": "gpt-5.3",
       "attempt": 1,
+      "duration_ms": 0,
       "attempts": 1,
       "attempt_history": [
         {
@@ -55,12 +69,15 @@
           "status": "PASS",
           "notes": "implementer synthetic worker result",
           "worker_model": "gpt-5.3",
-          "attempt": 1
+          "attempt": 1,
+          "duration_ms": 0
         }
       ],
+      "retry_backoff_ms": [],
       "task_result_path": "ops/runtime/runs/pkt-dome-demo-0001/task_results/pkt-dome-demo-0001-verify.result.json",
       "attempt_history_path": "ops/runtime/runs/pkt-dome-demo-0001/attempts/pkt-dome-demo-0001-verify.attempts.json",
-      "evidence_bundle_path": "ops/runtime/runs/pkt-dome-demo-0001/evidence/pkt-dome-demo-0001-verify.evidence.bundle.telemetry.json"
+      "evidence_bundle_path": "ops/runtime/runs/pkt-dome-demo-0001/evidence/pkt-dome-demo-0001-verify.evidence.bundle.telemetry.json",
+      "dlq_path": null
     }
   ]
 }
