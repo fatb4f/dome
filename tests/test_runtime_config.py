@@ -19,6 +19,8 @@ def test_load_runtime_profile_default_and_named() -> None:
     default_profile = load_runtime_profile(path, None, schema)
     assert default_profile["name"] == "tdd"
     assert default_profile["pattern"] == "tdd"
+    assert default_profile["pattern_catalog_ref"]
+    assert default_profile["rank_policy_ref"]
     assert default_profile["budgets"]["max_retries"] == 2
 
     refactor = load_runtime_profile(path, "refactor", schema)

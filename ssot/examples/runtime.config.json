@@ -4,6 +4,9 @@
   "profiles": {
     "tdd": {
       "pattern": "tdd",
+      "pattern_catalog_ref": "ssot/catalog/pattern.catalog.v1.json#tool-augmented-verification",
+      "rank_policy_ref": "ssot/examples/rank.policy.json",
+      "profile_catalog_map_ref": "ssot/examples/profile.catalog.map.json#tdd",
       "models": {
         "planner": "gpt-5.3-codex-high",
         "orchestrator": "gpt-5.3-codex-high",
@@ -23,6 +26,9 @@
     },
     "refactor": {
       "pattern": "refactor",
+      "pattern_catalog_ref": "ssot/catalog/pattern.catalog.v1.json#iterative-refinement",
+      "rank_policy_ref": "ssot/examples/rank.policy.json",
+      "profile_catalog_map_ref": "ssot/examples/profile.catalog.map.json#refactor",
       "models": {
         "planner": "gpt-5.3-codex-high",
         "orchestrator": "gpt-5.3-codex-high",

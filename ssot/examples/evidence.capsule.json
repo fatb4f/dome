@@ -1,0 +1,20 @@
+{
+  "version": "0.2.0",
+  "trace": {
+    "trace_id_hex": "0123456789abcdef0123456789abcdef",
+    "span_id_hex": "0123456789abcdef",
+    "backend": "local-mvp",
+    "run_id": "pkt-dome-demo-0001"
+  },
+  "signals": {
+    "task.status": "PASS",
+    "task.attempts": 1
+  },
+  "artifacts": [
+    {
+      "path": "ops/runtime/runs/pkt-dome-demo-0001/task_results/task-001.result.json",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "bytes": 123
+    }
+  ]
+}

@@ -18,6 +18,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from tools.orchestrator.dispatcher import DispatcherSupervisor, WorkerFn, load_work_queue
+from tools.orchestrator.evidence_capsule import to_capsule
 from tools.orchestrator.io_utils import atomic_write_json
 from tools.orchestrator.mcp_loop import Event, EventBus, TOPIC_TASK_RESULT, TOPIC_TASK_RESULT_RAW
 from tools.orchestrator.security import assert_runtime_path, redact_sensitive_payload
@@ -154,6 +155,8 @@ class ImplementerHarness:
 
         for result in ordered_results:
             task_path = task_dir / f"{result['task_id']}.result.json"
+            result.setdefault("artifact_kind", "dome.task.result/v0.2")
+            result.setdefault("policy_ref", "ssot/policy/reason.codes.json")
             atomic_write_json(task_path, result)
             attempt_history = result.get("attempt_history", [])
             attempt_path = attempt_dir / f"{result['task_id']}.attempts.json"
@@ -209,6 +212,8 @@ class ImplementerHarness:
             evidence = redact_sensitive_payload(evidence)
             evidence_path = evidence_dir / f"{result['task_id']}.evidence.bundle.telemetry.json"
             atomic_write_json(evidence_path, evidence)
+            capsule_path = evidence_dir / f"{result['task_id']}.evidence.capsule.json"
+            atomic_write_json(capsule_path, to_capsule(evidence))
             dlq_path: str | None = None
             if _is_transient_failure(result):
                 dlq_payload = {
@@ -228,6 +233,7 @@ class ImplementerHarness:
                     "task_result_path": str(task_path),
                     "attempt_history_path": str(attempt_path),
                     "evidence_bundle_path": str(evidence_path),
+                    "evidence_capsule_path": str(capsule_path),
                     "dlq_path": dlq_path,
                 }
             )

@@ -79,6 +79,15 @@
               "refactor",
               "hotfix"
             ]
+          },
+          "pattern_catalog_ref": {
+            "type": "string"
+          },
+          "rank_policy_ref": {
+            "type": "string"
+          },
+          "profile_catalog_map_ref": {
+            "type": "string"
           }
         }
       }

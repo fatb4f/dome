@@ -1,4 +1,5 @@
 {
+  "artifact_kind": "dome.task.result/v0.2",
   "task_id": "pkt-dome-livefix-0001-plan",
   "status": "PASS",
   "notes": "planner completed",

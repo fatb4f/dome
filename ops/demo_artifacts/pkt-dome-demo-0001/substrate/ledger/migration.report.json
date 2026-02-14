@@ -1,0 +1,67 @@
+{
+  "run_id": "pkt-dome-demo-0001",
+  "mode": "apply",
+  "entries": [
+    {
+      "path": "ops/demo_artifacts/pkt-dome-demo-0001/attempts/pkt-dome-demo-0001-implement.attempts.json",
+      "sha256": "5c24b2fcdaf60bc3c055e341b3e5413a3dda727b4410df10a3344b991750d01f"
+    },
+    {
+      "path": "ops/demo_artifacts/pkt-dome-demo-0001/attempts/pkt-dome-demo-0001-plan.attempts.json",
+      "sha256": "ddddb430784b08d5da9bdeaa02b83344277d868683361c4cc7ef94df25ded077"
+    },
+    {
+      "path": "ops/demo_artifacts/pkt-dome-demo-0001/attempts/pkt-dome-demo-0001-verify.attempts.json",
+      "sha256": "68aec4e6d815d98073bed1f8d49b5c0c251d914f557c8fc91c0251de2c5249ea"
+    },
+    {
+      "path": "ops/demo_artifacts/pkt-dome-demo-0001/evidence/pkt-dome-demo-0001-implement.evidence.bundle.telemetry.json",
+      "sha256": "3dfe89948b52dcd403465142f8eb3396191dd0863015d5894dddbc0758a05b7b"
+    },
+    {
+      "path": "ops/demo_artifacts/pkt-dome-demo-0001/evidence/pkt-dome-demo-0001-plan.evidence.bundle.telemetry.json",
+      "sha256": "9998fdfdbeb4c90a86fcc11fcc774d507d4632936dbebb42c2c275c9ce017360"
+    },
+    {
+      "path": "ops/demo_artifacts/pkt-dome-demo-0001/evidence/pkt-dome-demo-0001-verify.evidence.bundle.telemetry.json",
+      "sha256": "efe0d5d5a1a2c06d0a3e6b46af0d1333c89a37a5dc667e8f79dfe92a9e39aace"
+    },
+    {
+      "path": "ops/demo_artifacts/pkt-dome-demo-0001/gate/gate.decision.json",
+      "sha256": "bb526d9f097425df602958a75d4089963a133d74065540fcd5258615794a6ca4"
+    },
+    {
+      "path": "ops/demo_artifacts/pkt-dome-demo-0001/promotion/promotion.decision.json",
+      "sha256": "f23d9150492768e18fbae3287c9e07acc8cc4c751c8c793ece54973ce7b61f54"
+    },
+    {
+      "path": "ops/demo_artifacts/pkt-dome-demo-0001/run.manifest.json",
+      "sha256": "19cd413c7ce0ad10650d4565afad700aeb779f7e3aa40ec377d53ca9aea33097"
+    },
+    {
+      "path": "ops/demo_artifacts/pkt-dome-demo-0001/state.space.json",
+      "sha256": "c0573407e6c34731fc764cd01b1c7de9f6c5dfb2adc2908bf54c8e2cd6f6997c"
+    },
+    {
+      "path": "ops/demo_artifacts/pkt-dome-demo-0001/summary.json",
+      "sha256": "b71754d5c5258c80284e3c0a59566be3093fbfc7e227b28be2ba37a60762ccf2"
+    },
+    {
+      "path": "ops/demo_artifacts/pkt-dome-demo-0001/task_results/pkt-dome-demo-0001-implement.result.json",
+      "sha256": "dbfa7dbbcdb85746a1ec6cf3c099d5bc8b6cf1d273de63f2fdd8eb02f5fd67d9"
+    },
+    {
+      "path": "ops/demo_artifacts/pkt-dome-demo-0001/task_results/pkt-dome-demo-0001-plan.result.json",
+      "sha256": "b89aeeca47d31953abf1add63b8fbc9e419ef10c9fe01c0de3654f520488682b"
+    },
+    {
+      "path": "ops/demo_artifacts/pkt-dome-demo-0001/task_results/pkt-dome-demo-0001-verify.result.json",
+      "sha256": "49a8f48222705d06473c7cbf8ffc9b5d5f9f480051398eec03ba68c51ebff4a2"
+    },
+    {
+      "path": "ops/demo_artifacts/pkt-dome-demo-0001/work.queue.json",
+      "sha256": "9184beca0413e93ba61fb2f8ba8209545ad21da3ab7454db922680ab1d93d2bb"
+    }
+  ],
+  "target": "ops/demo_artifacts/pkt-dome-demo-0001/substrate/ledger/migration.report.json"
+}

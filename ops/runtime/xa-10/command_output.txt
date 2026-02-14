@@ -1,0 +1,2 @@
+$ python tools/orchestrator/ingest_pattern_catalog.py --seed ssot/sources/awesome_agentic_patterns.seed.json --out ssot/catalog/pattern.catalog.v1.json
+{"commit": "1d1de2cbe640b970bd29a298b06493bcba928a3f", "fetched_at": "2026-02-14T21:55:07.634294Z", "repo": "nibzard/awesome-agentic-patterns"}

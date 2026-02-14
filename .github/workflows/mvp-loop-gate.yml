@@ -20,7 +20,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install pytest jsonschema opentelemetry-sdk
+          python -m pip install pytest jsonschema opentelemetry-sdk ruff
 
       - name: Clean runtime outputs
         run: |
@@ -29,6 +29,9 @@ jobs:
 
       - name: Validate SSOT contracts
         run: pytest -q tests/test_schema_examples_validate.py tests/test_ssot_policy_validate.py tests/test_ssot_roundtrip.py
+
+      - name: Lint
+        run: python -m ruff check tools tests
 
       - name: Run tests
         run: pytest -q

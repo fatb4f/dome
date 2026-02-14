@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "profiles": {
+    "tdd": {
+      "catalog_pattern_id": "tool-augmented-verification",
+      "rationale": "Favor verification-heavy loop for deterministic quality.",
+      "rank_policy_ref": "ssot/examples/rank.policy.json"
+    },
+    "refactor": {
+      "catalog_pattern_id": "iterative-refinement",
+      "rationale": "Use iterative refinement pattern for structured change sets.",
+      "rank_policy_ref": "ssot/examples/rank.policy.json"
+    }
+  }
+}

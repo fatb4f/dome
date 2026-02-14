@@ -3,7 +3,10 @@
   "run_id": "pkt-dome-demo-0001",
   "inputs": {
     "pre_contract_path": "ssot/examples/demo.pre_contract.json",
-    "pre_contract_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "pre_contract_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "input_hashes": {
+      "work_queue_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    }
   },
   "commands": [
     "planner",
@@ -19,7 +22,23 @@
     "promotion_decision_path": "ops/runtime/runs/pkt-dome-demo-0001/promotion/promotion.decision.json",
     "state_space_path": "ops/runtime/runs/pkt-dome-demo-0001/state.space.json"
   },
+  "refs": {
+    "policy_ref": "ssot/policy/reason.codes.json",
+    "pattern_ref": "ssot/catalog/profile.catalog.map.json#tdd",
+    "packet_contract_ref": "packets/engineering/dome_xa_alignment/pkt-dome-xa-01-decision-semantics-map/contract.json"
+  },
+  "budgets": {
+    "time_minutes": 30,
+    "iteration_budget": 3
+  },
+  "desired_state": {
+    "gate": "PROMOTE"
+  },
   "runtime": {
-    "python_version": "3.11.0"
+    "repo_commit_sha": "cccccccccccccccccccccccccccccccccccccccc",
+    "tool_versions": {
+      "python": "3.11.0",
+      "pytest": "8.4.2"
+    }
   }
 }

@@ -31,6 +31,13 @@
         "pre_contract_sha256": {
           "type": "string",
           "pattern": "^[0-9a-f]{64}$"
+        },
+        "input_hashes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
         }
       },
       "additionalProperties": true
@@ -41,6 +48,29 @@
         "type": "string"
       }
     },
+    "refs": {
+      "type": "object",
+      "properties": {
+        "policy_ref": {
+          "type": "string"
+        },
+        "pattern_ref": {
+          "type": "string"
+        },
+        "packet_contract_ref": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "budgets": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "desired_state": {
+      "type": "object",
+      "additionalProperties": true
+    },
     "artifacts": {
       "type": "object",
       "additionalProperties": {
@@ -50,11 +80,17 @@
     "runtime": {
       "type": "object",
       "required": [
-        "python_version"
+        "tool_versions"
       ],
       "properties": {
-        "python_version": {
+        "repo_commit_sha": {
           "type": "string"
+        },
+        "tool_versions": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
         }
       },
       "additionalProperties": true

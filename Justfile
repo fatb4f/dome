@@ -6,8 +6,16 @@ clean-runtime:
 test:
     pytest -q
 
+lint:
+    python -m ruff check tools tests
+
 validate-ssot:
     pytest -q tests/test_schema_examples_validate.py tests/test_ssot_policy_validate.py tests/test_ssot_roundtrip.py
+
+ingest-catalog:
+    python tools/orchestrator/ingest_pattern_catalog.py \
+      --seed ssot/sources/awesome_agentic_patterns.seed.json \
+      --out ssot/catalog/pattern.catalog.v1.json
 
 plan:
     python tools/orchestrator/planner.py \

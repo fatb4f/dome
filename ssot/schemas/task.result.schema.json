@@ -3,10 +3,15 @@
   "title": "task.result",
   "type": "object",
   "required": [
+    "artifact_kind",
     "task_id",
     "status"
   ],
   "properties": {
+    "artifact_kind": {
+      "type": "string",
+      "const": "dome.task.result/v0.2"
+    },
     "task_id": {
       "type": "string",
       "minLength": 1
@@ -23,6 +28,9 @@
       "type": "string"
     },
     "worker_model": {
+      "type": "string"
+    },
+    "policy_ref": {
       "type": "string"
     },
     "attempt": {

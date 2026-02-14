@@ -20,6 +20,7 @@ if str(ROOT) not in sys.path:
 from tools.orchestrator.io_utils import atomic_write_json
 from tools.orchestrator.mcp_loop import Event, EventBus, TOPIC_GATE_REQUESTED, TOPIC_GATE_VERDICT
 from tools.orchestrator.security import assert_runtime_path
+from tools.orchestrator.xa_mapping import dome_to_substrate
 
 
 def _deterministic_trace_ref(run_id: str) -> dict[str, str]:
@@ -122,6 +123,7 @@ def create_gate_decision(
         "run_id": run_id,
         "task_id": "wave-gate",
         "status": status,
+        "substrate_status": dome_to_substrate(status),
         "reason_codes": reason_codes,
         "confidence": confidence,
         "risk_score": int(risk_score),

@@ -1,0 +1,3 @@
+$ pytest -q tests/test_xa_mapping.py tests/test_checkers.py
+.....s.                                                                  [100%]
+6 passed, 1 skipped in 0.04s

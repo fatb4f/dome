@@ -36,6 +36,9 @@ def load_runtime_profile(
     return {
         "name": selected,
         "pattern": node.get("pattern"),
+        "pattern_catalog_ref": node.get("pattern_catalog_ref"),
+        "rank_policy_ref": node.get("rank_policy_ref"),
+        "profile_catalog_map_ref": node.get("profile_catalog_map_ref"),
         "models": dict(node.get("models", {})),
         "budgets": dict(node.get("budgets", {})),
     }

@@ -88,11 +88,15 @@ def pre_contract_to_work_queue(contract: dict[str, Any]) -> dict[str, Any]:
     base_ref = str(contract.get("base_ref", "main"))
     budgets = contract.get("budgets", {})
     max_workers = max(1, int(budgets.get("iteration_budget", 2)))
+    pattern = str(contract.get("plan_card", {}).get("what", "")).lower().replace(" ", "-")
 
     work_queue = {
+        "artifact_kind": "dome.work.queue/v0.2",
         "version": "0.2.0",
         "run_id": str(contract["packet_id"]),
         "base_ref": base_ref,
+        "policy_ref": "ssot/policy/reason.codes.json",
+        "pattern_ref": f"ssot/examples/profile.catalog.map.json#{pattern or 'tdd'}",
         "max_workers": max_workers,
         "tasks": _build_default_tasks(contract),
     }

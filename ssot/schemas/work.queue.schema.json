@@ -3,6 +3,7 @@
   "title": "work.queue",
   "type": "object",
   "required": [
+    "artifact_kind",
     "version",
     "run_id",
     "base_ref",
@@ -10,7 +11,17 @@
     "tasks"
   ],
   "properties": {
+    "artifact_kind": {
+      "type": "string",
+      "const": "dome.work.queue/v0.2"
+    },
     "version": {
+      "type": "string"
+    },
+    "policy_ref": {
+      "type": "string"
+    },
+    "pattern_ref": {
       "type": "string"
     },
     "run_id": {
@@ -61,6 +72,9 @@
             }
           },
           "worker_model": {
+            "type": "string"
+          },
+          "policy_ref": {
             "type": "string"
           }
         },

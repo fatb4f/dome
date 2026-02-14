@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "profile.catalog.map",
+  "type": "object",
+  "required": ["version", "profiles"],
+  "properties": {
+    "version": {"type": "string"},
+    "profiles": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["catalog_pattern_id", "rationale"],
+        "properties": {
+          "catalog_pattern_id": {"type": "string"},
+          "rationale": {"type": "string"},
+          "rank_policy_ref": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

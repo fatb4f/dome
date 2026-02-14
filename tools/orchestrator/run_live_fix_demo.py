@@ -33,6 +33,7 @@ from tools.orchestrator.promote import (  # noqa: E402
 )
 from tools.orchestrator.runtime_config import load_runtime_profile  # noqa: E402
 from tools.orchestrator.security import assert_runtime_path  # noqa: E402
+from tools.orchestrator.substrate_layout import ensure_substrate_layout  # noqa: E402
 from tools.orchestrator.state_writer import update_state_space  # noqa: E402
 
 
@@ -143,6 +144,7 @@ def run_live_fix_demo(
 ) -> dict[str, Any]:
     run_dir = run_root / run_id
     run_dir.mkdir(parents=True, exist_ok=True)
+    ensure_substrate_layout(run_root, run_id)
     workbench = run_dir / "workbench"
     _write_buggy_project(workbench)
 
@@ -325,6 +327,11 @@ def run_live_fix_demo(
             "input_hashes": input_hashes,
         },
         "commands": ["implementers", "checkers", "promote", "state_writer"],
+        "refs": {
+            "policy_ref": "ssot/policy/reason.codes.json",
+            "pattern_ref": (runtime_profile or {}).get("pattern_catalog_ref"),
+            "packet_contract_ref": "live-fix-demo",
+        },
         "artifacts": {
             "work_queue_path": str(run_dir / "work.queue.json"),
             "summary_path": str(run_dir / "summary.json"),

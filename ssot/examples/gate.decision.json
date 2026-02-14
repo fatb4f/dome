@@ -3,6 +3,7 @@
   "run_id": "wave-20260214-001",
   "task_id": "task-001",
   "status": "APPROVE",
+  "substrate_status": "PROMOTE",
   "reason_codes": [],
   "confidence": 0.92,
   "risk_score": 18,

@@ -1,0 +1,18 @@
+{
+  "repo": "nibzard/awesome-agentic-patterns",
+  "commit": "bootstrap",
+  "patterns": [
+    {
+      "id": "iterative-refinement",
+      "name": "Iterative Refinement",
+      "category": "loop",
+      "source_url": "https://github.com/nibzard/awesome-agentic-patterns"
+    },
+    {
+      "id": "tool-augmented-verification",
+      "name": "Tool-Augmented Verification",
+      "category": "verification",
+      "source_url": "https://github.com/nibzard/awesome-agentic-patterns"
+    }
+  ]
+}

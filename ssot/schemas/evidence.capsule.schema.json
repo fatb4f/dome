@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "evidence.capsule",
+  "type": "object",
+  "required": ["version", "trace", "signals", "artifacts"],
+  "properties": {
+    "version": {"type": "string"},
+    "trace": {
+      "type": "object",
+      "required": ["trace_id_hex", "span_id_hex"],
+      "properties": {
+        "trace_id_hex": {"type": "string", "pattern": "^[0-9a-f]{32}$"},
+        "span_id_hex": {"type": "string", "pattern": "^[0-9a-f]{16}$"},
+        "backend": {"type": "string"},
+        "run_id": {"type": "string"}
+      },
+      "additionalProperties": true
+    },
+    "signals": {
+      "type": "object",
+      "additionalProperties": {
+        "type": ["string", "number", "boolean", "null"]
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": {"type": "string"},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "bytes": {"type": "integer", "minimum": 0}
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": false
+}

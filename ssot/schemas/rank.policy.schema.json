@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "rank.policy",
+  "type": "object",
+  "required": ["version", "weights"],
+  "properties": {
+    "version": {"type": "string"},
+    "weights": {
+      "type": "object",
+      "required": ["reliability", "cost", "latency"],
+      "properties": {
+        "reliability": {"type": "number", "minimum": 0},
+        "cost": {"type": "number", "minimum": 0},
+        "latency": {"type": "number", "minimum": 0}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

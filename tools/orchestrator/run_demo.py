@@ -35,6 +35,7 @@ from tools.orchestrator.promote import (
 )
 from tools.orchestrator.runtime_config import load_runtime_profile
 from tools.orchestrator.security import assert_runtime_path
+from tools.orchestrator.substrate_layout import ensure_substrate_layout
 from tools.orchestrator.state_writer import update_state_space
 
 
@@ -105,6 +106,7 @@ def run_demo(
     run_id = work_queue["run_id"]
     run_dir = run_root / run_id
     run_dir.mkdir(parents=True, exist_ok=True)
+    ensure_substrate_layout(run_root, run_id)
     atomic_write_json(run_dir / "work.queue.json", work_queue)
 
     bus = EventBus(event_log=event_log)
@@ -159,6 +161,18 @@ def run_demo(
             "input_hashes": input_hashes,
         },
         "commands": ["planner", "implementers", "checkers", "promote", "state_writer"],
+        "refs": {
+            "policy_ref": "ssot/policy/reason.codes.json",
+            "pattern_ref": (runtime_profile or {}).get("pattern_catalog_ref"),
+            "packet_contract_ref": str(pre_contract_path),
+        },
+        "budgets": {
+            "time_minutes": int(pre_contract.get("budgets", {}).get("time_minutes", 30)),
+            "iteration_budget": int(pre_contract.get("budgets", {}).get("iteration_budget", 1)),
+        },
+        "desired_state": {
+            "gate": gate_decision.get("substrate_status"),
+        },
         "artifacts": {
             "work_queue_path": str(run_dir / "work.queue.json"),
             "summary_path": str(run_dir / "summary.json"),

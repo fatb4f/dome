@@ -1,7 +1,10 @@
 {
+  "artifact_kind": "dome.work.queue/v0.2",
   "version": "0.2.0",
   "run_id": "wave-20260214-001",
   "base_ref": "main",
+  "policy_ref": "ssot/policy/reason.codes.json",
+  "pattern_ref": "ssot/catalog/profile.catalog.map.json#tdd",
   "max_workers": 2,
   "tasks": [
     {
