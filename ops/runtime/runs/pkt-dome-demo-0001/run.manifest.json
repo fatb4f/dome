@@ -1,0 +1,34 @@
+{
+  "version": "0.2.0",
+  "run_id": "pkt-dome-demo-0001",
+  "inputs": {
+    "pre_contract_path": "ssot/examples/demo.pre_contract.json",
+    "pre_contract_sha256": "6b0f0afab9ebb3b2d478397b7f5bdcaa83a648b1d9484be226bfa9ddce6788c0"
+  },
+  "commands": [
+    "planner",
+    "implementers",
+    "checkers",
+    "promote",
+    "state_writer"
+  ],
+  "artifacts": {
+    "work_queue_path": "ops/runtime/runs/pkt-dome-demo-0001/work.queue.json",
+    "summary_path": "ops/runtime/runs/pkt-dome-demo-0001/summary.json",
+    "gate_decision_path": "ops/runtime/runs/pkt-dome-demo-0001/gate/gate.decision.json",
+    "promotion_decision_path": "ops/runtime/runs/pkt-dome-demo-0001/promotion/promotion.decision.json",
+    "state_space_path": "ops/runtime/runs/pkt-dome-demo-0001/state.space.json"
+  },
+  "runtime": {
+    "python_version": "3.14.2",
+    "trace_source": "disabled",
+    "runtime_profile": "default",
+    "runtime_pattern": null,
+    "max_retries": 1,
+    "risk_threshold": 60,
+    "worker_models": [
+      "gpt-5.3",
+      "gpt-5.2"
+    ]
+  }
+}

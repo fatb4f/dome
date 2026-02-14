@@ -1,0 +1,9 @@
+[
+  {
+    "task_id": "pkt-dome-demo-0001-implement",
+    "status": "PASS",
+    "notes": "implementer synthetic worker result",
+    "worker_model": "gpt-5.2",
+    "attempt": 1
+  }
+]

@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "task.result",
+  "type": "object",
+  "required": [
+    "task_id",
+    "status"
+  ],
+  "properties": {
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "FAIL",
+        "BLOCKED"
+      ]
+    },
+    "notes": {
+      "type": "string"
+    },
+    "worker_model": {
+      "type": "string"
+    },
+    "attempt": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "attempts": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "reason_code": {
+      "type": "string",
+      "pattern": "^[A-Z]+(\\.[A-Z0-9_]+)+$"
+    },
+    "transient": {
+      "type": "boolean"
+    },
+    "risk_score_hint": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "attempt_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "task_id",
+          "status"
+        ],
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

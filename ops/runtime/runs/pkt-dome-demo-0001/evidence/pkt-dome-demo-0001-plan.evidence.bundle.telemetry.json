@@ -1,0 +1,25 @@
+{
+  "otel": {
+    "backend": "local-mvp",
+    "trace_id_hex": "00000000000000000000000000000000",
+    "span_id_hex": "0000000000000000",
+    "project": "dome",
+    "run_id": "pkt-dome-demo-0001"
+  },
+  "signals": {
+    "task.status": "PASS",
+    "task.attempts": 1
+  },
+  "artifacts": [
+    {
+      "path": "ops/runtime/runs/pkt-dome-demo-0001/task_results/pkt-dome-demo-0001-plan.result.json",
+      "sha256": "b5a8413009f58bbd7a8536c64e7f9267e225b8d79f559d1a658e10438e192861",
+      "bytes": 388
+    },
+    {
+      "path": "ops/runtime/runs/pkt-dome-demo-0001/attempts/pkt-dome-demo-0001-plan.attempts.json",
+      "sha256": "ba9127e91df2a2eb24e18af14712ade10650d9f609c04f9a63f81a98b6fcc9ab",
+      "bytes": 175
+    }
+  ]
+}

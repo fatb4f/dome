@@ -1,0 +1,15 @@
+{
+  "task_id": "pkt-dome-livefix-0001-plan",
+  "status": "PASS",
+  "notes": "planner completed",
+  "worker_model": "gpt-5.3",
+  "attempt": 1,
+  "attempts": 1,
+  "attempt_history": [
+    {
+      "task_id": "pkt-dome-livefix-0001-plan",
+      "status": "PASS",
+      "attempt": 1
+    }
+  ]
+}

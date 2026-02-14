@@ -1,10 +1,13 @@
 set shell := ["bash", "-lc"]
 
 clean-runtime:
-    rm -rf ops/runtime
+    rm -rf ops/runtime/runs ops/runtime/mcp_events.jsonl
 
 test:
     pytest -q
+
+validate-ssot:
+    pytest -q tests/test_schema_examples_validate.py tests/test_ssot_policy_validate.py tests/test_ssot_roundtrip.py
 
 plan:
     python tools/orchestrator/planner.py \
@@ -37,7 +40,7 @@ state:
       --out ops/runtime/state.space.json
 
 smoke:
-    rm -rf ops/runtime
+    rm -rf ops/runtime/runs ops/runtime/mcp_events.jsonl
     python tools/orchestrator/run_demo.py \
       --pre-contract ssot/examples/demo.pre_contract.json \
       --run-root ops/runtime/runs \
@@ -45,10 +48,10 @@ smoke:
       --reason-codes ssot/policy/reason.codes.json
 
 live-fix-demo:
-    rm -rf ops/runtime
+    rm -rf ops/runtime/runs ops/runtime/mcp_events.jsonl
     python tools/orchestrator/run_live_fix_demo.py \
       --run-root ops/runtime/runs \
       --state-space ssot/examples/state.space.json \
       --reason-codes ssot/policy/reason.codes.json
 
-ci: clean-runtime test smoke
+ci: clean-runtime validate-ssot test smoke
