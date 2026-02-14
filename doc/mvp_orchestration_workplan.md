@@ -8,13 +8,15 @@ Build a runnable demo loop in `dome`:
 The loop must be deterministic-first, telemetry-backed, and auditable from files/events.
 
 ## Status (2026-02-14)
-- Current phase: Phase 1 (Prompt and planner integration)
-- Completed in this phase:
-  - `tools/orchestrator/planner.py` translates `xtrlv2` pre-contract -> `dome` `work.queue`
-  - tests for translator mapping and CLI write path (`tests/test_planner.py`)
-- Remaining in this phase:
-  - add planner request/response runtime artifacts under `ops/runtime/` during demo runs
-  - add dependency-cycle validation for planner task graphs
+- Current phase: Post-Phase 4 hardening (MVP complete)
+- Completed:
+  - Planner translation from `xtrlv2` pre-contract -> `dome` `work.queue`
+  - Implementer harness with dependency-aware dispatch and retries
+  - Deterministic checker + gate decision emission
+  - Promotion policy + telemetry-backed state writer
+  - Run manifest, schema hardening, CI/smoke wiring, and audit/log outputs
+- Remaining:
+  - No open MVP phase items in this plan; next work is post-MVP extensions.
 
 ## Scope (MVP)
 - Single repo, single orchestrator process.
