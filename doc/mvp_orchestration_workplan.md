@@ -104,13 +104,13 @@ Schema target: `gate.decision`
 - [x] Add baseline tests for loop + bridge
 
 ### Phase 1: Prompt and planner integration
-- [ ] Add planner request/response JSON files under `ops/runtime/`
+- [x] Add planner request/response JSON files under `ops/runtime/`
 - [x] Implement `tools/orchestrator/planner.py`:
   - reads prompt contract
   - writes schema-valid `work.queue`
 - [x] Add tests:
   - invalid planner output rejected
-- [ ] Add tests:
+- [x] Add tests:
   - dependency cycles rejected
 
 DoD:
@@ -175,7 +175,6 @@ DoD:
 - Tests pass and schemas validate.
 
 ## Next command targets
-- `python tools/orchestrator/planner.py --pre-contract /home/src404/src/xtrlv2/packets/engineering/migration_xtrlv2_cutover/pkt-v2-migrate-0002-runner-cutover.pre_contract.json --out ops/runtime/work.queue.json`
-- `python tools/orchestrator/mcp_loop.py` (existing scaffold)
-- `pytest -q`
-- (after Phase 1+) `python tools/orchestrator/run_demo.py --prompt-file ops/runtime/prompt.json`
+- `just test`
+- `just smoke`
+- `just ci`

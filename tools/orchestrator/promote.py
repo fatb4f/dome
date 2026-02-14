@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -64,6 +65,24 @@ def persist_promotion_decision(run_root: Path, run_id: str, payload: dict[str, A
     return out_path
 
 
+def append_promotion_audit(run_root: Path, run_id: str, payload: dict[str, Any]) -> Path:
+    audit_path = run_root / "promotion_audit.jsonl"
+    row = {
+        "ts": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+        "run_id": run_id,
+        "decision": payload.get("decision"),
+        "reason_codes": payload.get("reason_codes", []),
+        "confidence": payload.get("confidence"),
+        "risk_score": payload.get("risk_score"),
+        "telemetry_ref": payload.get("gate_decision_ref", {}).get("telemetry_ref", {}),
+    }
+    audit_path.parent.mkdir(parents=True, exist_ok=True)
+    with audit_path.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(row, sort_keys=True))
+        fh.write("\n")
+    return audit_path
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Apply promotion policy from gate decision")
     parser.add_argument("--run-root", type=Path, default=Path("ops/runtime/runs"))
@@ -84,12 +103,17 @@ def main() -> int:
         max_risk=args.max_risk,
     )
     out_path = persist_promotion_decision(args.run_root, args.run_id, promotion)
+    audit_path = append_promotion_audit(args.run_root, args.run_id, promotion)
     bus = EventBus(event_log=args.event_log)
     bus.publish(
         Event(
             topic=TOPIC_PROMOTION_DECISION,
             run_id=args.run_id,
-            payload={**promotion, "promotion_decision_path": str(out_path)},
+            payload={
+                **promotion,
+                "promotion_decision_path": str(out_path),
+                "promotion_audit_path": str(audit_path),
+            },
         )
     )
     print(str(out_path))
@@ -98,4 +122,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

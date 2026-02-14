@@ -27,7 +27,7 @@ def test_run_demo_end_to_end(tmp_path: Path) -> None:
 
     run_root = tmp_path / "runs"
     state_space = ROOT / "ssot/examples/state.space.json"
-    reason_codes = ROOT / "ssot/examples/reason.codes.json"
+    reason_codes = ROOT / "ssot/policy/reason.codes.json"
     event_log = tmp_path / "mcp_events.jsonl"
 
     summary = run_demo(
@@ -51,6 +51,6 @@ def test_run_demo_end_to_end(tmp_path: Path) -> None:
     promotion = json.loads(Path(summary["promotion_decision_path"]).read_text(encoding="utf-8"))
     state = json.loads(Path(summary["state_space_path"]).read_text(encoding="utf-8"))
     assert gate["status"] in {"APPROVE", "REJECT", "NEEDS_HUMAN"}
+    assert any(note.startswith("verify_rc=") for note in gate.get("notes", []))
     assert promotion["decision"] in {"APPROVE", "REJECT", "NEEDS_HUMAN"}
     assert state["work_items"]
-

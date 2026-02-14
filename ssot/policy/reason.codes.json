@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "codes": [
+    {
+      "code": "EXEC.NONZERO_EXIT",
+      "class": "DETERMINISTIC",
+      "severity": "ERROR",
+      "description": "Tool command returned non-zero."
+    },
+    {
+      "code": "VERIFY.TEST_FAILURE",
+      "class": "DETERMINISTIC",
+      "severity": "ERROR",
+      "description": "Deterministic verification failed."
+    },
+    {
+      "code": "POLICY.NEEDS_HUMAN",
+      "class": "POLICY",
+      "severity": "WARN",
+      "description": "Change requires human gate override."
+    }
+  ]
+}

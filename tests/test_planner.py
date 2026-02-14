@@ -71,3 +71,13 @@ def test_planner_cli_writes_output(tmp_path: Path) -> None:
     payload = json.loads(out_path.read_text(encoding="utf-8"))
     assert payload["run_id"] == "pkt-test-001"
     assert payload["tasks"]
+
+
+def test_planner_detects_dependency_cycle() -> None:
+    with pytest.raises(ValueError, match="dependency cycle"):
+        planner.validate_task_graph(
+            [
+                {"task_id": "a", "dependencies": ["b"]},
+                {"task_id": "b", "dependencies": ["a"]},
+            ]
+        )

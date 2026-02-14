@@ -133,7 +133,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Evaluate run summary and emit gate.decision")
     parser.add_argument("--run-root", type=Path, default=Path("ops/runtime/runs"))
     parser.add_argument("--run-id", required=True)
-    parser.add_argument("--reason-codes", type=Path, default=Path("ssot/examples/reason.codes.json"))
+    parser.add_argument("--reason-codes", type=Path, default=Path("ssot/policy/reason.codes.json"))
     parser.add_argument("--event-log", type=Path, default=Path("ops/runtime/mcp_events.jsonl"))
     parser.add_argument("--verify-command", default="")
     parser.add_argument("--risk-threshold", type=int, default=60)

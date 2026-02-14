@@ -34,6 +34,7 @@ The SSOT is `.specify/memory/constitution.md`.
 - `tools/orchestrator/run_demo.py` — one-command prompt-to-promotion MVP demo flow
 
 Matching examples live in `ssot/examples/`.
+Policy artifacts live in `ssot/policy/`.
 
 ## Spec Kit layout
 
@@ -59,7 +60,7 @@ Pre-contract translation example:
 
 ```bash
 python tools/orchestrator/planner.py \
-  --pre-contract /home/src404/src/xtrlv2/packets/engineering/migration_xtrlv2_cutover/pkt-v2-migrate-0002-runner-cutover.pre_contract.json \
+  --pre-contract ssot/examples/demo.pre_contract.json \
   --out ops/runtime/work.queue.json
 ```
 
@@ -77,8 +78,8 @@ Checker example:
 ```bash
 python tools/orchestrator/checkers.py \
   --run-root ops/runtime/runs \
-  --run-id pkt-v2-migrate-0002-runner-cutover \
-  --reason-codes ssot/examples/reason.codes.json \
+  --run-id pkt-dome-demo-0001 \
+  --reason-codes ssot/policy/reason.codes.json \
   --risk-threshold 60 \
   --otel-export
 ```
@@ -88,11 +89,11 @@ Promotion and state update examples:
 ```bash
 python tools/orchestrator/promote.py \
   --run-root ops/runtime/runs \
-  --run-id pkt-v2-migrate-0002-runner-cutover
+  --run-id pkt-dome-demo-0001
 
 python tools/orchestrator/state_writer.py \
   --run-root ops/runtime/runs \
-  --run-id pkt-v2-migrate-0002-runner-cutover \
+  --run-id pkt-dome-demo-0001 \
   --state-space ssot/examples/state.space.json \
   --out ops/runtime/state.space.json
 ```
@@ -101,8 +102,14 @@ End-to-end demo:
 
 ```bash
 python tools/orchestrator/run_demo.py \
-  --pre-contract /home/src404/src/xtrlv2/packets/engineering/migration_xtrlv2_cutover/pkt-v2-migrate-0002-runner-cutover.pre_contract.json \
+  --pre-contract ssot/examples/demo.pre_contract.json \
   --run-root ops/runtime/runs \
   --state-space ssot/examples/state.space.json \
-  --reason-codes ssot/examples/reason.codes.json
+  --reason-codes ssot/policy/reason.codes.json
+```
+
+Just-based pipeline:
+
+```bash
+just ci
 ```

@@ -1,0 +1,40 @@
+{
+  "schema_version": "xtrl.pre_contract/v0.2",
+  "packet_id": "pkt-dome-demo-0001",
+  "component": "dome",
+  "repo": "dome",
+  "base_ref": "main",
+  "mode": "NORMAL",
+  "budgets": {
+    "time_minutes": 30,
+    "iteration_budget": 2
+  },
+  "constraints": {
+    "clean_repo_required": true,
+    "allowed_paths": [
+      "tools/**",
+      "tests/**",
+      "ssot/**",
+      "README.md",
+      "doc/**"
+    ],
+    "forbidden_paths": [
+      ".git/**"
+    ]
+  },
+  "actions": {
+    "test": [
+      "python",
+      "-c",
+      "print('demo verify ok')"
+    ]
+  },
+  "plan_card": {
+    "why": "Demonstrate prompt-to-promotion loop in dome",
+    "what": "Generate queue, execute synthetic tasks, gate, promote, and update state",
+    "how": "Use deterministic-first orchestrator stages with telemetry-backed evidence",
+    "where": "dome repository",
+    "who": "dispatcher",
+    "when": "PLAN -> EXECUTE -> GATE -> PROMOTE"
+  }
+}

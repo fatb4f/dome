@@ -11,7 +11,7 @@ from tools.orchestrator import checkers
 
 
 def _catalog() -> set[str]:
-    payload = json.loads((ROOT / "ssot/examples/reason.codes.json").read_text(encoding="utf-8"))
+    payload = json.loads((ROOT / "ssot/policy/reason.codes.json").read_text(encoding="utf-8"))
     return {item["code"] for item in payload["codes"]}
 
 
@@ -67,3 +67,13 @@ def test_checker_persists_gate_decision_file(tmp_path: Path) -> None:
     payload = json.loads(out_path.read_text(encoding="utf-8"))
     assert payload["run_id"] == run_id
 
+
+def test_checker_rejects_when_reason_code_not_in_policy() -> None:
+    try:
+        checkers.create_gate_decision(
+            run_summary=_summary(["FAIL"]),
+            reason_codes_catalog={"POLICY.NEEDS_HUMAN"},
+        )
+        raise AssertionError("expected ValueError for unknown reason code mapping")
+    except ValueError as exc:
+        assert "reason code not in catalog" in str(exc)

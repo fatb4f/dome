@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import shlex
 import sys
 from pathlib import Path
 from typing import Any
@@ -22,6 +23,16 @@ from tools.orchestrator.promote import create_promotion_decision, persist_promot
 from tools.orchestrator.state_writer import update_state_space
 
 
+def _verify_command_from_pre_contract(pre_contract: dict[str, Any]) -> str | None:
+    actions = pre_contract.get("actions", {})
+    test_action = actions.get("test")
+    if isinstance(test_action, list) and test_action:
+        return " ".join(shlex.quote(str(part)) for part in test_action)
+    if isinstance(test_action, str) and test_action.strip():
+        return test_action.strip()
+    return None
+
+
 def run_demo(
     pre_contract_path: Path,
     run_root: Path,
@@ -34,6 +45,7 @@ def run_demo(
 ) -> dict[str, Any]:
     pre_contract = json.loads(pre_contract_path.read_text(encoding="utf-8"))
     work_queue = pre_contract_to_work_queue(pre_contract)
+    verify_command = _verify_command_from_pre_contract(pre_contract)
 
     run_id = work_queue["run_id"]
     run_dir = run_root / run_id
@@ -49,6 +61,7 @@ def run_demo(
     gate_decision, trace_source = create_gate_decision(
         run_summary=run_summary,
         reason_codes_catalog=reason_codes_catalog,
+        verify_command=verify_command,
         risk_threshold=risk_threshold,
         otel_export=otel_export,
     )
@@ -84,7 +97,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--pre-contract", type=Path, required=True)
     parser.add_argument("--run-root", type=Path, default=Path("ops/runtime/runs"))
     parser.add_argument("--state-space", type=Path, default=Path("ssot/examples/state.space.json"))
-    parser.add_argument("--reason-codes", type=Path, default=Path("ssot/examples/reason.codes.json"))
+    parser.add_argument("--reason-codes", type=Path, default=Path("ssot/policy/reason.codes.json"))
     parser.add_argument("--event-log", type=Path, default=Path("ops/runtime/mcp_events.jsonl"))
     parser.add_argument("--risk-threshold", type=int, default=60)
     parser.add_argument("--max-retries", type=int, default=1)
@@ -110,4 +123,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
