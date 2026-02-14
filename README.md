@@ -27,6 +27,7 @@ The SSOT is `.specify/memory/constitution.md`.
 - `tools/orchestrator/dispatcher.py` — Codex supervisor layer for dependency-aware task dispatch
 - `tools/orchestrator/transports/` — MCP + A2A adapters and bridge (`A2A -> MCP` normalization)
 - `tools/orchestrator/planner.py` — translate `xtrlv2` pre-contract into `dome` `work.queue`
+- `tools/orchestrator/implementers.py` — Phase 2 harness with transient retry + run artifact persistence
 
 Matching examples live in `ssot/examples/`.
 
@@ -56,4 +57,13 @@ Pre-contract translation example:
 python tools/orchestrator/planner.py \
   --pre-contract /home/src404/src/xtrlv2/packets/engineering/migration_xtrlv2_cutover/pkt-v2-migrate-0002-runner-cutover.pre_contract.json \
   --out ops/runtime/work.queue.json
+```
+
+Implementer harness example:
+
+```bash
+python tools/orchestrator/implementers.py \
+  --work-queue ops/runtime/work.queue.json \
+  --run-root ops/runtime/runs \
+  --max-retries 2
 ```

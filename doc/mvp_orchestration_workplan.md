@@ -117,12 +117,12 @@ DoD:
 - Planner always emits schema-valid `work.queue`.
 
 ### Phase 2: Implementer execution harness
-- [ ] Implement `tools/orchestrator/implementers.py`:
+- [x] Implement `tools/orchestrator/implementers.py`:
   - consume `work.queue`
   - dispatch tasks with model routing
   - emit `task.result` events and evidence bundle refs
-- [ ] Persist run artifacts to `ops/runtime/runs/<run_id>/`
-- [ ] Add tests for:
+- [x] Persist run artifacts to `ops/runtime/runs/<run_id>/`
+- [x] Add tests for:
   - all tasks processed (not capped to `max_workers`)
   - retry behavior for transient failures
 
