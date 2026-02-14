@@ -69,4 +69,8 @@ def test_implementers_retry_transient_failure_then_pass(tmp_path: Path) -> None:
     result = summary["results"][0]
     assert result["status"] == "PASS"
     assert result["attempts"] == 2
-
+    assert len(result["attempt_history"]) == 2
+    assert result["attempt_history"][0]["status"] == "FAIL"
+    assert result["attempt_history"][1]["status"] == "PASS"
+    attempt_path = tmp_path / "wave-phase2-retry" / "attempts" / "t1.attempts.json"
+    assert attempt_path.exists()

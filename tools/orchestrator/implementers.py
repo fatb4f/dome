@@ -46,11 +46,17 @@ class RetryingWorker:
     def __call__(self, task: dict[str, Any]) -> dict[str, Any]:
         attempts = 0
         last: dict[str, Any] = {}
+        history: list[dict[str, Any]] = []
         while True:
             attempts += 1
-            last = dict(self.worker_fn(task))
+            raw = dict(self.worker_fn(task))
+            raw.setdefault("task_id", task["task_id"])
+            raw["attempt"] = attempts
+            history.append(raw)
+            last = dict(raw)
             last.setdefault("task_id", task["task_id"])
             last["attempts"] = attempts
+            last["attempt_history"] = history
             if not _is_transient_failure(last):
                 return last
             if attempts > self.max_retries:
@@ -92,15 +98,20 @@ class ImplementerHarness:
         run_dir = self.run_root / run_id
         task_dir = run_dir / "task_results"
         evidence_dir = run_dir / "evidence"
+        attempt_dir = run_dir / "attempts"
         run_dir.mkdir(parents=True, exist_ok=True)
         task_dir.mkdir(parents=True, exist_ok=True)
         evidence_dir.mkdir(parents=True, exist_ok=True)
+        attempt_dir.mkdir(parents=True, exist_ok=True)
 
         (run_dir / "work.queue.json").write_text(json.dumps(work_queue, indent=2), encoding="utf-8")
         task_records = []
         for result in summary["results"]:
             task_path = task_dir / f"{result['task_id']}.result.json"
             task_path.write_text(json.dumps(result, indent=2), encoding="utf-8")
+            attempt_history = result.get("attempt_history", [])
+            attempt_path = attempt_dir / f"{result['task_id']}.attempts.json"
+            attempt_path.write_text(json.dumps(attempt_history, indent=2), encoding="utf-8")
             evidence = {
                 "otel": {
                     "backend": "local-mvp",
@@ -118,7 +129,12 @@ class ImplementerHarness:
                         "path": str(task_path),
                         "sha256": _sha256_path(task_path),
                         "bytes": task_path.stat().st_size,
-                    }
+                    },
+                    {
+                        "path": str(attempt_path),
+                        "sha256": _sha256_path(attempt_path),
+                        "bytes": attempt_path.stat().st_size,
+                    },
                 ],
             }
             evidence_path = evidence_dir / f"{result['task_id']}.evidence.bundle.telemetry.json"
@@ -127,6 +143,7 @@ class ImplementerHarness:
                 {
                     **result,
                     "task_result_path": str(task_path),
+                    "attempt_history_path": str(attempt_path),
                     "evidence_bundle_path": str(evidence_path),
                 }
             )

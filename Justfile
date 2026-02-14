@@ -44,4 +44,11 @@ smoke:
       --state-space ssot/examples/state.space.json \
       --reason-codes ssot/policy/reason.codes.json
 
+live-fix-demo:
+    rm -rf ops/runtime
+    python tools/orchestrator/run_live_fix_demo.py \
+      --run-root ops/runtime/runs \
+      --state-space ssot/examples/state.space.json \
+      --reason-codes ssot/policy/reason.codes.json
+
 ci: clean-runtime test smoke
