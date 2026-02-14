@@ -60,7 +60,7 @@ jobs:
             --otel-export)
           echo "$OUT"
           python - <<'PY' "$OUT"
-import json, sys
-payload = json.loads(sys.argv[1])
-assert payload["trace_source"] in {"otel", "otel_invalid_context"}
-PY
+          import json, sys
+          payload = json.loads(sys.argv[1])
+          assert payload["trace_source"] in {"otel", "otel_invalid_context"}
+          PY
