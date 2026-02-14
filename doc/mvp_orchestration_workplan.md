@@ -7,6 +7,15 @@ Build a runnable demo loop in `dome`:
 
 The loop must be deterministic-first, telemetry-backed, and auditable from files/events.
 
+## Status (2026-02-14)
+- Current phase: Phase 1 (Prompt and planner integration)
+- Completed in this phase:
+  - `tools/orchestrator/planner.py` translates `xtrlv2` pre-contract -> `dome` `work.queue`
+  - tests for translator mapping and CLI write path (`tests/test_planner.py`)
+- Remaining in this phase:
+  - add planner request/response runtime artifacts under `ops/runtime/` during demo runs
+  - add dependency-cycle validation for planner task graphs
+
 ## Scope (MVP)
 - Single repo, single orchestrator process.
 - Parallel implementers via worker pool.
@@ -96,11 +105,12 @@ Schema target: `gate.decision`
 
 ### Phase 1: Prompt and planner integration
 - [ ] Add planner request/response JSON files under `ops/runtime/`
-- [ ] Implement `tools/orchestrator/planner.py`:
+- [x] Implement `tools/orchestrator/planner.py`:
   - reads prompt contract
   - writes schema-valid `work.queue`
-- [ ] Add tests:
+- [x] Add tests:
   - invalid planner output rejected
+- [ ] Add tests:
   - dependency cycles rejected
 
 DoD:
@@ -165,6 +175,7 @@ DoD:
 - Tests pass and schemas validate.
 
 ## Next command targets
+- `python tools/orchestrator/planner.py --pre-contract /home/src404/src/xtrlv2/packets/engineering/migration_xtrlv2_cutover/pkt-v2-migrate-0002-runner-cutover.pre_contract.json --out ops/runtime/work.queue.json`
 - `python tools/orchestrator/mcp_loop.py` (existing scaffold)
 - `pytest -q`
 - (after Phase 1+) `python tools/orchestrator/run_demo.py --prompt-file ops/runtime/prompt.json`
