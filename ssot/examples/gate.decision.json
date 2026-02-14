@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "run_id": "wave-20260214-001",
+  "task_id": "task-001",
+  "status": "APPROVE",
+  "reason_codes": [],
+  "confidence": 0.92,
+  "risk_score": 18,
+  "notes": [
+    "All deterministic checks passed."
+  ],
+  "telemetry_ref": {
+    "trace_id_hex": "0123456789abcdef0123456789abcdef",
+    "span_id_hex": "0123456789abcdef"
+  }
+}

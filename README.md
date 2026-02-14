@@ -18,6 +18,16 @@ The SSOT is `.specify/memory/constitution.md`.
 - `ops/observability/` contains an OpenTelemetry Collector config that forwards OTLP/HTTP traces to Langfuse.
 - `apps/python-demo/` contains a minimal runnable demo.
 
+## Concurrent loop contracts (MVP)
+
+- `ssot/schemas/work.queue.schema.json` — planner/orchestrator task wave contract
+- `ssot/schemas/gate.decision.schema.json` — deterministic-first gate verdict contract
+- `ssot/schemas/reason.codes.schema.json` — typed reason-code catalog
+- `tools/orchestrator/mcp_loop.py` — MCP-first concurrent orchestrator scaffold
+- `tools/orchestrator/transports/` — MCP + A2A adapters and bridge (`A2A -> MCP` normalization)
+
+Matching examples live in `ssot/examples/`.
+
 ## Spec Kit layout
 
 - `.specify/memory/constitution.md` — SSOT principles (project constitution)
@@ -30,3 +40,10 @@ The SSOT is `.specify/memory/constitution.md`.
 If you already use Spec Kit in your environment, you can initialize/upgrade templates as needed using `specify init --here --force` and your preferred agent.
 
 See GitHub Spec Kit docs for setup and supported agents. (https://github.com/github/spec-kit)
+
+## Validation
+
+```bash
+python -m pip install pytest jsonschema
+pytest -q
+```

@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "run_id": "wave-20260214-001",
+  "base_ref": "main",
+  "max_workers": 2,
+  "tasks": [
+    {
+      "task_id": "task-001",
+      "goal": "Run targeted tests",
+      "status": "QUEUED",
+      "dependencies": [],
+      "worker_model": "gpt-5.3"
+    },
+    {
+      "task_id": "task-002",
+      "goal": "Apply formatter fixes",
+      "status": "QUEUED",
+      "dependencies": [
+        "task-001"
+      ],
+      "worker_model": "gpt-5.2"
+    }
+  ]
+}
