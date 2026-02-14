@@ -28,6 +28,7 @@ The SSOT is `.specify/memory/constitution.md`.
 - `tools/orchestrator/transports/` — MCP + A2A adapters and bridge (`A2A -> MCP` normalization)
 - `tools/orchestrator/planner.py` — translate `xtrlv2` pre-contract into `dome` `work.queue`
 - `tools/orchestrator/implementers.py` — Phase 2 harness with transient retry + run artifact persistence
+- `tools/orchestrator/checkers.py` — Phase 3 deterministic gate checker with optional OTel span export
 
 Matching examples live in `ssot/examples/`.
 
@@ -66,4 +67,15 @@ python tools/orchestrator/implementers.py \
   --work-queue ops/runtime/work.queue.json \
   --run-root ops/runtime/runs \
   --max-retries 2
+```
+
+Checker example:
+
+```bash
+python tools/orchestrator/checkers.py \
+  --run-root ops/runtime/runs \
+  --run-id pkt-v2-migrate-0002-runner-cutover \
+  --reason-codes ssot/examples/reason.codes.json \
+  --risk-threshold 60 \
+  --otel-export
 ```

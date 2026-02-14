@@ -130,11 +130,11 @@ DoD:
 - A run with 5 tasks and `max_workers=2` completes all 5 tasks.
 
 ### Phase 3: Checker and gate
-- [ ] Implement `tools/orchestrator/checkers.py`:
+- [x] Implement `tools/orchestrator/checkers.py`:
   - run deterministic verify commands
   - produce schema-valid `gate.decision`
-- [ ] Wire reason code policy from `reason.codes` catalog
-- [ ] Add tests:
+- [x] Wire reason code policy from `reason.codes` catalog
+- [x] Add tests:
   - deterministic fail -> `REJECT`
   - pass + low risk -> `APPROVE`
   - pass + high risk -> `NEEDS_HUMAN`
