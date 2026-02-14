@@ -16,6 +16,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from tools.orchestrator.mcp_loop import Event, EventBus, TOPIC_PROMOTION_DECISION
+from tools.orchestrator.security import assert_runtime_path
 
 
 def create_promotion_decision(
@@ -106,6 +107,8 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    assert_runtime_path(args.run_root, ROOT, "--run-root")
+    assert_runtime_path(args.event_log, ROOT, "--event-log")
     gate_path = args.run_root / args.run_id / "gate" / "gate.decision.json"
     gate_decision = json.loads(gate_path.read_text(encoding="utf-8"))
     promotion = create_promotion_decision(

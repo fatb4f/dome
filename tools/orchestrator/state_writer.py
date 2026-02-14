@@ -14,6 +14,8 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from tools.orchestrator.security import assert_runtime_path
+
 
 def _load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -91,6 +93,8 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    assert_runtime_path(args.run_root, ROOT, "--run-root")
+    assert_runtime_path(args.out, ROOT, "--out")
     state_space = _load_json(args.state_space)
     work_queue = _load_json(args.run_root / args.run_id / "work.queue.json")
     run_summary = _load_json(args.run_root / args.run_id / "summary.json")
@@ -111,4 +115,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

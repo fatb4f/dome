@@ -15,7 +15,7 @@ For this tracker, `production-ready` means:
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | M-01 | #2 | P0 | SLOs & Gates | Explicit SLO/SLI and go/no-go policy | - | @fatb4f | 2026-W08 | In Progress | XA-01 decision semantics | `doc/slo_and_release_gates.md` approved | `just validate-ssot && just test` | `ops/runtime/m01/` |
 | M-02 | #3 | P0 | Runtime Contracts | Stable runtime config + policy schemas | M-01 | @fatb4f | 2026-W08 | In Progress | XA-02 runtime contract bridge | Schemas + examples validated in CI | `just validate-ssot && just test` | `ops/runtime/m02/` |
-| M-03 | #4 | P0 | Security Baseline | AuthN/AuthZ, secret boundaries, path guardrails | M-02 | TBD | 2026-W08 | Not Started | XA-05 transport boundary controls | Security checklist + negative tests pass | `just test` | `ops/runtime/m03/` |
+| M-03 | #4 | P0 | Security Baseline | AuthN/AuthZ, secret boundaries, path guardrails | M-02 | @fatb4f | 2026-W08 | In Progress | XA-05 transport boundary controls | Security checklist + negative tests pass | `pytest -q tests/test_security.py tests/test_dependency_allowlist.py && just test` | `ops/runtime/m03/` |
 | M-04 | #5 | P0 | Event Reliability | Durable event model with idempotency/replay semantics | M-02, M-03 | TBD | 2026-W09 | Not Started | XA-03 event envelope | Replay test reproduces deterministic decisions | `just test` | `ops/runtime/m04/` |
 | M-05 | #6 | P1 | State Machine Hardening | Legal transition enforcement + invariants | M-02, M-04 | TBD | 2026-W09 | Not Started | XA-06 controller transition guards | Invalid transitions rejected with reason codes | `just test` | `ops/runtime/m05/` |
 | M-06 | #7 | P1 | Concurrency Safety | Locking/atomic writes/race protection | M-04, M-05 | TBD | 2026-W09 | Not Started | XA-06 loop/worker serialization | Race/fault-injection tests green | `just test` | `ops/runtime/m06/` |
@@ -55,6 +55,12 @@ For this tracker, `production-ready` means:
 | M-02 Runtime Contracts | `ssot/schemas/task.result.schema.json` | Task result contract for implementer/checker artifacts | In Progress |
 | M-02 Runtime Contracts | `tests/test_ssot_policy_validate.py` | Policy JSON validation against authoritative schema | In Progress |
 | M-02 Runtime Contracts | `tests/test_ssot_roundtrip.py` | SSOT JSON round-trip load/serialize verification | In Progress |
+| M-03 Security Baseline | `doc/security/threat_model.md` | Threat model, trust boundaries, and control coverage | In Progress |
+| M-03 Security Baseline | `doc/security/secrets_and_redaction.md` | Secret handling and runtime path guardrails policy | In Progress |
+| M-03 Security Baseline | `tools/orchestrator/security.py` | Runtime path validation and payload redaction helpers | In Progress |
+| M-03 Security Baseline | `ssot/schemas/orchestrator.secure_defaults.schema.json` | Secure defaults contract schema | In Progress |
+| M-03 Security Baseline | `tests/test_security.py` | Path traversal rejection and redaction verification tests | In Progress |
+| M-03 Security Baseline | `tests/test_dependency_allowlist.py` | Dependency allowlist audit test | In Progress |
 
 ## Dependency Matrix
 

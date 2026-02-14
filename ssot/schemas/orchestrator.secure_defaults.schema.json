@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "orchestrator.secure_defaults",
+  "type": "object",
+  "required": [
+    "version",
+    "runtime_write_root",
+    "reject_absolute_paths",
+    "reject_parent_traversal",
+    "redaction"
+  ],
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "runtime_write_root": {
+      "type": "string",
+      "const": "ops/runtime"
+    },
+    "reject_absolute_paths": {
+      "type": "boolean",
+      "const": true
+    },
+    "reject_parent_traversal": {
+      "type": "boolean",
+      "const": true
+    },
+    "redaction": {
+      "type": "object",
+      "required": [
+        "sensitive_key_tokens",
+        "assignment_patterns"
+      ],
+      "properties": {
+        "sensitive_key_tokens": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "assignment_patterns": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "runtime_write_root": "ops/runtime",
+  "reject_absolute_paths": true,
+  "reject_parent_traversal": true,
+  "redaction": {
+    "sensitive_key_tokens": [
+      "secret",
+      "token",
+      "password",
+      "api_key",
+      "credential"
+    ],
+    "assignment_patterns": [
+      "api_key=...",
+      "token=...",
+      "password=...",
+      "secret=..."
+    ]
+  }
+}

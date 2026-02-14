@@ -17,6 +17,7 @@ if str(ROOT) not in sys.path:
 
 from tools.orchestrator.dispatcher import DispatcherSupervisor, WorkerFn, load_work_queue
 from tools.orchestrator.mcp_loop import Event, EventBus, TOPIC_TASK_RESULT
+from tools.orchestrator.security import assert_runtime_path, redact_sensitive_payload
 
 
 def _sha256_path(path: Path) -> str:
@@ -123,6 +124,7 @@ class ImplementerHarness:
                 "signals": {
                     "task.status": result.get("status"),
                     "task.attempts": int(result.get("attempts", 1)),
+                    "task.notes": result.get("notes"),
                 },
                 "artifacts": [
                     {
@@ -137,6 +139,7 @@ class ImplementerHarness:
                     },
                 ],
             }
+            evidence = redact_sensitive_payload(evidence)
             evidence_path = evidence_dir / f"{result['task_id']}.evidence.bundle.telemetry.json"
             evidence_path.write_text(json.dumps(evidence, indent=2), encoding="utf-8")
             task_records.append(
@@ -177,6 +180,8 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    assert_runtime_path(args.run_root, ROOT, "--run-root")
+    assert_runtime_path(args.event_log, ROOT, "--event-log")
     work_queue = load_work_queue(args.work_queue)
     models = [model.strip() for model in args.worker_models.split(",") if model.strip()]
     bus = EventBus(event_log=args.event_log)

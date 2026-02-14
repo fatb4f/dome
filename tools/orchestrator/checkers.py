@@ -18,6 +18,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from tools.orchestrator.mcp_loop import Event, EventBus, TOPIC_GATE_REQUESTED, TOPIC_GATE_VERDICT
+from tools.orchestrator.security import assert_runtime_path
 
 
 def _deterministic_trace_ref(run_id: str) -> dict[str, str]:
@@ -162,6 +163,8 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    assert_runtime_path(args.run_root, ROOT, "--run-root")
+    assert_runtime_path(args.event_log, ROOT, "--event-log")
     run_summary_path = args.run_root / args.run_id / "summary.json"
     run_summary = json.loads(run_summary_path.read_text(encoding="utf-8"))
     reason_codes_catalog = _load_reason_codes(args.reason_codes)

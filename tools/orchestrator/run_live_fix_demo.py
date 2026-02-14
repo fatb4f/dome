@@ -29,6 +29,7 @@ from tools.orchestrator.promote import (  # noqa: E402
     validate_promotion_schema,
 )
 from tools.orchestrator.runtime_config import load_runtime_profile  # noqa: E402
+from tools.orchestrator.security import assert_runtime_path  # noqa: E402
 from tools.orchestrator.state_writer import update_state_space  # noqa: E402
 
 
@@ -317,6 +318,8 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    assert_runtime_path(args.run_root, ROOT, "--run-root")
+    assert_runtime_path(args.event_log, ROOT, "--event-log")
     runtime_profile = load_runtime_profile(
         runtime_config_path=args.runtime_config,
         profile=args.profile,
