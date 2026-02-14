@@ -1,0 +1,79 @@
+{
+  "run_id": "pkt-dome-livefix-0001",
+  "dispatched_count": 3,
+  "results": [
+    {
+      "task_id": "pkt-dome-livefix-0001-implement",
+      "status": "PASS",
+      "reason_code": null,
+      "notes": "applied fix and reran tests: .                                                                        [100%]\n1 passed in 0.01s",
+      "worker_model": "gpt-5.2",
+      "attempt": 2,
+      "attempts": 2,
+      "attempt_history": [
+        {
+          "task_id": "pkt-dome-livefix-0001-implement",
+          "status": "FAIL",
+          "transient": true,
+          "reason_code": "TRANSIENT.FIRST_ATTEMPT",
+          "notes": "first implement attempt left failing state: F                                                                        [100%]\n=================================== FAILURES ===================================\n________________________________ test_add_basic ________________________________\n\n    def test_add_basic() -> None:\n>       assert add(2, 3) == 5\nE       assert -1 == 5\nE        +  where -1 = add(2, 3)\n\nops/runtime/runs/pkt-dome-livefix-0001/workbench/tests/test_calculator.py:11: AssertionError\n=========================== short test summary info ============================\nFAILED ops/runtime/runs/pkt-dome-livefix-0001/workbench/tests/test_calculator.py::test_add_basic\n1 failed in 0.02s",
+          "worker_model": "gpt-5.2",
+          "attempt": 1
+        },
+        {
+          "task_id": "pkt-dome-livefix-0001-implement",
+          "status": "PASS",
+          "reason_code": null,
+          "notes": "applied fix and reran tests: .                                                                        [100%]\n1 passed in 0.01s",
+          "worker_model": "gpt-5.2",
+          "attempt": 2
+        }
+      ],
+      "task_result_path": "ops/runtime/runs/pkt-dome-livefix-0001/task_results/pkt-dome-livefix-0001-implement.result.json",
+      "attempt_history_path": "ops/runtime/runs/pkt-dome-livefix-0001/attempts/pkt-dome-livefix-0001-implement.attempts.json",
+      "evidence_bundle_path": "ops/runtime/runs/pkt-dome-livefix-0001/evidence/pkt-dome-livefix-0001-implement.evidence.bundle.telemetry.json"
+    },
+    {
+      "task_id": "pkt-dome-livefix-0001-plan",
+      "status": "PASS",
+      "notes": "reproduced failing test: F                                                                        [100%]\n=================================== FAILURES ===================================\n________________________________ test_add_basic ________________________________\n\n    def test_add_basic() -> None:\n>       assert add(2, 3) == 5\nE       assert -1 == 5\nE        +  where -1 = add(2, 3)\n\nops/runtime/runs/pkt-dome-livefix-0001/workbench/tests/test_calculator.py:11: AssertionError\n=========================== short test summary info ============================\nFAILED ops/runtime/runs/pkt-dome-livefix-0001/workbench/tests/test_calculator.py::test_add_basic\n1 failed in 0.02s",
+      "worker_model": "gpt-5.3",
+      "attempt": 1,
+      "attempts": 1,
+      "attempt_history": [
+        {
+          "task_id": "pkt-dome-livefix-0001-plan",
+          "status": "PASS",
+          "notes": "reproduced failing test: F                                                                        [100%]\n=================================== FAILURES ===================================\n________________________________ test_add_basic ________________________________\n\n    def test_add_basic() -> None:\n>       assert add(2, 3) == 5\nE       assert -1 == 5\nE        +  where -1 = add(2, 3)\n\nops/runtime/runs/pkt-dome-livefix-0001/workbench/tests/test_calculator.py:11: AssertionError\n=========================== short test summary info ============================\nFAILED ops/runtime/runs/pkt-dome-livefix-0001/workbench/tests/test_calculator.py::test_add_basic\n1 failed in 0.02s",
+          "worker_model": "gpt-5.3",
+          "attempt": 1
+        }
+      ],
+      "task_result_path": "ops/runtime/runs/pkt-dome-livefix-0001/task_results/pkt-dome-livefix-0001-plan.result.json",
+      "attempt_history_path": "ops/runtime/runs/pkt-dome-livefix-0001/attempts/pkt-dome-livefix-0001-plan.attempts.json",
+      "evidence_bundle_path": "ops/runtime/runs/pkt-dome-livefix-0001/evidence/pkt-dome-livefix-0001-plan.evidence.bundle.telemetry.json"
+    },
+    {
+      "task_id": "pkt-dome-livefix-0001-verify",
+      "status": "PASS",
+      "reason_code": null,
+      "notes": ".                                                                        [100%]\n1 passed in 0.01s",
+      "worker_model": "gpt-5.3",
+      "attempt": 1,
+      "attempts": 1,
+      "attempt_history": [
+        {
+          "task_id": "pkt-dome-livefix-0001-verify",
+          "status": "PASS",
+          "reason_code": null,
+          "notes": ".                                                                        [100%]\n1 passed in 0.01s",
+          "worker_model": "gpt-5.3",
+          "attempt": 1
+        }
+      ],
+      "task_result_path": "ops/runtime/runs/pkt-dome-livefix-0001/task_results/pkt-dome-livefix-0001-verify.result.json",
+      "attempt_history_path": "ops/runtime/runs/pkt-dome-livefix-0001/attempts/pkt-dome-livefix-0001-verify.attempts.json",
+      "evidence_bundle_path": "ops/runtime/runs/pkt-dome-livefix-0001/evidence/pkt-dome-livefix-0001-verify.evidence.bundle.telemetry.json"
+    }
+  ]
+}

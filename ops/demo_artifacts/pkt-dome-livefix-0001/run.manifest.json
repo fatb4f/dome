@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "run_id": "pkt-dome-livefix-0001",
+  "inputs": {
+    "workbench_path": "ops/runtime/runs/pkt-dome-livefix-0001/workbench",
+    "work_queue_sha256": "b934dd31d8f0cfbf80f82b92d0c5914ba8270cf41613c474c65e8f743e2a30f6"
+  },
+  "commands": [
+    "implementers",
+    "checkers",
+    "promote",
+    "state_writer"
+  ],
+  "artifacts": {
+    "work_queue_path": "ops/runtime/runs/pkt-dome-livefix-0001/work.queue.json",
+    "summary_path": "ops/runtime/runs/pkt-dome-livefix-0001/summary.json",
+    "gate_decision_path": "ops/runtime/runs/pkt-dome-livefix-0001/gate/gate.decision.json",
+    "promotion_decision_path": "ops/runtime/runs/pkt-dome-livefix-0001/promotion/promotion.decision.json",
+    "state_space_path": "ops/runtime/runs/pkt-dome-livefix-0001/state.space.json",
+    "workbench_path": "ops/runtime/runs/pkt-dome-livefix-0001/workbench",
+    "iteration_loop_path": "ops/runtime/runs/pkt-dome-livefix-0001/iteration.loop.json"
+  },
+  "runtime": {
+    "python_version": "3.14.2",
+    "trace_source": "disabled"
+  }
+}

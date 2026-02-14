@@ -1,0 +1,25 @@
+{
+  "otel": {
+    "backend": "local-mvp",
+    "trace_id_hex": "00000000000000000000000000000000",
+    "span_id_hex": "0000000000000000",
+    "project": "dome",
+    "run_id": "pkt-dome-livefix-0001"
+  },
+  "signals": {
+    "task.status": "PASS",
+    "task.attempts": 1
+  },
+  "artifacts": [
+    {
+      "path": "ops/runtime/runs/pkt-dome-livefix-0001/task_results/pkt-dome-livefix-0001-plan.result.json",
+      "sha256": "dfe516ab93dd7268126d99b59165636b93ccad4b1301128570c221906c1c69d8",
+      "bytes": 1702
+    },
+    {
+      "path": "ops/runtime/runs/pkt-dome-livefix-0001/attempts/pkt-dome-livefix-0001-plan.attempts.json",
+      "sha256": "31f9464291fb71392bbbea77db32a45a2b071a5118f74b806c608a40ad78326e",
+      "bytes": 832
+    }
+  ]
+}

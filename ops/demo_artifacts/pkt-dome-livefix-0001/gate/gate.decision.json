@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "run_id": "pkt-dome-livefix-0001",
+  "task_id": "wave-gate",
+  "status": "APPROVE",
+  "reason_codes": [],
+  "confidence": 0.9,
+  "risk_score": 20,
+  "notes": [
+    "all deterministic checks passed",
+    "trace_source=disabled",
+    "verify_rc=0",
+    "verify_output=.                                                                        [100%]\n1 passed in 0.01s"
+  ],
+  "telemetry_ref": {
+    "trace_id_hex": "68a8856d40b51217ad28d0181c126f14",
+    "span_id_hex": "56eb826284ecad94"
+  }
+}
