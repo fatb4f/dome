@@ -29,6 +29,9 @@ The SSOT is `.specify/memory/constitution.md`.
 - `tools/orchestrator/planner.py` — translate `xtrlv2` pre-contract into `dome` `work.queue`
 - `tools/orchestrator/implementers.py` — Phase 2 harness with transient retry + run artifact persistence
 - `tools/orchestrator/checkers.py` — Phase 3 deterministic gate checker with optional OTel span export
+- `tools/orchestrator/promote.py` — Phase 4 promotion policy and `promotion.decision` emission
+- `tools/orchestrator/state_writer.py` — telemetry-backed `state.space` updater
+- `tools/orchestrator/run_demo.py` — one-command prompt-to-promotion MVP demo flow
 
 Matching examples live in `ssot/examples/`.
 
@@ -78,4 +81,28 @@ python tools/orchestrator/checkers.py \
   --reason-codes ssot/examples/reason.codes.json \
   --risk-threshold 60 \
   --otel-export
+```
+
+Promotion and state update examples:
+
+```bash
+python tools/orchestrator/promote.py \
+  --run-root ops/runtime/runs \
+  --run-id pkt-v2-migrate-0002-runner-cutover
+
+python tools/orchestrator/state_writer.py \
+  --run-root ops/runtime/runs \
+  --run-id pkt-v2-migrate-0002-runner-cutover \
+  --state-space ssot/examples/state.space.json \
+  --out ops/runtime/state.space.json
+```
+
+End-to-end demo:
+
+```bash
+python tools/orchestrator/run_demo.py \
+  --pre-contract /home/src404/src/xtrlv2/packets/engineering/migration_xtrlv2_cutover/pkt-v2-migrate-0002-runner-cutover.pre_contract.json \
+  --run-root ops/runtime/runs \
+  --state-space ssot/examples/state.space.json \
+  --reason-codes ssot/examples/reason.codes.json
 ```

@@ -143,12 +143,12 @@ DoD:
 - Gate decisions are deterministic and schema-valid.
 
 ### Phase 4: Promotion and state updates
-- [ ] Implement `tools/orchestrator/promote.py`:
+- [x] Implement `tools/orchestrator/promote.py`:
   - apply decision policy
   - emit `promotion.decision`
-- [ ] Implement state writer `tools/orchestrator/state_writer.py`:
+- [x] Implement state writer `tools/orchestrator/state_writer.py`:
   - update `state.space` only from telemetry-backed evidence
-- [ ] Add end-to-end test for full loop.
+- [x] Add end-to-end test for full loop.
 
 DoD:
 - Full prompt-to-promotion run is reproducible and auditable.
