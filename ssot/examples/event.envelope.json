@@ -1,0 +1,14 @@
+{
+  "schema_version": "0.2.0",
+  "sequence": 1,
+  "event_id": "evt-0123456789abcdef0123456789abcdef",
+  "ts": "2026-02-14T00:00:00Z",
+  "topic": "task.result.raw",
+  "run_id": "pkt-dome-livefix-0001",
+  "payload": {
+    "task_id": "pkt-dome-livefix-0001-implement",
+    "status": "FAIL",
+    "attempt": 1,
+    "reason_code": "TRANSIENT.FIRST_ATTEMPT"
+  }
+}

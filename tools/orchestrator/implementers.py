@@ -16,7 +16,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from tools.orchestrator.dispatcher import DispatcherSupervisor, WorkerFn, load_work_queue
-from tools.orchestrator.mcp_loop import Event, EventBus, TOPIC_TASK_RESULT
+from tools.orchestrator.mcp_loop import Event, EventBus, TOPIC_TASK_RESULT, TOPIC_TASK_RESULT_RAW
 from tools.orchestrator.security import assert_runtime_path, redact_sensitive_payload
 
 
@@ -107,12 +107,34 @@ class ImplementerHarness:
 
         (run_dir / "work.queue.json").write_text(json.dumps(work_queue, indent=2), encoding="utf-8")
         task_records = []
-        for result in summary["results"]:
+        result_by_id = {str(item["task_id"]): item for item in summary["results"]}
+        ordered_results: list[dict[str, Any]] = []
+        for task in work_queue.get("tasks", []):
+            task_id = str(task.get("task_id", ""))
+            if task_id in result_by_id:
+                ordered_results.append(result_by_id.pop(task_id))
+        ordered_results.extend(result_by_id.values())
+
+        for result in ordered_results:
             task_path = task_dir / f"{result['task_id']}.result.json"
             task_path.write_text(json.dumps(result, indent=2), encoding="utf-8")
             attempt_history = result.get("attempt_history", [])
             attempt_path = attempt_dir / f"{result['task_id']}.attempts.json"
             attempt_path.write_text(json.dumps(attempt_history, indent=2), encoding="utf-8")
+            for attempt in attempt_history:
+                self.bus.publish(
+                    Event(
+                        topic=TOPIC_TASK_RESULT_RAW,
+                        run_id=run_id,
+                        payload={
+                            "task_id": result["task_id"],
+                            "status": attempt.get("status"),
+                            "attempt": int(attempt.get("attempt", 1)),
+                            "reason_code": attempt.get("reason_code"),
+                            "notes": attempt.get("notes"),
+                        },
+                    )
+                )
             evidence = {
                 "otel": {
                     "backend": "local-mvp",

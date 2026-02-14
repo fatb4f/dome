@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import json
 import queue
+import threading
 import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -21,6 +22,7 @@ from typing import Any
 
 TOPIC_PLAN_CREATED = "plan.wave.created"
 TOPIC_TASK_ASSIGNED = "task.assigned"
+TOPIC_TASK_RESULT_RAW = "task.result.raw"
 TOPIC_TASK_RESULT = "task.result"
 TOPIC_GATE_REQUESTED = "gate.requested"
 TOPIC_GATE_VERDICT = "gate.verdict"
@@ -36,6 +38,8 @@ class Event:
     topic: str
     run_id: str
     payload: dict[str, Any]
+    event_id: str = field(default_factory=lambda: f"evt-{uuid.uuid4().hex}")
+    schema_version: str = "0.2.0"
     ts: str = field(default_factory=utc_now)
 
 
@@ -45,6 +49,9 @@ class EventBus:
     def __init__(self, event_log: Path | None = None) -> None:
         self._topics: dict[str, queue.Queue[Event]] = {}
         self._event_log = event_log
+        self._lock = threading.Lock()
+        self._seen_event_ids: set[str] = set()
+        self._sequence = 0
         if event_log is not None:
             event_log.parent.mkdir(parents=True, exist_ok=True)
 
@@ -56,22 +63,61 @@ class EventBus:
         return q
 
     def publish(self, event: Event) -> None:
-        q = self.subscribe(event.topic)
-        q.put(event)
-        if self._event_log is not None:
-            with self._event_log.open("a", encoding="utf-8") as fh:
-                fh.write(
-                    json.dumps(
-                        {
-                            "ts": event.ts,
-                            "topic": event.topic,
-                            "run_id": event.run_id,
-                            "payload": event.payload,
-                        },
-                        sort_keys=True,
+        with self._lock:
+            if event.event_id in self._seen_event_ids:
+                return
+            self._seen_event_ids.add(event.event_id)
+            self._sequence += 1
+            sequence = self._sequence
+            q = self.subscribe(event.topic)
+            q.put(event)
+            if self._event_log is not None:
+                with self._event_log.open("a", encoding="utf-8") as fh:
+                    fh.write(
+                        json.dumps(
+                            {
+                                "schema_version": event.schema_version,
+                                "sequence": sequence,
+                                "event_id": event.event_id,
+                                "ts": event.ts,
+                                "topic": event.topic,
+                                "run_id": event.run_id,
+                                "payload": event.payload,
+                            },
+                            sort_keys=True,
+                        )
                     )
-                )
-                fh.write("\n")
+                    fh.write("\n")
+
+
+def load_event_envelopes(event_log: Path, run_id: str | None = None) -> list[dict[str, Any]]:
+    if not event_log.exists():
+        return []
+    rows: list[dict[str, Any]] = []
+    with event_log.open("r", encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            event = json.loads(line)
+            if run_id is not None and event.get("run_id") != run_id:
+                continue
+            rows.append(event)
+    rows.sort(
+        key=lambda item: (
+            int(item.get("sequence", 0)),
+            str(item.get("ts", "")),
+            str(item.get("event_id", "")),
+        )
+    )
+    return rows
+
+
+def replay_task_result_events(event_log: Path, run_id: str) -> list[dict[str, Any]]:
+    events = load_event_envelopes(event_log=event_log, run_id=run_id)
+    return [
+        event for event in events if event.get("topic") in {TOPIC_TASK_RESULT_RAW, TOPIC_TASK_RESULT}
+    ]
 
 
 @dataclass

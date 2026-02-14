@@ -22,7 +22,7 @@ from tools.orchestrator.checkers import (  # noqa: E402
     validate_gate_decision_schema,
 )
 from tools.orchestrator.implementers import ImplementerHarness  # noqa: E402
-from tools.orchestrator.mcp_loop import EventBus  # noqa: E402
+from tools.orchestrator.mcp_loop import EventBus, TOPIC_TASK_RESULT_RAW, replay_task_result_events  # noqa: E402
 from tools.orchestrator.promote import (  # noqa: E402
     create_promotion_decision,
     persist_promotion_decision,
@@ -78,6 +78,39 @@ def _run_tests(workbench: Path) -> tuple[int, str]:
     proc = subprocess.run(cmd, capture_output=True, text=True)
     output = "\n".join(filter(None, [proc.stdout.strip(), proc.stderr.strip()]))
     return int(proc.returncode), output[:4000]
+
+
+def _label_for_event(task_id: str, attempt: int) -> str:
+    if task_id.endswith("-plan"):
+        return "im_helping"
+    if task_id.endswith("-implement"):
+        return "choo_choo" if attempt <= 1 else "wookiee_repair"
+    if task_id.endswith("-verify"):
+        return "verify_green"
+    return "task_result"
+
+
+def _build_iteration_loop_from_events(event_log: Path, run_id: str) -> list[dict[str, Any]]:
+    iterations: list[dict[str, Any]] = []
+    for event in replay_task_result_events(event_log=event_log, run_id=run_id):
+        if event.get("topic") != TOPIC_TASK_RESULT_RAW:
+            continue
+        payload = event.get("payload", {})
+        task_id = str(payload.get("task_id", "task-unknown"))
+        attempt = int(payload.get("attempt", 1))
+        iterations.append(
+            {
+                "iteration": len(iterations) + 1,
+                "label": _label_for_event(task_id=task_id, attempt=attempt),
+                "task_id": task_id,
+                "status": payload.get("status"),
+                "attempt": attempt,
+                "reason_code": payload.get("reason_code"),
+                "notes": payload.get("notes"),
+                "event_id": event.get("event_id"),
+            }
+        )
+    return iterations
 
 
 def run_live_fix_demo(
@@ -191,40 +224,45 @@ def run_live_fix_demo(
     verify_result = next(item for item in run_summary["results"] if item["task_id"].endswith("-verify"))
     plan_result = next(item for item in run_summary["results"] if item["task_id"].endswith("-plan"))
 
-    iterations = [
-        {
-            "iteration": 1,
-            "label": "im_helping",
-            "task_id": plan_result["task_id"],
-            "status": plan_result["status"],
-            "attempt": 1,
-            "reason_code": plan_result.get("reason_code"),
-            "notes": plan_result.get("notes"),
-        }
-    ]
-    for attempt in implement_result.get("attempt_history", []):
+    iterations = _build_iteration_loop_from_events(event_log=event_log, run_id=run_id)
+    if not iterations:
+        iterations = [
+            {
+                "iteration": 1,
+                "label": "im_helping",
+                "task_id": plan_result["task_id"],
+                "status": plan_result["status"],
+                "attempt": 1,
+                "reason_code": plan_result.get("reason_code"),
+                "notes": plan_result.get("notes"),
+                "event_id": None,
+            }
+        ]
+        for attempt in implement_result.get("attempt_history", []):
+            iterations.append(
+                {
+                    "iteration": len(iterations) + 1,
+                    "label": "choo_choo" if attempt.get("attempt") == 1 else "wookiee_repair",
+                    "task_id": implement_result["task_id"],
+                    "status": attempt.get("status"),
+                    "attempt": attempt.get("attempt"),
+                    "reason_code": attempt.get("reason_code"),
+                    "notes": attempt.get("notes"),
+                    "event_id": None,
+                }
+            )
         iterations.append(
             {
                 "iteration": len(iterations) + 1,
-                "label": "choo_choo" if attempt.get("attempt") == 1 else "wookiee_repair",
-                "task_id": implement_result["task_id"],
-                "status": attempt.get("status"),
-                "attempt": attempt.get("attempt"),
-                "reason_code": attempt.get("reason_code"),
-                "notes": attempt.get("notes"),
+                "label": "verify_green",
+                "task_id": verify_result["task_id"],
+                "status": verify_result["status"],
+                "attempt": 1,
+                "reason_code": verify_result.get("reason_code"),
+                "notes": verify_result.get("notes"),
+                "event_id": None,
             }
         )
-    iterations.append(
-        {
-            "iteration": len(iterations) + 1,
-            "label": "verify_green",
-            "task_id": verify_result["task_id"],
-            "status": verify_result["status"],
-            "attempt": 1,
-            "reason_code": verify_result.get("reason_code"),
-            "notes": verify_result.get("notes"),
-        }
-    )
     loop_path = run_dir / "iteration.loop.json"
     loop_path.write_text(json.dumps({"run_id": run_id, "iterations": iterations}, indent=2), encoding="utf-8")
 
