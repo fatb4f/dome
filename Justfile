@@ -1,5 +1,8 @@
 set shell := ["bash", "-lc"]
 
+clean-runtime:
+    rm -rf ops/runtime
+
 test:
     pytest -q
 
@@ -34,10 +37,11 @@ state:
       --out ops/runtime/state.space.json
 
 smoke:
+    rm -rf ops/runtime
     python tools/orchestrator/run_demo.py \
       --pre-contract ssot/examples/demo.pre_contract.json \
       --run-root ops/runtime/runs \
       --state-space ssot/examples/state.space.json \
       --reason-codes ssot/policy/reason.codes.json
 
-ci: test smoke
+ci: clean-runtime test smoke

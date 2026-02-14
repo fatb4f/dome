@@ -32,3 +32,35 @@ jobs:
             --run-root ops/runtime/runs \
             --state-space ssot/examples/state.space.json \
             --reason-codes ssot/policy/reason.codes.json
+
+  smoke-otel:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest jsonschema opentelemetry-sdk
+
+      - name: Run OTel-enabled smoke
+        run: |
+          OUT=$(python tools/orchestrator/run_demo.py \
+            --pre-contract ssot/examples/demo.pre_contract.json \
+            --run-root ops/runtime/runs \
+            --state-space ssot/examples/state.space.json \
+            --reason-codes ssot/policy/reason.codes.json \
+            --otel-export)
+          echo "$OUT"
+          python - <<'PY' "$OUT"
+import json, sys
+payload = json.loads(sys.argv[1])
+assert payload["trace_source"] in {"otel", "otel_invalid_context"}
+PY

@@ -1,0 +1,25 @@
+{
+  "version": "0.2.0",
+  "run_id": "pkt-dome-demo-0001",
+  "inputs": {
+    "pre_contract_path": "ssot/examples/demo.pre_contract.json",
+    "pre_contract_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "commands": [
+    "planner",
+    "implementers",
+    "checkers",
+    "promote",
+    "state_writer"
+  ],
+  "artifacts": {
+    "work_queue_path": "ops/runtime/runs/pkt-dome-demo-0001/work.queue.json",
+    "summary_path": "ops/runtime/runs/pkt-dome-demo-0001/summary.json",
+    "gate_decision_path": "ops/runtime/runs/pkt-dome-demo-0001/gate/gate.decision.json",
+    "promotion_decision_path": "ops/runtime/runs/pkt-dome-demo-0001/promotion/promotion.decision.json",
+    "state_space_path": "ops/runtime/runs/pkt-dome-demo-0001/state.space.json"
+  },
+  "runtime": {
+    "python_version": "3.11.0"
+  }
+}

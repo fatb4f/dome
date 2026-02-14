@@ -23,6 +23,8 @@ The SSOT is `.specify/memory/constitution.md`.
 - `ssot/schemas/work.queue.schema.json` — planner/orchestrator task wave contract
 - `ssot/schemas/gate.decision.schema.json` — deterministic-first gate verdict contract
 - `ssot/schemas/reason.codes.schema.json` — typed reason-code catalog
+- `ssot/schemas/promotion.decision.schema.json` — promotion decision contract
+- `ssot/schemas/run.manifest.schema.json` — replay/audit run manifest contract
 - `tools/orchestrator/mcp_loop.py` — MCP-first concurrent orchestrator scaffold
 - `tools/orchestrator/dispatcher.py` — Codex supervisor layer for dependency-aware task dispatch
 - `tools/orchestrator/transports/` — MCP + A2A adapters and bridge (`A2A -> MCP` normalization)
@@ -111,5 +113,6 @@ python tools/orchestrator/run_demo.py \
 Just-based pipeline:
 
 ```bash
+just clean-runtime
 just ci
 ```

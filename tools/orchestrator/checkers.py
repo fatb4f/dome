@@ -30,8 +30,16 @@ def _otel_trace_ref(run_id: str, enabled: bool) -> tuple[dict[str, str], str]:
         return _deterministic_trace_ref(run_id), "disabled"
     try:
         from opentelemetry import trace  # type: ignore
+        from opentelemetry.sdk.trace import TracerProvider  # type: ignore
     except Exception:
         return _deterministic_trace_ref(run_id), "missing_opentelemetry"
+
+    provider = trace.get_tracer_provider()
+    if provider.__class__.__name__ != "TracerProvider":
+        try:
+            trace.set_tracer_provider(TracerProvider())
+        except Exception:
+            pass
 
     tracer = trace.get_tracer("dome.checkers")
     with tracer.start_as_current_span("checker.gate") as span:
@@ -129,12 +137,23 @@ def persist_gate_decision(run_root: Path, run_id: str, decision: dict[str, Any])
     return out_path
 
 
+def validate_gate_decision_schema(decision: dict[str, Any], schema_path: Path) -> None:
+    try:
+        import jsonschema  # type: ignore
+    except Exception:
+        # Local/dev fallback: CI installs jsonschema and enforces this check.
+        return
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    jsonschema.validate(instance=decision, schema=schema)
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Evaluate run summary and emit gate.decision")
     parser.add_argument("--run-root", type=Path, default=Path("ops/runtime/runs"))
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--reason-codes", type=Path, default=Path("ssot/policy/reason.codes.json"))
     parser.add_argument("--event-log", type=Path, default=Path("ops/runtime/mcp_events.jsonl"))
+    parser.add_argument("--schema", type=Path, default=Path("ssot/schemas/gate.decision.schema.json"))
     parser.add_argument("--verify-command", default="")
     parser.add_argument("--risk-threshold", type=int, default=60)
     parser.add_argument("--otel-export", action="store_true")
@@ -162,6 +181,7 @@ def main() -> int:
         risk_threshold=args.risk_threshold,
         otel_export=args.otel_export,
     )
+    validate_gate_decision_schema(decision, args.schema)
     out_path = persist_gate_decision(args.run_root, args.run_id, decision)
     bus.publish(
         Event(

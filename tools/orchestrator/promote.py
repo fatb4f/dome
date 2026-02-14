@@ -83,11 +83,22 @@ def append_promotion_audit(run_root: Path, run_id: str, payload: dict[str, Any])
     return audit_path
 
 
+def validate_promotion_schema(payload: dict[str, Any], schema_path: Path) -> None:
+    try:
+        import jsonschema  # type: ignore
+    except Exception:
+        # Local/dev fallback: CI installs jsonschema and enforces this check.
+        return
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    jsonschema.validate(instance=payload, schema=schema)
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Apply promotion policy from gate decision")
     parser.add_argument("--run-root", type=Path, default=Path("ops/runtime/runs"))
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--event-log", type=Path, default=Path("ops/runtime/mcp_events.jsonl"))
+    parser.add_argument("--schema", type=Path, default=Path("ssot/schemas/promotion.decision.schema.json"))
     parser.add_argument("--min-confidence", type=float, default=0.7)
     parser.add_argument("--max-risk", type=int, default=60)
     return parser.parse_args()
@@ -102,6 +113,7 @@ def main() -> int:
         min_confidence=args.min_confidence,
         max_risk=args.max_risk,
     )
+    validate_promotion_schema(promotion, args.schema)
     out_path = persist_promotion_decision(args.run_root, args.run_id, promotion)
     audit_path = append_promotion_audit(args.run_root, args.run_id, promotion)
     bus = EventBus(event_log=args.event_log)

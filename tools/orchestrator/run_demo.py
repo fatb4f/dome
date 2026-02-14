@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import shlex
 import sys
@@ -15,11 +16,19 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from tools.orchestrator.checkers import create_gate_decision, persist_gate_decision
+from tools.orchestrator.checkers import (
+    create_gate_decision,
+    persist_gate_decision,
+    validate_gate_decision_schema,
+)
 from tools.orchestrator.implementers import ImplementerHarness
 from tools.orchestrator.mcp_loop import EventBus
 from tools.orchestrator.planner import pre_contract_to_work_queue
-from tools.orchestrator.promote import create_promotion_decision, persist_promotion_decision
+from tools.orchestrator.promote import (
+    create_promotion_decision,
+    persist_promotion_decision,
+    validate_promotion_schema,
+)
 from tools.orchestrator.state_writer import update_state_space
 
 
@@ -31,6 +40,14 @@ def _verify_command_from_pre_contract(pre_contract: dict[str, Any]) -> str | Non
     if isinstance(test_action, str) and test_action.strip():
         return test_action.strip()
     return None
+
+
+def _sha256_path(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
 
 
 def run_demo(
@@ -65,9 +82,11 @@ def run_demo(
         risk_threshold=risk_threshold,
         otel_export=otel_export,
     )
+    validate_gate_decision_schema(gate_decision, ROOT / "ssot/schemas/gate.decision.schema.json")
     gate_path = persist_gate_decision(run_root, run_id, gate_decision)
 
     promotion = create_promotion_decision(gate_decision=gate_decision, max_risk=risk_threshold)
+    validate_promotion_schema(promotion, ROOT / "ssot/schemas/promotion.decision.schema.json")
     promotion_path = persist_promotion_decision(run_root, run_id, promotion)
 
     state_space = json.loads(state_space_path.read_text(encoding="utf-8"))
@@ -81,6 +100,29 @@ def run_demo(
     state_out_path = run_dir / "state.space.json"
     state_out_path.write_text(json.dumps(updated_state, indent=2), encoding="utf-8")
 
+    manifest = {
+        "version": "0.2.0",
+        "run_id": run_id,
+        "inputs": {
+            "pre_contract_path": str(pre_contract_path),
+            "pre_contract_sha256": _sha256_path(pre_contract_path),
+        },
+        "commands": ["planner", "implementers", "checkers", "promote", "state_writer"],
+        "artifacts": {
+            "work_queue_path": str(run_dir / "work.queue.json"),
+            "summary_path": str(run_dir / "summary.json"),
+            "gate_decision_path": str(gate_path),
+            "promotion_decision_path": str(promotion_path),
+            "state_space_path": str(state_out_path),
+        },
+        "runtime": {
+            "python_version": sys.version.split(" ")[0],
+            "trace_source": trace_source,
+        },
+    }
+    manifest_path = run_dir / "run.manifest.json"
+    manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+
     return {
         "run_id": run_id,
         "trace_source": trace_source,
@@ -89,6 +131,7 @@ def run_demo(
         "gate_decision_path": str(gate_path),
         "promotion_decision_path": str(promotion_path),
         "state_space_path": str(state_out_path),
+        "run_manifest_path": str(manifest_path),
     }
 
 

@@ -2,6 +2,8 @@ import json
 from pathlib import Path
 import sys
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -66,6 +68,8 @@ def test_checker_persists_gate_decision_file(tmp_path: Path) -> None:
     assert out_path.exists()
     payload = json.loads(out_path.read_text(encoding="utf-8"))
     assert payload["run_id"] == run_id
+    pytest.importorskip("jsonschema")
+    checkers.validate_gate_decision_schema(payload, ROOT / "ssot/schemas/gate.decision.schema.json")
 
 
 def test_checker_rejects_when_reason_code_not_in_policy() -> None:

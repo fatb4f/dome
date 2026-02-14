@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "run_id": "wave-promote-001",
+  "decision": "APPROVE",
+  "reason_codes": [],
+  "confidence": 0.92,
+  "risk_score": 18,
+  "notes": [
+    "all deterministic checks passed"
+  ],
+  "gate_decision_ref": {
+    "task_id": "wave-gate",
+    "telemetry_ref": {
+      "trace_id_hex": "0123456789abcdef0123456789abcdef",
+      "span_id_hex": "0123456789abcdef"
+    }
+  }
+}
