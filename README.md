@@ -24,6 +24,7 @@ The SSOT is `.specify/memory/constitution.md`.
 - `ssot/schemas/gate.decision.schema.json` — deterministic-first gate verdict contract
 - `ssot/schemas/reason.codes.schema.json` — typed reason-code catalog
 - `tools/orchestrator/mcp_loop.py` — MCP-first concurrent orchestrator scaffold
+- `tools/orchestrator/dispatcher.py` — Codex supervisor layer for dependency-aware task dispatch
 - `tools/orchestrator/transports/` — MCP + A2A adapters and bridge (`A2A -> MCP` normalization)
 - `tools/orchestrator/planner.py` — translate `xtrlv2` pre-contract into `dome` `work.queue`
 
