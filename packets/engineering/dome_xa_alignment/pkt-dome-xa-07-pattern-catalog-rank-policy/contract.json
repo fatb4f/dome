@@ -1,0 +1,61 @@
+{
+  "allowed_paths": [
+    "doc/**",
+    "ssot/**",
+    "tools/**",
+    "tests/**",
+    "packets/**",
+    ".github/workflows/**",
+    "Justfile"
+  ],
+  "area": "engineering/dome_xa_alignment",
+  "base_ref": "main",
+  "branch": "packet/pkt-dome-xa-07-pattern-catalog-rank-policy",
+  "budgets": {
+    "max_changed_files": 200,
+    "max_changed_lines": 20000
+  },
+  "evidence": {
+    "include_git_diff_patch": false,
+    "out_dir": "ops/runtime/xa-07"
+  },
+  "forbidden_outputs": [],
+  "github": {
+    "issue": {
+      "body": "Execution packet for XA-07 (Runtime config to pattern catalog/rank policy).\\n\\nTracker issue: #20",
+      "close_on_success": false,
+      "comment_on_run": true,
+      "ensure": true,
+      "labels": [],
+      "milestone": "XA-07 Runtime config to pattern catalog/rank policy",
+      "template": "packet-default.yml",
+      "title": "XA-07: Runtime config to pattern catalog/rank policy"
+    },
+    "repo": "fatb4f/dome"
+  },
+  "github_ops_required": false,
+  "net_ops_required": false,
+  "network_policy": {
+    "additional_domains": [],
+    "allowed_http_methods": [],
+    "domain_allowlist_preset": "none",
+    "internet_access": "off"
+  },
+  "packet_id": "pkt-dome-xa-07-pattern-catalog-rank-policy",
+  "repo": "fatb4f/dome",
+  "run": {
+    "commands": [
+      "just validate-ssot",
+      "just test"
+    ],
+    "regen_cmd": "",
+    "test_cmd": "just validate-ssot && just test"
+  },
+  "worktree_policy": {
+    "allow_dirty_globs": [],
+    "allow_untracked_globs": [],
+    "deny_if_worktree_exists": true,
+    "mode": "strict",
+    "worktree_root": "$CODEX_STATE/xtrl/worktrees"
+  }
+}
