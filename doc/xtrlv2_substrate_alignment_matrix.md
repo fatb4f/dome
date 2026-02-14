@@ -40,19 +40,28 @@ Intent note: `dome` is an **agentic patterns consolidation repository**. Upstrea
 
 ## Priority Tracker
 
-| ID | Task | Depends On | Priority | Exit Criteria |
-|---|---|---|---|---|
-| XA-01 | Add substrate mapping doc for decision semantics (`PROMOTE/DENY/STOP` <-> `APPROVE/REJECT/NEEDS_HUMAN`) and intentional divergences | - | P0 | Mapping approved and referenced by contracts/tests |
-| XA-02 | Introduce optional substrate-compatible envelope fields (`artifact_kind`, policy linkage refs) into dome artifacts (backward-compatible v0.3) | XA-01 | P0 | Schemas/examples/tests pass with dual-read compatibility |
-| XA-03 | Add schema-bound event envelope in dome (`helper_event` parity) | XA-02 | P0 | Event log validates against schema in CI |
-| XA-04 | Add canonical evidence capsule translation (`evidence.bundle.telemetry` -> `evidence_capsule`) as adapter output | XA-02 | P1 | Capsule artifact emitted and schema-valid |
-| XA-05 | Add substrate state layout compatibility mode (`queue/out/locks/promote/worktrees/ledger`) | XA-02 | P1 | `state_doctor`-style validation passes in dome runtime |
-| XA-06 | Add outer-loop tick controller (`next_iter_plan` aligned) | XA-02, XA-03 | P1 | Iterative controller runs bounded cycles with stop rules |
-| XA-07 | Align runtime config to `pattern_catalog` + `rank_policy` references while keeping pattern profiles first-class | XA-02 | P1 | Runtime profile resolves to canonical artifact refs and preserves pattern presets |
-| XA-08 | Add schema pin + lint quality gates (ruff + schema conformance) | XA-03 | P1 | CI required checks include lint + schema conformance |
-| XA-09 | Build state migration bridge (`dome` runtime -> substrate layout) | XA-05 | P2 | Deterministic dry-run/apply migration report artifacts |
-| XA-10 | Add pattern-catalog ingestion pipeline from awesome-agentic-patterns (metadata + provenance) | XA-01 | P0 | Versioned local catalog artifact generated with source links/commit pin |
-| XA-11 | Add mapping from consolidated patterns to runtime profiles (`tdd`, `refactor`, etc.) | XA-07, XA-10 | P1 | Each runtime profile references catalog entries + rationale |
+| ID | Task | Depends On | Priority | Current Status | Evidence / Note | Exit Criteria |
+|---|---|---|---|---|---|---|
+| XA-01 | Add substrate mapping doc for decision semantics (`PROMOTE/DENY/STOP` <-> `APPROVE/REJECT/NEEDS_HUMAN`) and intentional divergences | - | P0 | Partial | Mapping present in `doc/slo_and_release_gates.md`, but not full contract/test parity | Mapping approved and referenced by contracts/tests |
+| XA-02 | Introduce optional substrate-compatible envelope fields (`artifact_kind`, policy linkage refs) into dome artifacts (backward-compatible v0.3) | XA-01 | P0 | Not Started | No dual-read substrate envelope fields in core contracts | Schemas/examples/tests pass with dual-read compatibility |
+| XA-03 | Add schema-bound event envelope in dome (`helper_event` parity) | XA-02 | P0 | Mostly Done | `ssot/schemas/event.envelope.schema.json`, `ssot/examples/event.envelope.json`, `tests/test_mcp_events.py` | Event log validates against schema in CI |
+| XA-04 | Add canonical evidence capsule translation (`evidence.bundle.telemetry` -> `evidence_capsule`) as adapter output | XA-02 | P1 | Not Started | No adapter/emitter for canonical evidence capsule yet | Capsule artifact emitted and schema-valid |
+| XA-05 | Add substrate state layout compatibility mode (`queue/out/locks/promote/worktrees/ledger`) | XA-02 | P1 | Not Started | Runtime layout remains dome-native | `state_doctor`-style validation passes in dome runtime |
+| XA-06 | Add outer-loop tick controller (`next_iter_plan` aligned) | XA-02, XA-03 | P1 | Partial | Iterative demo exists (`run_live_fix_demo.py`), no substrate-aligned loop tick controller | Iterative controller runs bounded cycles with stop rules |
+| XA-07 | Align runtime config to `pattern_catalog` + `rank_policy` references while keeping pattern profiles first-class | XA-02 | P1 | Not Started | Runtime profiles exist but do not reference catalog/rank contracts | Runtime profile resolves to canonical artifact refs and preserves pattern presets |
+| XA-08 | Add schema pin + lint quality gates (ruff + schema conformance) | XA-03 | P1 | Partial | Schema conformance wired; lint quality gate not yet required | CI required checks include lint + schema conformance |
+| XA-09 | Build state migration bridge (`dome` runtime -> substrate layout) | XA-05 | P2 | Not Started | No migration dry-run/apply bridge artifacts yet | Deterministic dry-run/apply migration report artifacts |
+| XA-10 | Add pattern-catalog ingestion pipeline from awesome-agentic-patterns (metadata + provenance) | XA-01 | P0 | Not Started | No ingestion pipeline or local versioned catalog artifact yet | Versioned local catalog artifact generated with source links/commit pin |
+| XA-11 | Add mapping from consolidated patterns to runtime profiles (`tdd`, `refactor`, etc.) | XA-07, XA-10 | P1 | Not Started | No profile->catalog mapping references with rationale yet | Each runtime profile references catalog entries + rationale |
+
+## Status Snapshot (As Of 2026-02-14)
+
+- Done-ish:
+  - XA-03 (event envelope contracts + replay/idempotency mechanics)
+- Partial:
+  - XA-01, XA-06, XA-08
+- Not Started:
+  - XA-02, XA-04, XA-05, XA-07, XA-09, XA-10, XA-11
 
 ## Dependency Matrix
 
