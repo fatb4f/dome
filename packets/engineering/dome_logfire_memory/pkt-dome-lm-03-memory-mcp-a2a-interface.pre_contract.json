@@ -1,0 +1,50 @@
+{
+  "schema_version": "xtrl.pre_contract/v0.2",
+  "packet_id": "pkt-dome-lm-03-memory-mcp-a2a-interface",
+  "component": "dome",
+  "repo": "dome",
+  "base_ref": "main",
+  "mode": "NORMAL",
+  "budgets": {
+    "time_minutes": 60,
+    "iteration_budget": 3
+  },
+  "constraints": {
+    "clean_repo_required": true,
+    "allowed_paths": [
+      "doc/**",
+      "tools/**",
+      "tests/**",
+      "packets/**",
+      "Justfile",
+      "ssot/**"
+    ],
+    "forbidden_paths": [
+      ".git/**"
+    ]
+  },
+  "actions": {
+    "test": [
+      "bash",
+      "-lc",
+      "just test"
+    ]
+  },
+  "plan_card": {
+    "why": "Execute LM-03 memory interface milestone",
+    "what": "Add MCP/A2A compatible memory query and upsert interfaces",
+    "how": "Implement bounded deterministic query APIs and contract tests",
+    "where": "dome repository",
+    "who": "orchestrator",
+    "when": "sequential milestone execution"
+  },
+  "lm": {
+    "id": "LM-03",
+    "priority": "P1",
+    "depends_on": [
+      "LM-02"
+    ],
+    "tracker_issue": 29,
+    "milestone": "LM-03 MCP/A2A memory interface"
+  }
+}
