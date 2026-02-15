@@ -312,11 +312,25 @@ def upsert_event_fact(conn: Any, snapshot: EventSnapshot) -> None:
     )
 
 
-def run_once(db_path: Path, run_root: Path, checkpoint_path: Path, schema_path: Path) -> int:
+def run_binder_once(db_path: Path, schema_path: Path, mode: str) -> int:
+    from tools.telemetry import memory_binder
+
+    return memory_binder.run_once(db_path=db_path, schema_path=schema_path, mode=mode)
+
+
+def run_once(
+    db_path: Path,
+    run_root: Path,
+    checkpoint_path: Path,
+    schema_path: Path,
+    *,
+    run_binder: bool = False,
+    binder_mode: str = "strict",
+) -> int:
     checkpoint = load_checkpoint(checkpoint_path)
     discovered = discover_runs(run_root)
     todo = pending_runs(discovered, checkpoint.get("processed_runs", []))
-    if not todo:
+    if not todo and not run_binder:
         return 0
 
     try:
@@ -325,6 +339,7 @@ def run_once(db_path: Path, run_root: Path, checkpoint_path: Path, schema_path: 
         raise SystemExit("duckdb is required for memoryd materialization")
 
     db_path.parent.mkdir(parents=True, exist_ok=True)
+    binder_derived_rows = 0
     conn = duckdb.connect(str(db_path))
     try:
         apply_schema(conn, schema_path)
@@ -337,6 +352,10 @@ def run_once(db_path: Path, run_root: Path, checkpoint_path: Path, schema_path: 
             for event_snapshot in event_snapshots_from_run_dir(run_dir, run_root):
                 upsert_event_fact(conn, event_snapshot)
             checkpoint["processed_runs"].append(run_id)
+        if run_binder:
+            binder_derived_rows = run_binder_once(db_path=db_path, schema_path=schema_path, mode=binder_mode)
+            checkpoint["last_binder_derived_rows"] = int(binder_derived_rows)
+            checkpoint["binder_mode"] = binder_mode
         checkpoint["processed_runs"] = sorted(set(str(item) for item in checkpoint["processed_runs"]))
         save_checkpoint(checkpoint_path, checkpoint)
     finally:
@@ -352,19 +371,57 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--schema", type=Path, default=SCHEMA_PATH)
     parser.add_argument("--poll-seconds", type=int, default=10)
     parser.add_argument("--once", action="store_true")
+    parser.add_argument("--run-binder", action="store_true")
+    parser.add_argument("--binder-mode", choices=["strict", "hybrid", "lenient"], default="strict")
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
     if args.once:
-        processed = run_once(args.db, args.run_root, args.checkpoint, args.schema)
-        print(json.dumps({"mode": "once", "processed_runs": processed}, sort_keys=True))
+        processed = run_once(
+            args.db,
+            args.run_root,
+            args.checkpoint,
+            args.schema,
+            run_binder=bool(args.run_binder),
+            binder_mode=str(args.binder_mode),
+        )
+        checkpoint = load_checkpoint(args.checkpoint)
+        print(
+            json.dumps(
+                {
+                    "mode": "once",
+                    "processed_runs": processed,
+                    "binder_mode": checkpoint.get("binder_mode", ""),
+                    "binder_derived_rows": int(checkpoint.get("last_binder_derived_rows", 0)),
+                },
+                sort_keys=True,
+            )
+        )
         return 0
 
     while True:
-        processed = run_once(args.db, args.run_root, args.checkpoint, args.schema)
-        print(json.dumps({"mode": "loop", "processed_runs": processed}, sort_keys=True))
+        processed = run_once(
+            args.db,
+            args.run_root,
+            args.checkpoint,
+            args.schema,
+            run_binder=bool(args.run_binder),
+            binder_mode=str(args.binder_mode),
+        )
+        checkpoint = load_checkpoint(args.checkpoint)
+        print(
+            json.dumps(
+                {
+                    "mode": "loop",
+                    "processed_runs": processed,
+                    "binder_mode": checkpoint.get("binder_mode", ""),
+                    "binder_derived_rows": int(checkpoint.get("last_binder_derived_rows", 0)),
+                },
+                sort_keys=True,
+            )
+        )
         time.sleep(max(1, int(args.poll_seconds)))
 
 

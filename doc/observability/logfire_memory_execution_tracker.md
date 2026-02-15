@@ -94,3 +94,11 @@ Evidence roots:
 |---|---:|---:|
 | CR-01 dome | 0 | 1 |
 | CR-02 xtrlv2 SSOT | 0 | 0 |
+
+## Phase 3 Rollout Items (Planned)
+
+| Order | Item | Scope | Status |
+|---:|---|---|---|
+| 1 | P3-01 Binder in daemon loop (shadow mode) | Optional `memoryd --run-binder` rollout without planner behavior changes | Planned |
+| 2 | P3-02 Ops alerts + runbook wiring | Binder-aware health thresholds and runbook commands | Planned |
+| 3 | P3-03 End-to-end deterministic pipeline validation | Integration coverage for materialize -> binder determinism | Planned |

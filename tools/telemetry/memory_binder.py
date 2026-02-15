@@ -55,23 +55,7 @@ def _eligible(mode: str, status: str, failure_reason_code: str, policy_reason_co
     return status == "FAIL" or bool(failure_reason_code) or bool(policy_reason_code)
 
 
-def _derive_rows(conn: Any, mode: str) -> list[BinderRow]:
-    rows = conn.execute(
-        """
-        SELECT
-          run_id,
-          task_id,
-          status,
-          COALESCE(failure_reason_code, reason_code, '') AS failure_reason_code,
-          COALESCE(policy_reason_code, '') AS policy_reason_code,
-          attempts,
-          duration_ms,
-          worker_model,
-          COALESCE(CAST(updated_ts AS VARCHAR), '1970-01-01T00:00:00Z') AS updated_ts
-        FROM task_fact
-        ORDER BY updated_ts DESC, run_id ASC, task_id ASC
-        """
-    ).fetchall()
+def derive_rows_from_task_rows(rows: list[tuple[Any, ...]], mode: str) -> list[BinderRow]:
     out: list[BinderRow] = []
     for row in rows:
         run_id, task_id, status, failure_reason_code, policy_reason_code, attempts, duration_ms, worker_model, updated_ts = (
@@ -136,6 +120,26 @@ def _derive_rows(conn: Any, mode: str) -> list[BinderRow]:
             )
         )
     return out
+
+
+def _derive_rows(conn: Any, mode: str) -> list[BinderRow]:
+    rows = conn.execute(
+        """
+        SELECT
+          run_id,
+          task_id,
+          status,
+          COALESCE(failure_reason_code, reason_code, '') AS failure_reason_code,
+          COALESCE(policy_reason_code, '') AS policy_reason_code,
+          attempts,
+          duration_ms,
+          worker_model,
+          COALESCE(CAST(updated_ts AS VARCHAR), '1970-01-01T00:00:00Z') AS updated_ts
+        FROM task_fact
+        ORDER BY updated_ts DESC, run_id ASC, task_id ASC
+        """
+    ).fetchall()
+    return derive_rows_from_task_rows(rows, mode=mode)
 
 
 def _upsert_rows(conn: Any, rows: list[BinderRow]) -> None:

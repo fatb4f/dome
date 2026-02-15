@@ -168,3 +168,33 @@ Exit criteria:
 | LM-09 | 0 | 0 | 0 |
 | LM-10 | 1 | 0 | 0 |
 | LM-11 | 1 | 1 | 0 |
+
+## Phase 3 Plan (rollout + operations)
+
+### P3-01: Binder in daemon loop (shadow mode)
+
+- Enable optional binder execution directly from `memoryd` (`--run-binder`, `--binder-mode`).
+- Persist binder run metadata in checkpoint (`last_binder_derived_rows`, `binder_mode`).
+- Keep planner behavior unchanged (observe-only rollout).
+
+### P3-02: Operational alerts and runbook wiring
+
+- Extend memory alert gate to include optional binder thresholds.
+- Document recommended daemon + binder invocation and health checks.
+- Define baseline SLOs for processed runs and derived rows.
+
+### P3-03: End-to-end deterministic pipeline validation
+
+- Add deterministic integration coverage from materialized task snapshots to binder derivations.
+- Verify replay of identical inputs yields stable derived keys/hashes.
+- Keep query ordering deterministic under unchanged snapshots.
+
+### Phase 3 Dependency Matrix
+
+`1` means row item depends on column item.
+
+| Row \\ Col | P3-01 | P3-02 | P3-03 |
+|---|---:|---:|---:|
+| P3-01 | 0 | 0 | 0 |
+| P3-02 | 1 | 0 | 0 |
+| P3-03 | 1 | 0 | 0 |

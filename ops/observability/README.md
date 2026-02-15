@@ -56,3 +56,26 @@ Langfuse expects OTLP/HTTP traces at:
 - Self-hosted: `https://<your-langfuse>/api/public/otel`
 
 The OTLP/HTTP exporter appends `/v1/traces`.
+
+## Memory daemon + binder (shadow mode)
+
+Run one materialization + binder pass:
+
+```bash
+python tools/telemetry/memoryd.py \
+  --once \
+  --db ops/memory/memory.duckdb \
+  --run-root ops/runtime/runs \
+  --checkpoint ops/memory/checkpoints/materialize.state.json \
+  --run-binder \
+  --binder-mode strict
+```
+
+Validate checkpoint health including binder output:
+
+```bash
+python tools/telemetry/memory_alert_gate.py \
+  --checkpoint ops/memory/checkpoints/materialize.state.json \
+  --min-processed-runs 1 \
+  --min-binder-derived-rows 1
+```

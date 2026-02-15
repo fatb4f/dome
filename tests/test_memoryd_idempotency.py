@@ -218,3 +218,49 @@ def test_task_snapshots_prefers_failure_reason_and_guard_alias(tmp_path: Path) -
     assert len(tasks) == 1
     assert tasks[0].failure_reason_code == "EXEC.NONZERO_EXIT"
     assert tasks[0].policy_reason_code == "POLICY.NEEDS_HUMAN"
+
+
+def test_run_once_can_execute_binder_with_no_pending_runs(monkeypatch, tmp_path: Path) -> None:
+    run_root = tmp_path / "runs"
+    run_root.mkdir(parents=True)
+    checkpoint = tmp_path / "checkpoints/state.json"
+    memoryd.save_checkpoint(checkpoint, {"processed_runs": []})
+    schema = tmp_path / "schema.sql"
+    schema.write_text("-- no-op", encoding="utf-8")
+
+    class FakeConn:
+        def __init__(self) -> None:
+            self.queries: list[str] = []
+
+        def execute(self, query, params=None):
+            self.queries.append(" ".join(str(query).split()).lower())
+            return self
+
+        def close(self):
+            pass
+
+    fake_conn = FakeConn()
+    fake_duckdb = types.SimpleNamespace(connect=lambda _: fake_conn)
+    monkeypatch.setitem(sys.modules, "duckdb", fake_duckdb)
+    called = {"count": 0, "mode": ""}
+
+    def _fake_binder(db_path: Path, schema_path: Path, mode: str) -> int:
+        called["count"] += 1
+        called["mode"] = mode
+        return 3
+
+    monkeypatch.setattr(memoryd, "run_binder_once", _fake_binder)
+    processed = memoryd.run_once(
+        tmp_path / "memory.duckdb",
+        run_root,
+        checkpoint,
+        schema,
+        run_binder=True,
+        binder_mode="hybrid",
+    )
+    assert processed == 0
+    assert called["count"] == 1
+    assert called["mode"] == "hybrid"
+    out = memoryd.load_checkpoint(checkpoint)
+    assert out["last_binder_derived_rows"] == 3
+    assert out["binder_mode"] == "hybrid"
