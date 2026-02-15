@@ -21,3 +21,4 @@ Minimum alert thresholds:
 
 Machine-checkable alert gate:
 - `tools/orchestrator/alert_gate.py --summary <run_summary.json> --max-fail-ratio 0.05 --max-total-retries 10`
+- `tools/telemetry/memory_alert_gate.py --checkpoint <materialize.state.json> --min-processed-runs 1`

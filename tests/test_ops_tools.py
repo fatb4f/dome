@@ -81,3 +81,38 @@ def test_dlq_reprocess_script_outputs_manifest(tmp_path: Path) -> None:
     payload = json.loads(out_path.read_text(encoding="utf-8"))
     assert payload["run_id"] == run_id
     assert payload["dlq_count"] == 1
+
+
+def test_memory_alert_gate_pass_and_fail(tmp_path: Path) -> None:
+    checkpoint = tmp_path / "materialize.state.json"
+    checkpoint.write_text(json.dumps({"processed_runs": ["run-1", "run-2"]}), encoding="utf-8")
+
+    ok = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "tools/telemetry/memory_alert_gate.py"),
+            "--checkpoint",
+            str(checkpoint),
+            "--min-processed-runs",
+            "1",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert ok.returncode == 0
+
+    fail = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "tools/telemetry/memory_alert_gate.py"),
+            "--checkpoint",
+            str(checkpoint),
+            "--min-processed-runs",
+            "3",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert fail.returncode == 2

@@ -1,0 +1,52 @@
+{
+  "schema_version": "xtrl.pre_contract/v0.2",
+  "packet_id": "pkt-dome-lm-04-policy-hardening-ops",
+  "component": "dome",
+  "repo": "dome",
+  "base_ref": "main",
+  "mode": "NORMAL",
+  "budgets": {
+    "time_minutes": 45,
+    "iteration_budget": 3
+  },
+  "constraints": {
+    "clean_repo_required": true,
+    "allowed_paths": [
+      "doc/**",
+      "tools/**",
+      "tests/**",
+      "packets/**",
+      "ops/**",
+      ".gitignore",
+      "Justfile"
+    ],
+    "forbidden_paths": [
+      ".git/**"
+    ]
+  },
+  "actions": {
+    "test": [
+      "bash",
+      "-lc",
+      "just test"
+    ]
+  },
+  "plan_card": {
+    "why": "Execute LM-04 policy hardening milestone",
+    "what": "Add memory retention/redaction policy, ops runbook, and alert gate",
+    "how": "Implement docs + health gate script + tests and capture evidence",
+    "where": "dome repository",
+    "who": "orchestrator",
+    "when": "sequential milestone execution"
+  },
+  "lm": {
+    "id": "LM-04",
+    "priority": "P1",
+    "depends_on": [
+      "LM-02",
+      "LM-03"
+    ],
+    "tracker_issue": 30,
+    "milestone": "LM-04 Policy hardening + ops"
+  }
+}

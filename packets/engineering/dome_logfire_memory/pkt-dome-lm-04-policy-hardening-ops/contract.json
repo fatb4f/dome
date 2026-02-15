@@ -1,0 +1,60 @@
+{
+  "allowed_paths": [
+    "doc/**",
+    "tools/**",
+    "tests/**",
+    "packets/**",
+    "ops/**",
+    ".gitignore",
+    "Justfile"
+  ],
+  "area": "engineering/dome_logfire_memory",
+  "base_ref": "main",
+  "branch": "packet/pkt-dome-lm-04-policy-hardening-ops",
+  "budgets": {
+    "max_changed_files": 200,
+    "max_changed_lines": 20000
+  },
+  "evidence": {
+    "include_git_diff_patch": false,
+    "out_dir": "ops/runtime/lm-04"
+  },
+  "forbidden_outputs": [],
+  "github": {
+    "issue": {
+      "body": "Execution packet for LM-04 (policy hardening + ops).\\n\\nTracker issue: #30",
+      "close_on_success": false,
+      "comment_on_run": true,
+      "ensure": true,
+      "labels": [],
+      "milestone": "LM-04 Policy hardening + ops",
+      "template": "packet-default.yml",
+      "title": "LM-04: policy hardening + ops"
+    },
+    "repo": "fatb4f/dome"
+  },
+  "github_ops_required": false,
+  "net_ops_required": false,
+  "network_policy": {
+    "additional_domains": [],
+    "allowed_http_methods": [],
+    "domain_allowlist_preset": "none",
+    "internet_access": "off"
+  },
+  "packet_id": "pkt-dome-lm-04-policy-hardening-ops",
+  "repo": "fatb4f/dome",
+  "run": {
+    "commands": [
+      "just test"
+    ],
+    "regen_cmd": "",
+    "test_cmd": "just test"
+  },
+  "worktree_policy": {
+    "allow_dirty_globs": [],
+    "allow_untracked_globs": [],
+    "deny_if_worktree_exists": true,
+    "mode": "strict",
+    "worktree_root": "$CODEX_STATE/xtrl/worktrees"
+  }
+}
