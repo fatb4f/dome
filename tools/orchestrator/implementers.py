@@ -20,7 +20,7 @@ if str(ROOT) not in sys.path:
 from tools.orchestrator.dispatcher import DispatcherSupervisor, WorkerFn, load_work_queue
 from tools.orchestrator.evidence_capsule import to_capsule
 from tools.orchestrator.io_utils import atomic_write_json
-from tools.orchestrator.mcp_loop import Event, EventBus, TOPIC_TASK_RESULT, TOPIC_TASK_RESULT_RAW
+from tools.orchestrator.mcp_loop import Event, EventBus, TOPIC_TASK_RESULT
 from tools.orchestrator.security import assert_runtime_path, redact_sensitive_payload
 
 
@@ -161,22 +161,6 @@ class ImplementerHarness:
             attempt_history = result.get("attempt_history", [])
             attempt_path = attempt_dir / f"{result['task_id']}.attempts.json"
             atomic_write_json(attempt_path, attempt_history)
-            for attempt in attempt_history:
-                self.bus.publish(
-                    Event(
-                        topic=TOPIC_TASK_RESULT_RAW,
-                        run_id=run_id,
-                        payload={
-                            "task_id": result["task_id"],
-                            "status": attempt.get("status"),
-                            "attempt": int(attempt.get("attempt", 1)),
-                            "reason_code": attempt.get("reason_code"),
-                            "notes": attempt.get("notes"),
-                            "worker_model": result.get("worker_model"),
-                            "duration_ms": int(attempt.get("duration_ms", 0)),
-                        },
-                    )
-                )
             evidence = {
                 "otel": {
                     "backend": "local-mvp",

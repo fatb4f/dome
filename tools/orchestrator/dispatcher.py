@@ -7,6 +7,7 @@ import argparse
 import json
 import sys
 import time
+import traceback
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any, Callable
@@ -20,8 +21,9 @@ from tools.orchestrator.mcp_loop import (
     Event,
     EventBus,
     TOPIC_TASK_ASSIGNED,
-    TOPIC_TASK_RESULT,
+    TOPIC_TASK_RESULT_RAW,
 )
+from tools.orchestrator.planner import validate_task_graph
 
 
 WorkerFn = Callable[[dict[str, Any]], dict[str, Any]]
@@ -34,6 +36,7 @@ def load_work_queue(path: Path) -> dict[str, Any]:
             raise ValueError(f"missing required key in work.queue: {key}")
     if not isinstance(payload["tasks"], list) or not payload["tasks"]:
         raise ValueError("work.queue tasks must be a non-empty list")
+    validate_task_graph(payload["tasks"])
     return payload
 
 
@@ -66,6 +69,7 @@ class DispatcherSupervisor:
     def dispatch(self, work_queue: dict[str, Any]) -> dict[str, Any]:
         run_id = str(work_queue["run_id"])
         max_workers = max(1, int(work_queue["max_workers"]))
+        validate_task_graph(work_queue["tasks"])
 
         tasks_by_id = {task["task_id"]: dict(task) for task in work_queue["tasks"]}
         pending = set(tasks_by_id.keys())
@@ -105,17 +109,47 @@ class DispatcherSupervisor:
                 futures = {pool.submit(self.worker_fn, task): task for task in wave}
                 for future in as_completed(futures):
                     task = futures[future]
-                    result = future.result()
+                    try:
+                        result = future.result()
+                    except Exception as exc:
+                        result = {
+                            "task_id": task["task_id"],
+                            "status": "FAIL",
+                            "reason_code": "EXEC.NONZERO_EXIT",
+                            "notes": "worker raised exception during task execution",
+                            "error_type": type(exc).__name__,
+                            "error_message": str(exc),
+                            "error_traceback": traceback.format_exc(limit=20),
+                        }
                     result.setdefault("task_id", task["task_id"])
                     result.setdefault("worker_model", task["worker_model"])
                     results.append(result)
-                    self.bus.publish(
-                        Event(
-                            topic=TOPIC_TASK_RESULT,
-                            run_id=run_id,
-                            payload=result,
+                    attempt_history = result.get("attempt_history")
+                    if isinstance(attempt_history, list) and attempt_history:
+                        for attempt in attempt_history:
+                            self.bus.publish(
+                                Event(
+                                    topic=TOPIC_TASK_RESULT_RAW,
+                                    run_id=run_id,
+                                    payload={
+                                        "task_id": result["task_id"],
+                                        "status": attempt.get("status"),
+                                        "attempt": int(attempt.get("attempt", 1)),
+                                        "reason_code": attempt.get("reason_code"),
+                                        "notes": attempt.get("notes"),
+                                        "worker_model": result.get("worker_model"),
+                                        "duration_ms": int(attempt.get("duration_ms", 0)),
+                                    },
+                                )
+                            )
+                    else:
+                        self.bus.publish(
+                            Event(
+                                topic=TOPIC_TASK_RESULT_RAW,
+                                run_id=run_id,
+                                payload=result,
+                            )
                         )
-                    )
                     completed.add(task["task_id"])
                     pending.remove(task["task_id"])
 

@@ -129,3 +129,26 @@ def test_transient_failure_exhaustion_writes_dlq(tmp_path: Path) -> None:
     assert result["status"] == "FAIL"
     assert result["dlq_path"]
     assert Path(result["dlq_path"]).exists()
+
+
+def test_worker_exception_is_captured_as_structured_fail(tmp_path: Path) -> None:
+    def raising_worker(task: dict) -> dict:
+        raise ValueError(f"bad-task-{task['task_id']}")
+
+    bus = EventBus()
+    harness = ImplementerHarness(bus=bus, run_root=tmp_path, worker_fn=raising_worker, max_retries=0)
+    summary = harness.run(
+        {
+            "version": "0.2.0",
+            "run_id": "wave-phase2-exception",
+            "base_ref": "main",
+            "max_workers": 1,
+            "tasks": [{"task_id": "t1", "goal": "raise", "status": "QUEUED", "dependencies": []}],
+        }
+    )
+    result = summary["results"][0]
+    assert result["status"] == "FAIL"
+    assert result["reason_code"] == "EXEC.NONZERO_EXIT"
+    assert result["error_type"] == "ValueError"
+    assert "bad-task-t1" in result["error_message"]
+    assert "Traceback" in result["error_traceback"]

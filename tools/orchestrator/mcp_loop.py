@@ -49,29 +49,33 @@ class EventBus:
     def __init__(self, event_log: Path | None = None) -> None:
         self._topics: dict[str, queue.Queue[Event]] = {}
         self._event_log = event_log
-        self._lock = threading.Lock()
+        self._topics_lock = threading.Lock()
+        self._state_lock = threading.Lock()
+        self._event_log_lock = threading.Lock()
         self._seen_event_ids: set[str] = set()
         self._sequence = 0
         if event_log is not None:
             event_log.parent.mkdir(parents=True, exist_ok=True)
 
     def subscribe(self, topic: str) -> queue.Queue[Event]:
-        q = self._topics.get(topic)
-        if q is None:
-            q = queue.Queue()
-            self._topics[topic] = q
-        return q
+        with self._topics_lock:
+            q = self._topics.get(topic)
+            if q is None:
+                q = queue.Queue()
+                self._topics[topic] = q
+            return q
 
     def publish(self, event: Event) -> None:
-        with self._lock:
+        with self._state_lock:
             if event.event_id in self._seen_event_ids:
                 return
             self._seen_event_ids.add(event.event_id)
             self._sequence += 1
             sequence = self._sequence
-            q = self.subscribe(event.topic)
-            q.put(event)
-            if self._event_log is not None:
+        q = self.subscribe(event.topic)
+        q.put(event)
+        if self._event_log is not None:
+            with self._event_log_lock:
                 with self._event_log.open("a", encoding="utf-8") as fh:
                     fh.write(
                         json.dumps(
