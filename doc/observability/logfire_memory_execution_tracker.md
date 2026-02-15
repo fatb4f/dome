@@ -39,3 +39,21 @@ Evidence roots:
 - `ops/runtime/lm-02/`
 - `ops/runtime/lm-03/`
 - `ops/runtime/lm-04/`
+
+## Cross-Repo Requirements
+
+- `dome` remains integration owner for planner/daemon/materialization and Memory API behavior.
+- `xtrlv2` remains SSOT owner for guardrails/state-transition/reason-code schema contracts.
+- `watcher` provides compatible event envelope/topic sources for ingestion and replay support.
+- `opctrl` provides ops gating/runbook enforcement tied to memory and guard outcomes.
+
+## Cross-Repo Dependency Matrix
+
+`1` means row item depends on column item.
+
+| Row \\ Col | CR-01 dome | CR-02 xtrlv2 SSOT | CR-03 watcher | CR-04 opctrl |
+|---|---:|---:|---:|---:|
+| CR-01 dome | 0 | 1 | 1 | 1 |
+| CR-02 xtrlv2 SSOT | 0 | 0 | 0 | 0 |
+| CR-03 watcher | 0 | 1 | 0 | 0 |
+| CR-04 opctrl | 1 | 1 | 0 | 0 |
