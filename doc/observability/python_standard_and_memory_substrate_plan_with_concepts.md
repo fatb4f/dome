@@ -189,6 +189,17 @@ If any of these fail, it’s advisory (or unsafe), not prescriptive.
 
 **Why it exists:** to move from raw facts to stable, reusable, prescriptive concepts and keep them correct over time.
 
+### 9.4 Pattern-to-TaskSpec binding (execution mapping)
+
+| Pattern | Primary TaskSpec mapping | Verification anchor |
+|---|---|---|
+| LLM Map-Reduce | `action.kind=validate|rank`, `target.kind=data|artifact`, `scope=task|run`, `failure_reason_code` per map item | schema-valid map outputs, deterministic reduce |
+| Tool capability compartmentalization | `action.kind=harden`, `target.kind=tool_policy|runtime`, side-effects policy in TaskSpec/manifest | adapter-only I/O + policy gate |
+| Spec-as-test feedback loop | `action.kind=validate|fix`, `target.kind=schema|api|contract`, `failure_reason_code=spec_drift` | generated assertions + CI gate |
+| Episodic retrieval injection | `action.kind=retrieve|apply`, `target.kind=memory_capsule`, `scope=task|repo` | bounded top-k retrieval + post-apply verification |
+| Working memory via todos | `action.kind=plan|track`, `target.kind=workflow_state`, `scope=run` | todo freshness + phase transitions |
+| Memory synthesis from logs | `action.kind=synthesize`, `target.kind=memory_rule`, `scope=repo` | support threshold + provenance + revalidation |
+
 ---
 
 ---
@@ -220,22 +231,18 @@ This document consolidates:
 
 - [ ] `dome` owns planner/daemon/materialization/inference/capsule retrieval implementation and keeps interfaces stable.
 - [ ] `xtrlv2` is the source of truth for SSOT schemas/policies (`guardrails_bundle`, `reason_codes`, state/transition semantics) and versions are pinned in `dome`.
-- [ ] `watcher` emits normalized event envelopes/topics compatible with planner wrapper ingestion (`event_id`, `sequence`, `run_id`, evidence refs).
-- [ ] `opctrl` exposes runtime/ops gates and runbooks that enforce promotion policy on top of guard outcomes and memory health.
-- [ ] Cross-repo contract tests exist and run in CI for schema compatibility, event envelope compatibility, and reason-code semantics split.
-- [ ] Version drift policy is explicit: any breaking schema/event change requires coordinated version bump + migration notes across dependent repos.
+- [ ] Cross-repo contract tests exist and run in CI for schema compatibility and reason-code semantics split.
+- [ ] Version drift policy is explicit: any breaking SSOT schema change requires coordinated version bump + migration notes.
 
 ### Dependency matrix
 
 **Legend:** `1` means row depends on column.
 
-| Row \ Col | CR-01 dome | CR-02 xtrlv2 SSOT | CR-03 watcher events | CR-04 opctrl gates | CR-05 Contract tests |
-|---|---:|---:|---:|---:|---:|
-| **CR-01 dome** | 0 | 1 | 1 | 1 | 1 |
-| **CR-02 xtrlv2 SSOT** | 0 | 0 | 0 | 0 | 0 |
-| **CR-03 watcher events** | 0 | 1 | 0 | 0 | 1 |
-| **CR-04 opctrl gates** | 1 | 1 | 0 | 0 | 1 |
-| **CR-05 Contract tests** | 1 | 1 | 1 | 1 | 0 |
+| Row \ Col | CR-01 dome | CR-02 xtrlv2 SSOT | CR-03 Contract tests |
+|---|---:|---:|---:|
+| **CR-01 dome** | 0 | 1 | 1 |
+| **CR-02 xtrlv2 SSOT** | 0 | 0 | 0 |
+| **CR-03 Contract tests** | 1 | 1 | 0 |
 
 ---
 
