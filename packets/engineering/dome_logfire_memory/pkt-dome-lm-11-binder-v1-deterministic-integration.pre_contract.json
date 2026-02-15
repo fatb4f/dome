@@ -1,0 +1,30 @@
+{
+  "schema_version": "xtrl.pre_contract/v0.2",
+  "packet_id": "pkt-dome-lm-11-binder-v1-deterministic-integration",
+  "component": "dome",
+  "repo": "dome",
+  "base_ref": "main",
+  "mode": "NORMAL",
+  "budgets": {"time_minutes": 75, "iteration_budget": 4},
+  "constraints": {
+    "clean_repo_required": true,
+    "allowed_paths": ["tools/**", "tests/**", "doc/**", "packets/**", "ops/**"],
+    "forbidden_paths": [".git/**"]
+  },
+  "actions": {"test": ["bash", "-lc", "pytest -q tests/test_memory_binder.py tests/test_memory_query_contract.py"]},
+  "plan_card": {
+    "why": "Execute LM-11 binder v1 deterministic integration",
+    "what": "Implement deterministic binder derivations with idempotent upserts",
+    "how": "Add binder module + schema tables + replay-safe tests",
+    "where": "dome repository",
+    "who": "orchestrator",
+    "when": "sequential milestone execution"
+  },
+  "lm": {
+    "id": "LM-11",
+    "priority": "P0",
+    "depends_on": ["LM-10"],
+    "tracker_issue": 37,
+    "milestone": "LM-11 binder v1 deterministic integration"
+  }
+}

@@ -49,10 +49,31 @@ CREATE TABLE IF NOT EXISTS memory_feature (
   created_ts TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS binder_fact (
+  derived_upsert_key TEXT PRIMARY KEY,
+  idempotency_key TEXT UNIQUE,
+  run_id TEXT,
+  task_id TEXT,
+  group_id TEXT,
+  scope TEXT,
+  target_kind TEXT,
+  target_id TEXT,
+  action_kind TEXT,
+  failure_reason_code TEXT,
+  policy_reason_code TEXT,
+  fingerprint_hash TEXT,
+  binder_version TEXT,
+  support_count INTEGER,
+  contradiction_count INTEGER,
+  last_seen_ts TIMESTAMP
+);
+
 CREATE INDEX IF NOT EXISTS idx_task_reason ON task_fact(reason_code); -- compatibility alias index
 CREATE INDEX IF NOT EXISTS idx_task_failure_reason ON task_fact(failure_reason_code);
 CREATE INDEX IF NOT EXISTS idx_task_status ON task_fact(status);
 CREATE INDEX IF NOT EXISTS idx_run_gate ON run_fact(gate_status);
+CREATE INDEX IF NOT EXISTS idx_binder_run_task ON binder_fact(run_id, task_id);
+CREATE INDEX IF NOT EXISTS idx_binder_fingerprint ON binder_fact(fingerprint_hash);
 
 ALTER TABLE task_fact ADD COLUMN IF NOT EXISTS failure_reason_code TEXT;
 ALTER TABLE task_fact ADD COLUMN IF NOT EXISTS policy_reason_code TEXT;

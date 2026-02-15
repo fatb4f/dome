@@ -16,7 +16,7 @@ Date: 2026-02-15
 | 8 | LM-08 Query primitive hardening | Add stable query primitives for deterministic/bounded retrieval patterns | P0 | LM-05 | Done (#34) |
 | 9 | LM-09 Tracker truthfulness + OTLP backend naming | Reconcile tracker/status fidelity and backend naming (`OTLP backend` with backend options) | P1 | LM-08 | Done (#35) |
 | 10 | LM-10 Semantics migration completion | Complete failure/policy reason semantic naming migration and compatibility boundaries | P0 | LM-09 | Done (#36) |
-| 11 | LM-11 Binder v1 deterministic integration | Implement binder idempotency/upsert keys/fingerprint determinism and replay-safe derivations | P0 | LM-10 | Planned |
+| 11 | LM-11 Binder v1 deterministic integration | Implement binder idempotency/upsert keys/fingerprint determinism and replay-safe derivations | P0 | LM-10 | Done (#37) |
 
 ## Dependency Matrix
 
@@ -55,11 +55,11 @@ Date: 2026-02-15
 8. `pkt-dome-lm-08-query-primitives-hardening`
 9. `pkt-dome-lm-09-tracker-otlp-reconciliation`
 10. `pkt-dome-lm-10-semantics-migration-completion`
-11. `pkt-dome-lm-11-binder-v1-deterministic-integration` (planned)
+11. `pkt-dome-lm-11-binder-v1-deterministic-integration`
 
 ## Completion
 
-LM-01..LM-10 completed on 2026-02-15; LM-11 is planned.
+LM-01..LM-11 completed on 2026-02-15.
 
 Evidence roots:
 
@@ -73,6 +73,7 @@ Evidence roots:
 - `ops/runtime/lm-08/`
 - `ops/runtime/lm-09/`
 - `ops/runtime/lm-10/`
+- `ops/runtime/lm-11/`
 
 ## Status Semantics
 
