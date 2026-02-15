@@ -33,5 +33,3 @@ Machine-checkable alert gate:
 Cross-repo dependencies:
 - `dome`: emits/consumes telemetry fields and wrapper envelopes in planner+daemon.
 - `xtrlv2`: supplies guardrails/reason-code semantics consumed by telemetry normalization.
-- `watcher`: contributes normalized event envelopes used for replay and high-signal grouping.
-- `opctrl`: consumes alert outputs and enforces promotion/runbook policy.

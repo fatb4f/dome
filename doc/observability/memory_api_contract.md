@@ -48,5 +48,3 @@ Date: 2026-02-15
 
 - `dome`: owns API implementation and backward-compatible aliasing (`reason_code` -> `failure_reason_code`).
 - `xtrlv2`: owns SSOT schema/policy contracts that define reason and guard semantics.
-- `watcher`: emits compatible envelopes/events consumed by planner/daemon pipelines.
-- `opctrl`: enforces runtime ops gates and promotion policy based on API-visible outcomes.
