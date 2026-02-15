@@ -200,6 +200,35 @@ If any of these fail, it’s advisory (or unsafe), not prescriptive.
 | Working memory via todos | `action.kind=plan|track`, `target.kind=workflow_state`, `scope=run` | todo freshness + phase transitions |
 | Memory synthesis from logs | `action.kind=synthesize`, `target.kind=memory_rule`, `scope=repo` | support threshold + provenance + revalidation |
 
+**Operational binding contract (v1):**
+- Binder ownership: `dome` binder derives TaskSpec-bound artifacts from facts/inference and is idempotent.
+- Idempotency key: `(run_id, task_id, group_id, binder_version)`.
+- Derived upsert key: `(scope, target.kind, target.id, action.kind, failure_reason_code, fingerprint_hash, binder_version)`.
+
+**Fingerprint canonicalization (required):**
+- Canonicalize tool/config signature, sorted gate set, normalized version/env dimensions.
+- Compute `fingerprint_hash = sha256(canonical_json_bytes)` for stable identity across reprocessing.
+
+**Query primitive interface (required):**
+- Use stable retrieval handles (materialized views or typed query templates), never free-form SQL generation.
+- Recommended baseline views:
+  - `mv_recent_failures_by_taskspec`
+  - `mv_gate_rollup_by_failure_reason_code`
+  - `mv_guard_denials_by_policy_reason_code`
+
+**Confidence/support maintenance hook:**
+- Every binding refresh updates: `support_count`, `last_seen_ts`, and contradiction counters (failure after prior success).
+- Prescriptive eligibility is reduced when contradiction rate or staleness crosses policy thresholds.
+
+**Fallback policy semantics (deterministic):**
+- `Strict`: persist facts + `guard_eval`, but do not mint derived capsules without explicit failure/denial wrapper.
+- `Hybrid`: derive from failures/denials/anomalies only.
+- `Lenient`: derive from full ingested set via heuristics.
+- Hybrid anomaly triggers must be explicit and versioned (e.g., retry-storm threshold breach, unexpected latency delta, unseen guard denial).
+
+**Retrieval filter naming:**
+- Use `failure_reason_code` in binding/retrieval logic (`reason_code` accepted only as compatibility alias).
+
 ---
 
 ---
