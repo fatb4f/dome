@@ -138,3 +138,33 @@ Exit criteria:
 - Use one issue per milestone (`K0`..`K4`).
 - Require explicit “exit criteria met” evidence before milestone closure.
 - Keep migration notes in `dome` docs whenever pinned `xtrlv2` schema versions change.
+
+## Phase 2 Plan (LM-09..LM-11)
+
+### LM-09: Tracker truthfulness + backend naming reconciliation
+
+- Normalize observability language to `OTLP backend` with backend examples (`Logfire`, `Langfuse`).
+- Align tracker statuses to implemented reality (`Done`, `Partial`, `Planned`).
+- Ensure milestone docs do not imply completeness beyond shipped code.
+
+### LM-10: Semantics migration completion
+
+- Remove remaining ambiguous `reason_code` references where failure/policy split is required.
+- Keep `reason_code` compatibility alias only at explicit API/ingress boundaries.
+- Add regression tests for split invariants in telemetry, API, and retrieval.
+
+### LM-11: Binder v1 implementation
+
+- Implement binder idempotency and deterministic upsert keys from section 9.4.
+- Enforce canonical fingerprint hashing and deterministic derived writes.
+- Add replay reprocessing tests proving no duplicate derived artifacts.
+
+### Phase 2 Dependency Matrix
+
+`1` means row item depends on column item.
+
+| Row \\ Col | LM-09 | LM-10 | LM-11 |
+|---|---:|---:|---:|
+| LM-09 | 0 | 0 | 0 |
+| LM-10 | 1 | 0 | 0 |
+| LM-11 | 1 | 1 | 0 |

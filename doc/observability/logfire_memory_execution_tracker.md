@@ -14,6 +14,9 @@ Date: 2026-02-15
 | 6 | LM-06 Deterministic timestamps + replay stability | Deterministic timestamp handling and replay-stable ordering in memory writes | P0 | LM-05 | Done (#32) |
 | 7 | LM-07 Cross-repo contract tests | Pin and validate xtrlv2 SSOT compatibility artifacts in dome CI tests | P0 | LM-05 | Done (#33) |
 | 8 | LM-08 Query primitive hardening | Add stable query primitives for deterministic/bounded retrieval patterns | P0 | LM-05 | Done (#34) |
+| 9 | LM-09 Tracker truthfulness + OTLP backend naming | Reconcile tracker/status fidelity and backend naming (`OTLP backend` with backend options) | P1 | LM-08 | Planned |
+| 10 | LM-10 Semantics migration completion | Complete failure/policy reason semantic naming migration and compatibility boundaries | P0 | LM-09 | Planned |
+| 11 | LM-11 Binder v1 deterministic integration | Implement binder idempotency/upsert keys/fingerprint determinism and replay-safe derivations | P0 | LM-10 | Planned |
 
 ## Dependency Matrix
 
@@ -26,6 +29,20 @@ Date: 2026-02-15
 | LM-03 | 0 | 1 | 0 | 0 |
 | LM-04 | 0 | 1 | 1 | 0 |
 
+## Forward Dependency Matrix (LM-05..LM-11)
+
+`1` means row item depends on column item.
+
+| Row \\ Col | LM-05 | LM-06 | LM-07 | LM-08 | LM-09 | LM-10 | LM-11 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| LM-05 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| LM-06 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+| LM-07 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+| LM-08 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+| LM-09 | 0 | 0 | 0 | 1 | 0 | 0 | 0 |
+| LM-10 | 0 | 0 | 0 | 0 | 1 | 0 | 0 |
+| LM-11 | 0 | 0 | 0 | 0 | 1 | 1 | 0 |
+
 ## Packet IDs
 
 1. `pkt-dome-lm-01-otel-logfire-baseline`
@@ -36,10 +53,13 @@ Date: 2026-02-15
 6. `pkt-dome-lm-06-deterministic-timestamps-replay`
 7. `pkt-dome-lm-07-cross-repo-contract-tests`
 8. `pkt-dome-lm-08-query-primitives-hardening`
+9. `pkt-dome-lm-09-tracker-otlp-reconciliation` (planned)
+10. `pkt-dome-lm-10-semantics-migration-completion` (planned)
+11. `pkt-dome-lm-11-binder-v1-deterministic-integration` (planned)
 
 ## Completion
 
-Sequential milestone execution completed on 2026-02-15.
+LM-01..LM-08 completed on 2026-02-15; LM-09..LM-11 are planned.
 
 Evidence roots:
 
