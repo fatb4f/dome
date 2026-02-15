@@ -39,7 +39,7 @@ This is explicitly **not** just “telemetry storage” or “analytics”.
 Planner emits wrapper context for:
 - promoted evidence (high-signal),
 - every gate failure (also high-signal),
-and includes TaskSpec primitives (target/action/scope/reason_code).
+and includes TaskSpec primitives (target/action/scope/failure_reason_code).
 
 Wrappers are the *selector* that prevents the daemon from guessing.
 
@@ -61,7 +61,7 @@ At planning time:
 ## 4) Safety model: Guardrails as the control plane
 
 ### 4.1 GuardrailsBundle (contract)
-Guardrails are **control-plane** decisions about whether a transition is allowed.
+Guardrails are **control-plane** decisions about whether a transition is allowed. Treat GuardrailsBundle as an **upstream policy input** (configured, not derived from ingest/wrappers).
 
 GuardrailsBundle provides:
 - explicit guard specs,
@@ -89,6 +89,11 @@ Learning-plane mechanisms generate evidence and update taxonomy/strategies:
 
 These feed the inference layer and concept maintenance (support/decay/conflict).
 
+**Spec-as-test has both learning-plane and control-plane effects:**
+- As learning-plane: it generates evidence and keeps taxonomy/strategies honest.
+- As control-plane: failures are emitted as high-signal wrapper events and should block promotion until resolved.
+
+
 ---
 
 ## 6) Key conceptual tension (state explicitly)
@@ -100,7 +105,7 @@ Resolution:
 - while still capturing:
   - evidence bundles,
   - `guard_eval`,
-  - `reason_code` candidates,
+  - `failure_reason_code` candidates,
   - and a learning workflow that classifies novel failures and proposes strategies.
 
 In other words: **deny execution, not observation**.
@@ -111,7 +116,7 @@ In other words: **deny execution, not observation**.
 
 To avoid polluted priors, distinguish:
 
-- **Failure semantics (`reason_code`)**
+- **Failure semantics (`failure_reason_code`)**
   - “what went wrong in the domain/tool/task”
   - used for retrieval keys and strategy mapping
 
@@ -122,6 +127,11 @@ To avoid polluted priors, distinguish:
 Both can coexist on an event, but they should remain separable fields/columns.
 
 ---
+
+
+**Fielding rule (to keep priors clean):**
+- Use `task.reason_code` (canonical **failure_reason_code** field) for failure semantics only.
+- Store guard denials separately (e.g., `policy_reason_code` / `guard_reason_code`), and allow both to exist on the same task/event.
 
 ## 8) What “done” means conceptually
 
@@ -140,6 +150,11 @@ If any of these fail, it’s advisory (or unsafe), not prescriptive.
 ## 9) Concept definitions (the three main blocks)
 
 ### 9.1 `python_standard` (tool-shaping gate)
+
+**Fast/slow verification split:**
+- Run schema + determinism + Hypothesis properties in fast CI.
+- Run replay/fuzz as slower, scheduled gates (nightly/weekly) while still writing their outcomes into the same fact/capsule pipeline.
+
 **What it is:** a composite gate that turns “a tool” into a predictable, contract-driven component.
 
 **What it enforces (in layers):**
@@ -240,7 +255,8 @@ This document consolidates:
 
 ### E. Observability & verification checks
 - [ ] Tool emits required telemetry fields:  
-  `run.id`, `task.id`, `task.status`, `task.attempts`, `task.reason_code`, `task.worker_model`, `task.duration_ms`.
+  `run.id`, `task.id`, `task.status`, `task.attempts`, `task.reason_code` (canonical `failure_reason_code`), `task.worker_model`, `task.duration_ms`.
+  - When a guard denial occurs, also emit `policy_reason_code`/`guard_reason_code` (separate from `task.reason_code`).
 - [ ] Spec-as-test: executable assertions generated from spec and run in CI.
 - [ ] Replay harness exists for packet-level reproduction (uses `summary.json → evidence_bundle_path` + event envelope).
 - [ ] Fuzz harness exists (schema-driven mutations; failures produce minimal repro bundles).
@@ -250,7 +266,7 @@ This document consolidates:
 - [ ] Enforce unknowns=DENY (`max_unknowns: 0`) for tool lifecycle/state transitions.
 - [ ] Enforce `required_evidence` on guarded transitions (e.g., `evidence_capsule`).
 - [ ] Emit `guard_eval` with decision + reason codes + evidence refs.
-- [ ] Map guard denials to standardized `reason_code` and ensure telemetry emits it.
+- [ ] Map guard denials to a separate `policy_reason_code`/`guard_reason_code` field and ensure telemetry emits it (do **not** overload `task.reason_code`).
 
 ---
 
@@ -281,9 +297,17 @@ This document consolidates:
 - [ ] Daemon has a checkpointed ingest loop (restart-safe).
 
 ### B. Planner wrapper context (high-signal selection)
+
+### B.1 Wrapper fallback policy (required)
+- [ ] Define fallback behavior when wrappers are missing/partial:
+  - **Strict:** no wrapper ⇒ no patterning/capsule minting (facts-only)
+  - **Hybrid (recommended):** no wrapper ⇒ derive only from failures/denials/anomalies
+  - **Lenient:** no wrapper ⇒ run heuristics over all ingested facts
+- [ ] Persist the chosen policy per run/packet (`wrapper_policy`) so behavior is auditable and replayable.
+
 - [ ] Planner emits wrappers for promoted evidence groups.
 - [ ] Planner emits wrappers for every failed gate.
-- [ ] Wrappers carry TaskSpec keys (scope + target/action primitives + reason_code).
+- [ ] Wrappers carry TaskSpec keys (scope + target/action primitives + failure_reason_code).
 - [ ] Wrapper membership points to evidence bundles (paths/hashes).
 
 ### C. Fact tables (facts first)
@@ -294,7 +318,7 @@ This document consolidates:
 
 ### D. Derived tables (indexed queries)
 - [ ] `run_gate_status` rollup exists (promotion blockers, fail ratios, retries).
-- [ ] `gate_fail_rollup` exists (by gate, reason_code, worker_model, time bucket).
+- [ ] `gate_fail_rollup` exists (by gate, failure_reason_code, worker_model, time bucket).
 
 ### E. Capsules (operational + conceptual)
 - [ ] Operational capsules minted per wrapper group via `memory.upsert_capsule` and validated against SSOT schema.
@@ -303,12 +327,12 @@ This document consolidates:
 
 ### F. Retrieval loop (planner uses memory)
 - [ ] Planner calls `memory.query_priors(scope, filters, limit<=200)` before task execution.
-- [ ] Planner matches/ranks priors by TaskSpec primitives (target/action/reason_code/etc.).
+- [ ] Planner matches/ranks priors by TaskSpec primitives (target/action/**failure_reason_code**/etc.).
 - [ ] Single-shot promo only when priors are high-confidence and version/policy compatible.
 
 ### G. Inference layer (normalization → recommendations)
-- [ ] Failure fingerprints derived from facts (gate sets, reason_code, tool/config signatures).
-- [ ] Policy-driven classification (strategy selection) and confidence tracking.
+- [ ] Failure fingerprints derived from facts (gate sets, failure_reason_code, tool/config signatures).
+- [ ] Policy-driven classification (strategy selection) and confidence tracking, keyed primarily on **failure_reason_code** (not policy denials).
 - [ ] Spec-as-test drift detection feeds the same pipeline (new failures mint new capsules).
 
 ### H. Replay/fuzz + ops gates
@@ -327,16 +351,18 @@ This document consolidates:
 
 ## Revised memory substrate dependency matrix
 
+> Note: **MS-05 Derivations** currently groups rollups and inference for simplicity. If you later need separate SLOs/runtime (e.g., rollups continuous vs inference batch), split it into two columns without changing the upstream dependencies.
+
+
 **Legend:** `1` means row depends on column.
 
-| Row \ Col | MS-01 Ingest | MS-02 Wrappers | MS-03 Guardrails | MS-04 Facts | MS-05 Inference | MS-06 Capsules | MS-07 Retrieval | MS-08 OpsGates |
+| Row \ Col | MS-01 GuardrailsBundle | MS-02 Ingest (OTel+Logfire) | MS-03 Planner Wrappers | MS-04 Fact Tables | MS-05 Derivations (rollups+inference) | MS-06 Capsule Minting | MS-07 Replay/Fuzz | MS-08 Ops Gates |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| **MS-01 Ingest** | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| **MS-02 Wrappers** | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| **MS-03 Guardrails** | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| **MS-04 Facts** | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
-| **MS-05 Inference** | 0 | 1 | 1 | 1 | 0 | 0 | 0 | 0 |
-| **MS-06 Capsules** | 0 | 1 | 1 | 1 | 1 | 0 | 0 | 0 |
-| **MS-07 Retrieval** | 0 | 0 | 0 | 1 | 1 | 1 | 0 | 0 |
-| **MS-08 OpsGates** | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 0 |
-
+| **MS-01 GuardrailsBundle** | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| **MS-02 Ingest (OTel+Logfire)** | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| **MS-03 Planner Wrappers** | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+| **MS-04 Fact Tables** | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+| **MS-05 Derivations (rollups+inference)** | 1 | 0 | 1 | 1 | 0 | 0 | 0 | 0 |
+| **MS-06 Capsule Minting** | 1 | 0 | 1 | 1 | 1 | 0 | 0 | 0 |
+| **MS-07 Replay/Fuzz** | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 |
+| **MS-08 Ops Gates** | 1 | 0 | 0 | 1 | 1 | 1 | 1 | 0 |
