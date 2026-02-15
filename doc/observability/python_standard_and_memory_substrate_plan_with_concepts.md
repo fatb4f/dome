@@ -214,6 +214,17 @@ This document consolidates:
 
 ---
 
+## TaskSpec backbone checklist
+
+- [ ] `TaskSpec` primitives are required on every planned task: `scope`, `target.kind`, `target.id`, `action.kind`, `failure_reason_code`.
+- [ ] Side-effects policy is declared and canonicalized in `TaskSpec`/manifest (`mode`, allowlists, adapter requirement).
+- [ ] Version context is attached for applicability (`tool_version`, `schema_version`, optional `env_class`).
+- [ ] Transition context is explicit for guarded execution (`from_state`, `to_state`, optional `transition_id`).
+- [ ] Failure and policy semantics are separated: `failure_reason_code` for task/domain semantics, `policy_reason_code` for guard denials.
+- [ ] Capsule key derivation is deterministic from TaskSpec backbone fields (+ optional version dimensions).
+
+---
+
 ## TaskSpec backbone dependency matrix
 
 **Legend:** `1` means row depends on column.
