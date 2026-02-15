@@ -36,6 +36,7 @@ from tools.orchestrator.promote import (
 from tools.orchestrator.runtime_config import load_runtime_profile
 from tools.orchestrator.security import assert_runtime_path
 from tools.orchestrator.substrate_layout import ensure_substrate_layout
+from tools.orchestrator.otel_stage import stage_span
 from tools.orchestrator.state_writer import update_state_space
 
 
@@ -100,7 +101,15 @@ def run_demo(
     runtime_profile: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     pre_contract = json.loads(pre_contract_path.read_text(encoding="utf-8"))
-    work_queue = pre_contract_to_work_queue(pre_contract)
+    with stage_span(
+        "dome.planner.translate",
+        {
+            "packet.id": str(pre_contract.get("packet_id", "unknown")),
+            "base.ref": str(pre_contract.get("base_ref", "main")),
+        },
+        enabled=otel_export,
+    ):
+        work_queue = pre_contract_to_work_queue(pre_contract)
     verify_command = _verify_command_from_pre_contract(pre_contract)
 
     run_id = work_queue["run_id"]
@@ -116,32 +125,66 @@ def run_demo(
         max_retries=max_retries,
         worker_models=worker_models,
     )
-    run_summary = implementers.run(work_queue)
+    with stage_span(
+        "dome.implementers.run",
+        {
+            "run.id": run_id,
+            "task.count": len(work_queue.get("tasks", [])),
+            "max.workers": int(work_queue.get("max_workers", 1)),
+        },
+        enabled=otel_export,
+    ):
+        run_summary = implementers.run(work_queue)
 
     reason_codes_payload = json.loads(reason_codes_path.read_text(encoding="utf-8"))
     reason_codes_catalog = {item["code"] for item in reason_codes_payload.get("codes", [])}
-    gate_decision, trace_source = create_gate_decision(
-        run_summary=run_summary,
-        reason_codes_catalog=reason_codes_catalog,
-        verify_command=verify_command,
-        risk_threshold=risk_threshold,
-        otel_export=otel_export,
-    )
+    with stage_span(
+        "dome.gate.evaluate",
+        {
+            "run.id": run_id,
+            "risk.threshold": risk_threshold,
+        },
+        enabled=otel_export,
+    ):
+        gate_decision, trace_source = create_gate_decision(
+            run_summary=run_summary,
+            reason_codes_catalog=reason_codes_catalog,
+            verify_command=verify_command,
+            risk_threshold=risk_threshold,
+            otel_export=otel_export,
+        )
     validate_gate_decision_schema(gate_decision, ROOT / "ssot/schemas/gate.decision.schema.json")
     gate_path = persist_gate_decision(run_root, run_id, gate_decision)
 
-    promotion = create_promotion_decision(gate_decision=gate_decision, max_risk=risk_threshold)
+    with stage_span(
+        "dome.promote.decide",
+        {
+            "run.id": run_id,
+            "gate.status": str(gate_decision.get("status", "")),
+            "max.risk": risk_threshold,
+        },
+        enabled=otel_export,
+    ):
+        promotion = create_promotion_decision(gate_decision=gate_decision, max_risk=risk_threshold)
     validate_promotion_schema(promotion, ROOT / "ssot/schemas/promotion.decision.schema.json")
     promotion_path = persist_promotion_decision(run_root, run_id, promotion)
 
     state_space = json.loads(state_space_path.read_text(encoding="utf-8"))
-    updated_state = update_state_space(
-        state_space=state_space,
-        work_queue=work_queue,
-        run_summary=run_summary,
-        gate_decision=gate_decision,
-        promotion_decision=promotion,
-    )
+    with stage_span(
+        "dome.state.write",
+        {
+            "run.id": run_id,
+            "work.items": len(work_queue.get("tasks", [])),
+        },
+        enabled=otel_export,
+    ):
+        updated_state = update_state_space(
+            state_space=state_space,
+            work_queue=work_queue,
+            run_summary=run_summary,
+            gate_decision=gate_decision,
+            promotion_decision=promotion,
+        )
     state_out_path = run_dir / "state.space.json"
     atomic_write_json(state_out_path, updated_state)
 
