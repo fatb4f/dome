@@ -95,10 +95,17 @@ Evidence roots:
 | CR-01 dome | 0 | 1 |
 | CR-02 xtrlv2 SSOT | 0 | 0 |
 
-## Phase 3 Rollout Items (Planned)
+## Post-LM11 Planned Rollout
 
-| Order | Item | Scope | Status |
-|---:|---|---|---|
-| 1 | P3-01 Binder in daemon loop (shadow mode) | Optional `memoryd --run-binder` rollout without planner behavior changes | Planned |
-| 2 | P3-02 Ops alerts + runbook wiring | Binder-aware health thresholds and runbook commands | Planned |
-| 3 | P3-03 End-to-end deterministic pipeline validation | Integration coverage for materialize -> binder determinism | Planned |
+Associated tracker issue: `#42`
+
+| Order | Item | Issue | Scope | Status |
+|---:|---|---:|---|---|
+| 1 | PL-01 Binder shadow-mode daemon rollout | #38 | Optional `memoryd --run-binder` rollout without planner behavior changes | Planned |
+| 2 | PL-02 Binder-aware ops alerts + runbook wiring | #39 | Binder-aware health thresholds and runbook commands | Planned |
+| 3 | PL-03 Planner retrieval loop with memory priors | #41 | Query/rank priors before execution with deterministic bounded selection | Planned |
+| 4 | PL-04 Guardrails facts ingestion + policy reason-code path | #40 | Persist guard facts while keeping policy/failure semantics split | Planned |
+| 5 | PL-05 End-to-end deterministic pipeline validation | #43 | Integration coverage for materialize -> binder -> retrieve determinism | Planned |
+
+Detailed dependency matrix and milestone tracker:
+- `doc/observability/post_lm11_memory_execution_tracker.md`
