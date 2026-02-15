@@ -29,8 +29,30 @@ class FakeConn:
         self.last_query = ""
         self.last_params = []
         self._select_task_rows = [
-            ("run-002", "task-b", "PASS", "", 1, 15, "gpt-5.3", "memory://capsule/run-002/task-b", "2026-02-15T00:00:02Z"),
-            ("run-001", "task-a", "FAIL", "TRANSIENT.NETWORK", 2, 55, "gpt-5.2", "memory://capsule/run-001/task-a", "2026-02-15T00:00:01Z"),
+            (
+                "run-002",
+                "task-b",
+                "PASS",
+                "",
+                "",
+                1,
+                15,
+                "gpt-5.3",
+                "memory://capsule/run-002/task-b",
+                "2026-02-15T00:00:02Z",
+            ),
+            (
+                "run-001",
+                "task-a",
+                "FAIL",
+                "TRANSIENT.NETWORK",
+                "",
+                2,
+                55,
+                "gpt-5.2",
+                "memory://capsule/run-001/task-a",
+                "2026-02-15T00:00:01Z",
+            ),
         ]
 
     def execute(self, query, params=None):
@@ -39,8 +61,18 @@ class FakeConn:
         q = " ".join(query.split()).lower()
         if "from task_fact where run_id =" in q:
             return FakeCursor(
-                [("run-001", "task-a", "PASS", "", 1, 10, "gpt-5.3", "memory://capsule/run-001/task-a")],
-                ["run_id", "task_id", "status", "reason_code", "attempts", "duration_ms", "worker_model", "evidence_capsule_path"],
+                [("run-001", "task-a", "PASS", "", "", 1, 10, "gpt-5.3", "memory://capsule/run-001/task-a")],
+                [
+                    "run_id",
+                    "task_id",
+                    "status",
+                    "failure_reason_code",
+                    "policy_reason_code",
+                    "attempts",
+                    "duration_ms",
+                    "worker_model",
+                    "evidence_capsule_path",
+                ],
             )
         if "from run_fact where run_id =" in q:
             return FakeCursor(
@@ -50,7 +82,18 @@ class FakeConn:
         if "from task_fact" in q:
             return FakeCursor(
                 self._select_task_rows,
-                ["run_id", "task_id", "status", "reason_code", "attempts", "duration_ms", "worker_model", "evidence_capsule_path", "updated_ts"],
+                [
+                    "run_id",
+                    "task_id",
+                    "status",
+                    "failure_reason_code",
+                    "policy_reason_code",
+                    "attempts",
+                    "duration_ms",
+                    "worker_model",
+                    "evidence_capsule_path",
+                    "updated_ts",
+                ],
             )
         return FakeCursor([], ["ok"])
 
@@ -64,7 +107,7 @@ def test_query_priors_uses_stable_sort_and_limit(monkeypatch):
     out = memory_api.query_priors(
         db_path=Path("/tmp/memory.duckdb"),
         scope="task",
-        filters={"reason_code": "TRANSIENT.NETWORK"},
+        filters={"failure_reason_code": "TRANSIENT.NETWORK"},
         limit=1000,
     )
     assert len(out) == 2
@@ -95,10 +138,25 @@ def test_upsert_capsule_validates_schema(monkeypatch):
         run_id="run-001",
         task_id="task-001",
         status="PASS",
-        reason_code=None,
+        failure_reason_code=None,
+        policy_reason_code="POLICY.NEEDS_HUMAN",
     )
     assert out["ok"] is True
     assert out["run_id"] == "run-001"
+
+
+def test_query_priors_reason_code_alias(monkeypatch):
+    fake = FakeConn()
+    monkeypatch.setattr(memory_api, "_connect", lambda _: fake)
+    memory_api.query_priors(
+        db_path=Path("/tmp/memory.duckdb"),
+        scope="task",
+        filters={"reason_code": "TRANSIENT.NETWORK"},
+        limit=5,
+    )
+    assert "coalesce(failure_reason_code, reason_code) = ?" in " ".join(
+        fake.last_query.lower().split()
+    )
 
 
 def test_health_reports_checkpoint(tmp_path: Path) -> None:
@@ -107,4 +165,3 @@ def test_health_reports_checkpoint(tmp_path: Path) -> None:
     out = memory_api.health(checkpoint)
     assert out["daemon"] == "ok"
     assert out["processed_runs"] == 2
-

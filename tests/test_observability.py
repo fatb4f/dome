@@ -51,6 +51,7 @@ def test_golden_telemetry_fields_and_correlation(tmp_path: Path) -> None:
             "task.id",
             "task.status",
             "task.attempts",
+            "task.reason_code",
             "task.worker_model",
             "task.duration_ms",
         ):

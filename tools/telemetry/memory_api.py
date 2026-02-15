@@ -59,17 +59,22 @@ def query_priors(
 
     where = []
     params: list[Any] = []
-    if filters.get("reason_code"):
-        where.append("reason_code = ?")
-        params.append(filters["reason_code"])
+    failure_reason = filters.get("failure_reason_code") or filters.get("reason_code")
+    if failure_reason:
+        where.append("COALESCE(failure_reason_code, reason_code) = ?")
+        params.append(failure_reason)
+    if filters.get("policy_reason_code"):
+        where.append("policy_reason_code = ?")
+        params.append(filters["policy_reason_code"])
     if filters.get("task_status"):
         where.append("status = ?")
         params.append(filters["task_status"])
 
     where_sql = f"WHERE {' AND '.join(where)}" if where else ""
     query = (
-        "SELECT run_id, task_id, status, reason_code, attempts, duration_ms, "
-        "worker_model, evidence_capsule_path, updated_ts "
+        "SELECT run_id, task_id, status, "
+        "COALESCE(failure_reason_code, reason_code) AS failure_reason_code, "
+        "policy_reason_code, attempts, duration_ms, worker_model, evidence_capsule_path, updated_ts "
         f"FROM task_fact {where_sql} "
         "ORDER BY updated_ts DESC, run_id ASC, task_id ASC "
         "LIMIT ?"
@@ -92,7 +97,9 @@ def upsert_capsule(
     run_id: str,
     task_id: str,
     status: str,
-    reason_code: str | None,
+    reason_code: str | None = None,
+    failure_reason_code: str | None = None,
+    policy_reason_code: str | None = None,
     schema_path: Path = CAPSULE_SCHEMA,
 ) -> dict[str, Any]:
     try:
@@ -103,15 +110,17 @@ def upsert_capsule(
         schema = json.loads(schema_path.read_text(encoding="utf-8"))
         jsonschema.validate(capsule_payload, schema)
 
+    canonical_failure_reason = failure_reason_code if failure_reason_code is not None else reason_code
+
     conn = _connect(db_path)
     try:
         conn.execute(
             """
             INSERT OR REPLACE INTO task_fact (
-              run_id, task_id, status, reason_code, attempts, duration_ms,
+              run_id, task_id, status, failure_reason_code, policy_reason_code, reason_code, attempts, duration_ms,
               worker_model, evidence_bundle_path, evidence_capsule_path, updated_ts
             )
-            VALUES (?, ?, ?, ?, COALESCE((SELECT attempts FROM task_fact WHERE run_id = ? AND task_id = ?), 1),
+            VALUES (?, ?, ?, ?, ?, ?, COALESCE((SELECT attempts FROM task_fact WHERE run_id = ? AND task_id = ?), 1),
                     COALESCE((SELECT duration_ms FROM task_fact WHERE run_id = ? AND task_id = ?), 0),
                     COALESCE((SELECT worker_model FROM task_fact WHERE run_id = ? AND task_id = ?), 'unknown'),
                     COALESCE((SELECT evidence_bundle_path FROM task_fact WHERE run_id = ? AND task_id = ?), ''),
@@ -121,7 +130,9 @@ def upsert_capsule(
                 run_id,
                 task_id,
                 status,
-                reason_code or "",
+                canonical_failure_reason or "",
+                policy_reason_code or "",
+                canonical_failure_reason or "",
                 run_id,
                 task_id,
                 run_id,
@@ -156,7 +167,9 @@ def get_run_summary(db_path: Path, run_id: str) -> dict[str, Any]:
 
         task_cursor = conn.execute(
             """
-            SELECT run_id, task_id, status, reason_code, attempts, duration_ms, worker_model, evidence_capsule_path
+            SELECT run_id, task_id, status,
+                   COALESCE(failure_reason_code, reason_code) AS failure_reason_code,
+                   policy_reason_code, attempts, duration_ms, worker_model, evidence_capsule_path
             FROM task_fact
             WHERE run_id = ?
             ORDER BY task_id ASC

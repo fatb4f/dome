@@ -7,6 +7,7 @@ import argparse
 import json
 import time
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -29,6 +30,31 @@ class RunSnapshot:
     repo_commit_sha: str
     summary_path: str
     state_space_path: str
+
+
+@dataclass(frozen=True)
+class TaskSnapshot:
+    run_id: str
+    task_id: str
+    status: str
+    failure_reason_code: str
+    policy_reason_code: str
+    attempts: int
+    duration_ms: int
+    worker_model: str
+    evidence_bundle_path: str
+    evidence_capsule_path: str
+    updated_ts: str
+
+
+@dataclass(frozen=True)
+class EventSnapshot:
+    run_id: str
+    event_id: str
+    topic: str
+    sequence: int
+    ts: str
+    payload_json: str
 
 
 def load_checkpoint(path: Path) -> dict[str, Any]:
@@ -60,6 +86,111 @@ def _load_json(path: Path) -> dict[str, Any]:
     if not path.exists():
         return {}
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _deterministic_ts(path: Path) -> str:
+    if path.exists():
+        return datetime.fromtimestamp(path.stat().st_mtime, UTC).isoformat().replace("+00:00", "Z")
+    return "1970-01-01T00:00:00Z"
+
+
+def _event_log_paths(run_dir: Path, run_root: Path) -> list[Path]:
+    paths = [
+        run_dir / "mcp_events.jsonl",
+        run_root.parent / "mcp_events.jsonl",
+    ]
+    out: list[Path] = []
+    for item in paths:
+        if item.exists() and item not in out:
+            out.append(item)
+    return out
+
+
+def _load_event_rows(run_dir: Path, run_root: Path, run_id: str) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for path in _event_log_paths(run_dir, run_root):
+        for line in path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            payload = json.loads(line)
+            if str(payload.get("run_id", "")) != run_id:
+                continue
+            rows.append(payload)
+    rows.sort(
+        key=lambda item: (
+            int(item.get("sequence", 0)),
+            str(item.get("ts", "")),
+            str(item.get("event_id", "")),
+        )
+    )
+    return rows
+
+
+def _task_updated_ts(
+    task_result: dict[str, Any], run_dir: Path, event_rows: list[dict[str, Any]]
+) -> str:
+    task_id = str(task_result.get("task_id", ""))
+    candidates = [
+        row
+        for row in event_rows
+        if str(row.get("topic", "")) == "task.result" and str(row.get("payload", {}).get("task_id", "")) == task_id
+    ]
+    if candidates:
+        return str(candidates[-1].get("ts", "1970-01-01T00:00:00Z"))
+    result_path = run_dir / "summary.json"
+    return _deterministic_ts(result_path)
+
+
+def task_snapshots_from_run_dir(run_dir: Path, run_root: Path) -> list[TaskSnapshot]:
+    run_id = run_dir.name
+    summary = _load_json(run_dir / "summary.json")
+    event_rows = _load_event_rows(run_dir, run_root, run_id)
+    out: list[TaskSnapshot] = []
+    for item in summary.get("results", []):
+        task_id = str(item.get("task_id", ""))
+        if not task_id:
+            continue
+        raw_reason = item.get("reason_code")
+        failure_reason = "" if raw_reason is None else str(raw_reason)
+        evidence_bundle = str(item.get("evidence_bundle_path", ""))
+        out.append(
+            TaskSnapshot(
+                run_id=run_id,
+                task_id=task_id,
+                status=str(item.get("status", "UNKNOWN")),
+                failure_reason_code=failure_reason,
+                policy_reason_code="",
+                attempts=int(item.get("attempts", 0)),
+                duration_ms=int(item.get("duration_ms", 0)),
+                worker_model=str(item.get("worker_model", "unknown")),
+                evidence_bundle_path=evidence_bundle,
+                evidence_capsule_path="",
+                updated_ts=_task_updated_ts(item, run_dir, event_rows),
+            )
+        )
+    return sorted(out, key=lambda item: item.task_id)
+
+
+def event_snapshots_from_run_dir(run_dir: Path, run_root: Path) -> list[EventSnapshot]:
+    run_id = run_dir.name
+    rows = _load_event_rows(run_dir, run_root, run_id)
+    out: list[EventSnapshot] = []
+    for row in rows:
+        event_id = str(row.get("event_id", ""))
+        if not event_id:
+            continue
+        out.append(
+            EventSnapshot(
+                run_id=run_id,
+                event_id=event_id,
+                topic=str(row.get("topic", "")),
+                sequence=int(row.get("sequence", 0)),
+                ts=str(row.get("ts", "1970-01-01T00:00:00Z")),
+                payload_json=json.dumps(row.get("payload", {}), sort_keys=True),
+            )
+        )
+    return out
 
 
 def snapshot_from_run_dir(run_dir: Path) -> RunSnapshot:
@@ -119,6 +250,51 @@ def upsert_run_fact(conn: Any, snapshot: RunSnapshot) -> None:
     )
 
 
+def upsert_task_fact(conn: Any, snapshot: TaskSnapshot) -> None:
+    conn.execute(
+        """
+        INSERT OR REPLACE INTO task_fact (
+          run_id, task_id, status, failure_reason_code, policy_reason_code, reason_code,
+          attempts, duration_ms, worker_model, evidence_bundle_path, evidence_capsule_path, updated_ts
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        [
+            snapshot.run_id,
+            snapshot.task_id,
+            snapshot.status,
+            snapshot.failure_reason_code,
+            snapshot.policy_reason_code,
+            snapshot.failure_reason_code,
+            snapshot.attempts,
+            snapshot.duration_ms,
+            snapshot.worker_model,
+            snapshot.evidence_bundle_path,
+            snapshot.evidence_capsule_path,
+            snapshot.updated_ts,
+        ],
+    )
+
+
+def upsert_event_fact(conn: Any, snapshot: EventSnapshot) -> None:
+    conn.execute(
+        """
+        INSERT OR REPLACE INTO event_fact (
+          run_id, event_id, topic, sequence, ts, payload_json
+        )
+        VALUES (?, ?, ?, ?, ?, ?)
+        """,
+        [
+            snapshot.run_id,
+            snapshot.event_id,
+            snapshot.topic,
+            snapshot.sequence,
+            snapshot.ts,
+            snapshot.payload_json,
+        ],
+    )
+
+
 def run_once(db_path: Path, run_root: Path, checkpoint_path: Path, schema_path: Path) -> int:
     checkpoint = load_checkpoint(checkpoint_path)
     discovered = discover_runs(run_root)
@@ -136,8 +312,13 @@ def run_once(db_path: Path, run_root: Path, checkpoint_path: Path, schema_path: 
     try:
         apply_schema(conn, schema_path)
         for run_id in todo:
-            snapshot = snapshot_from_run_dir(run_root / run_id)
+            run_dir = run_root / run_id
+            snapshot = snapshot_from_run_dir(run_dir)
             upsert_run_fact(conn, snapshot)
+            for task_snapshot in task_snapshots_from_run_dir(run_dir, run_root):
+                upsert_task_fact(conn, task_snapshot)
+            for event_snapshot in event_snapshots_from_run_dir(run_dir, run_root):
+                upsert_event_fact(conn, event_snapshot)
             checkpoint["processed_runs"].append(run_id)
         checkpoint["processed_runs"] = sorted(set(str(item) for item in checkpoint["processed_runs"]))
         save_checkpoint(checkpoint_path, checkpoint)
@@ -172,4 +353,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

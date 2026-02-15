@@ -10,6 +10,7 @@ Date: 2026-02-15
 | 2 | LM-02 `memoryd` + DuckDB materialization | Add daemon skeleton, schema DDL, checkpointed ingest loop | P0 | LM-01 | Done (#28) |
 | 3 | LM-03 MCP/A2A memory interface | Add bounded memory query/upsert/health API over DuckDB | P1 | LM-02 | Done (#29) |
 | 4 | LM-04 Policy hardening + ops | Add retention/redaction/audit/runbook integration and alert hooks | P1 | LM-02, LM-03 | Done (#30) |
+| 5 | LM-05 Reason semantics + facts spine | Canonical failure/policy reason semantics and task/event fact materialization | P0 | LM-04 | Done (#31) |
 
 ## Dependency Matrix
 
@@ -28,6 +29,7 @@ Date: 2026-02-15
 2. `pkt-dome-lm-02-memoryd-duckdb-materialization`
 3. `pkt-dome-lm-03-memory-mcp-a2a-interface`
 4. `pkt-dome-lm-04-policy-hardening-ops`
+5. `pkt-dome-lm-05-reason-semantics-facts-spine`
 
 ## Completion
 
@@ -39,6 +41,7 @@ Evidence roots:
 - `ops/runtime/lm-02/`
 - `ops/runtime/lm-03/`
 - `ops/runtime/lm-04/`
+- `ops/runtime/lm-05/`
 
 ## Cross-Repo Requirements
 

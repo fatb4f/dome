@@ -17,6 +17,8 @@ CREATE TABLE IF NOT EXISTS task_fact (
   run_id TEXT,
   task_id TEXT,
   status TEXT,
+  failure_reason_code TEXT,
+  policy_reason_code TEXT,
   reason_code TEXT,
   attempts INTEGER,
   duration_ms BIGINT,
@@ -48,6 +50,9 @@ CREATE TABLE IF NOT EXISTS memory_feature (
 );
 
 CREATE INDEX IF NOT EXISTS idx_task_reason ON task_fact(reason_code);
+CREATE INDEX IF NOT EXISTS idx_task_failure_reason ON task_fact(failure_reason_code);
 CREATE INDEX IF NOT EXISTS idx_task_status ON task_fact(status);
 CREATE INDEX IF NOT EXISTS idx_run_gate ON run_fact(gate_status);
 
+ALTER TABLE task_fact ADD COLUMN IF NOT EXISTS failure_reason_code TEXT;
+ALTER TABLE task_fact ADD COLUMN IF NOT EXISTS policy_reason_code TEXT;
