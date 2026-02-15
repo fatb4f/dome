@@ -152,8 +152,16 @@ def task_snapshots_from_run_dir(run_dir: Path, run_root: Path) -> list[TaskSnaps
         task_id = str(item.get("task_id", ""))
         if not task_id:
             continue
-        raw_reason = item.get("reason_code")
-        failure_reason = "" if raw_reason is None else str(raw_reason)
+        raw_failure_reason = item.get("failure_reason_code")
+        if raw_failure_reason is None:
+            # Compatibility alias for legacy summary payloads.
+            raw_failure_reason = item.get("reason_code")
+        raw_policy_reason = item.get("policy_reason_code")
+        if raw_policy_reason is None:
+            # Compatibility alias for guardrail-denial semantics.
+            raw_policy_reason = item.get("guard_reason_code")
+        failure_reason = "" if raw_failure_reason is None else str(raw_failure_reason)
+        policy_reason = "" if raw_policy_reason is None else str(raw_policy_reason)
         evidence_bundle = str(item.get("evidence_bundle_path", ""))
         out.append(
             TaskSnapshot(
@@ -161,7 +169,7 @@ def task_snapshots_from_run_dir(run_dir: Path, run_root: Path) -> list[TaskSnaps
                 task_id=task_id,
                 status=str(item.get("status", "UNKNOWN")),
                 failure_reason_code=failure_reason,
-                policy_reason_code="",
+                policy_reason_code=policy_reason,
                 attempts=int(item.get("attempts", 0)),
                 duration_ms=int(item.get("duration_ms", 0)),
                 worker_model=str(item.get("worker_model", "unknown")),

@@ -15,7 +15,7 @@ Date: 2026-02-15
 | 7 | LM-07 Cross-repo contract tests | Pin and validate xtrlv2 SSOT compatibility artifacts in dome CI tests | P0 | LM-05 | Done (#33) |
 | 8 | LM-08 Query primitive hardening | Add stable query primitives for deterministic/bounded retrieval patterns | P0 | LM-05 | Done (#34) |
 | 9 | LM-09 Tracker truthfulness + OTLP backend naming | Reconcile tracker/status fidelity and backend naming (`OTLP backend` with backend options) | P1 | LM-08 | Done (#35) |
-| 10 | LM-10 Semantics migration completion | Complete failure/policy reason semantic naming migration and compatibility boundaries | P0 | LM-09 | Planned |
+| 10 | LM-10 Semantics migration completion | Complete failure/policy reason semantic naming migration and compatibility boundaries | P0 | LM-09 | Done (#36) |
 | 11 | LM-11 Binder v1 deterministic integration | Implement binder idempotency/upsert keys/fingerprint determinism and replay-safe derivations | P0 | LM-10 | Planned |
 
 ## Dependency Matrix
@@ -54,12 +54,12 @@ Date: 2026-02-15
 7. `pkt-dome-lm-07-cross-repo-contract-tests`
 8. `pkt-dome-lm-08-query-primitives-hardening`
 9. `pkt-dome-lm-09-tracker-otlp-reconciliation`
-10. `pkt-dome-lm-10-semantics-migration-completion` (planned)
+10. `pkt-dome-lm-10-semantics-migration-completion`
 11. `pkt-dome-lm-11-binder-v1-deterministic-integration` (planned)
 
 ## Completion
 
-LM-01..LM-09 completed on 2026-02-15; LM-10..LM-11 are planned.
+LM-01..LM-10 completed on 2026-02-15; LM-11 is planned.
 
 Evidence roots:
 
@@ -72,6 +72,7 @@ Evidence roots:
 - `ops/runtime/lm-07/`
 - `ops/runtime/lm-08/`
 - `ops/runtime/lm-09/`
+- `ops/runtime/lm-10/`
 
 ## Status Semantics
 

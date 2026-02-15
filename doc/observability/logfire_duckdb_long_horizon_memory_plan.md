@@ -45,7 +45,7 @@ Add/confirm spans and attributes at:
 3. Worker attempt execution
    - file: `tools/orchestrator/implementers.py`
    - span: `dome.worker.attempt`
-   - attrs: `run.id`, `task.id`, `attempt`, `task.status`, `task.reason_code`, `task.duration_ms`, `task.worker_model`
+   - attrs: `run.id`, `task.id`, `attempt`, `task.status`, `task.reason_code` (compat alias for `failure_reason_code`), `task.duration_ms`, `task.worker_model`
 4. Gate/checker decision
    - file: `tools/orchestrator/checkers.py`
    - span: `dome.gate.evaluate`
@@ -64,7 +64,8 @@ Required attribute set for memory indexing:
 - `run.id`
 - `task.id` (for task-scoped spans)
 - `task.status`
-- `task.reason_code`
+- `task.reason_code` (ingress compatibility alias for `failure_reason_code`)
+- `policy_reason_code` when guard denials occur
 - `task.worker_model`
 - `task.duration_ms`
 - `event.id` (if available)
@@ -112,7 +113,9 @@ CREATE TABLE IF NOT EXISTS task_fact (
   run_id TEXT,
   task_id TEXT,
   status TEXT,
-  reason_code TEXT,
+  failure_reason_code TEXT,
+  policy_reason_code TEXT,
+  reason_code TEXT, -- compatibility alias
   attempts INTEGER,
   duration_ms BIGINT,
   worker_model TEXT,
@@ -142,7 +145,8 @@ CREATE TABLE IF NOT EXISTS memory_feature (
   created_ts TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_task_reason ON task_fact(reason_code);
+CREATE INDEX IF NOT EXISTS idx_task_reason ON task_fact(reason_code); -- compatibility
+CREATE INDEX IF NOT EXISTS idx_task_failure_reason ON task_fact(failure_reason_code);
 CREATE INDEX IF NOT EXISTS idx_task_status ON task_fact(status);
 CREATE INDEX IF NOT EXISTS idx_run_gate ON run_fact(gate_status);
 ```
@@ -183,14 +187,15 @@ Expose a narrow contract for planning/checking:
 1. `memory.query_priors`
    - input:
      - `scope`: `task|run|repo`
-     - `filters`: `reason_code`, `pattern`, `base_ref`, `task_status`
+     - `filters`: `failure_reason_code` (canonical), optional compatibility alias `reason_code`, plus `task_status`
      - `limit` (default 20, max 200)
    - output:
      - ranked prior entries with evidence refs and confidence scores.
 2. `memory.upsert_capsule`
    - input:
      - capsule payload or path,
-     - `run_id`, `task_id`, `status`, `reason_code`
+     - `run_id`, `task_id`, `status`, `failure_reason_code`
+     - optional `policy_reason_code` for guard denials
    - behavior:
      - validate capsule schema before write.
 3. `memory.get_run_summary`
@@ -211,9 +216,9 @@ Use bounded templates:
 1. Similar failure priors:
 
 ```sql
-SELECT run_id, task_id, reason_code, attempts, duration_ms, evidence_capsule_path
+SELECT run_id, task_id, COALESCE(failure_reason_code, reason_code) AS failure_reason_code, attempts, duration_ms, evidence_capsule_path
 FROM task_fact
-WHERE reason_code = ? AND status = 'FAIL'
+WHERE COALESCE(failure_reason_code, reason_code) = ? AND status = 'FAIL'
 ORDER BY updated_ts DESC
 LIMIT ?;
 ```

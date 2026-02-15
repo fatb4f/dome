@@ -161,6 +161,19 @@ def test_query_priors_reason_code_alias(monkeypatch):
     )
 
 
+def test_query_priors_policy_reason_filter(monkeypatch):
+    fake = FakeConn()
+    monkeypatch.setattr(memory_api, "_connect", lambda _: fake)
+    memory_api.query_priors(
+        db_path=Path("/tmp/memory.duckdb"),
+        scope="task",
+        filters={"policy_reason_code": "POLICY.NEEDS_HUMAN"},
+        limit=5,
+    )
+    normalized = " ".join(fake.last_query.lower().split())
+    assert "policy_reason_code = ?" in normalized
+
+
 def test_upsert_capsule_uses_deterministic_updated_ts(monkeypatch):
     fake = FakeConn()
     monkeypatch.setattr(memory_api, "_connect", lambda _: fake)
@@ -176,6 +189,27 @@ def test_upsert_capsule_uses_deterministic_updated_ts(monkeypatch):
         updated_ts="2026-02-15T00:00:00Z",
     )
     assert fake.last_params[-1] == "2026-02-15T00:00:00Z"
+
+
+def test_upsert_capsule_preserves_failure_policy_split(monkeypatch):
+    fake = FakeConn()
+    monkeypatch.setattr(memory_api, "_connect", lambda _: fake)
+    payload = json.loads((ROOT / "ssot/examples/evidence.capsule.json").read_text(encoding="utf-8"))
+    memory_api.upsert_capsule(
+        db_path=Path("/tmp/memory.duckdb"),
+        capsule_payload=payload,
+        run_id="run-001",
+        task_id="task-001",
+        status="FAIL",
+        reason_code="EXEC.NONZERO_EXIT",
+        policy_reason_code="POLICY.NEEDS_HUMAN",
+        updated_ts="2026-02-15T00:00:00Z",
+    )
+    params = fake.last_params
+    # Insert params: ... status, failure_reason_code, policy_reason_code, reason_code, ...
+    assert params[3] == "EXEC.NONZERO_EXIT"
+    assert params[4] == "POLICY.NEEDS_HUMAN"
+    assert params[5] == "EXEC.NONZERO_EXIT"
 
 
 def test_health_reports_checkpoint(tmp_path: Path) -> None:

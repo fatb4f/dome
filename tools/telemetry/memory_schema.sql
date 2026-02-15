@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS task_fact (
   status TEXT,
   failure_reason_code TEXT,
   policy_reason_code TEXT,
-  reason_code TEXT,
+  reason_code TEXT, -- compatibility alias; canonical field is failure_reason_code
   attempts INTEGER,
   duration_ms BIGINT,
   worker_model TEXT,
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS memory_feature (
   created_ts TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_task_reason ON task_fact(reason_code);
+CREATE INDEX IF NOT EXISTS idx_task_reason ON task_fact(reason_code); -- compatibility alias index
 CREATE INDEX IF NOT EXISTS idx_task_failure_reason ON task_fact(failure_reason_code);
 CREATE INDEX IF NOT EXISTS idx_task_status ON task_fact(status);
 CREATE INDEX IF NOT EXISTS idx_run_gate ON run_fact(gate_status);

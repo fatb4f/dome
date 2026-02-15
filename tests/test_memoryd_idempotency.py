@@ -73,6 +73,7 @@ def test_task_and_event_snapshots_from_run_dir(tmp_path: Path) -> None:
                         "task_id": "task-a",
                         "status": "FAIL",
                         "reason_code": "TRANSIENT.NETWORK",
+                        "policy_reason_code": "POLICY.NEEDS_HUMAN",
                         "attempts": 2,
                         "duration_ms": 42,
                         "worker_model": "gpt-5.3",
@@ -107,6 +108,7 @@ def test_task_and_event_snapshots_from_run_dir(tmp_path: Path) -> None:
     events = memoryd.event_snapshots_from_run_dir(run_dir, run_root)
     assert len(tasks) == 1
     assert tasks[0].failure_reason_code == "TRANSIENT.NETWORK"
+    assert tasks[0].policy_reason_code == "POLICY.NEEDS_HUMAN"
     assert tasks[0].updated_ts == "2026-02-15T00:00:00Z"
     assert len(events) == 1
     assert events[0].event_id == "evt-1"
@@ -185,3 +187,34 @@ def test_run_once_upserts_task_and_event_facts(monkeypatch, tmp_path: Path) -> N
 
     processed_second = memoryd.run_once(tmp_path / "memory.duckdb", run_root, checkpoint, schema)
     assert processed_second == 0
+
+
+def test_task_snapshots_prefers_failure_reason_and_guard_alias(tmp_path: Path) -> None:
+    run_root = tmp_path / "runs"
+    run_dir = run_root / "run-777"
+    run_dir.mkdir(parents=True)
+    (run_dir / "summary.json").write_text(
+        json.dumps(
+            {
+                "results": [
+                    {
+                        "task_id": "task-a",
+                        "status": "FAIL",
+                        "reason_code": "TRANSIENT.NETWORK",
+                        "failure_reason_code": "EXEC.NONZERO_EXIT",
+                        "guard_reason_code": "POLICY.NEEDS_HUMAN",
+                        "attempts": 1,
+                        "duration_ms": 10,
+                        "worker_model": "gpt-5.3",
+                        "evidence_bundle_path": "ev-a.json",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    tasks = memoryd.task_snapshots_from_run_dir(run_dir, run_root)
+    assert len(tasks) == 1
+    assert tasks[0].failure_reason_code == "EXEC.NONZERO_EXIT"
+    assert tasks[0].policy_reason_code == "POLICY.NEEDS_HUMAN"
