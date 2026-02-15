@@ -214,6 +214,31 @@ This document consolidates:
 
 ---
 
+## Cross-repo requirements and dependencies
+
+### Checklist
+
+- [ ] `dome` owns planner/daemon/materialization/inference/capsule retrieval implementation and keeps interfaces stable.
+- [ ] `xtrlv2` is the source of truth for SSOT schemas/policies (`guardrails_bundle`, `reason_codes`, state/transition semantics) and versions are pinned in `dome`.
+- [ ] `watcher` emits normalized event envelopes/topics compatible with planner wrapper ingestion (`event_id`, `sequence`, `run_id`, evidence refs).
+- [ ] `opctrl` exposes runtime/ops gates and runbooks that enforce promotion policy on top of guard outcomes and memory health.
+- [ ] Cross-repo contract tests exist and run in CI for schema compatibility, event envelope compatibility, and reason-code semantics split.
+- [ ] Version drift policy is explicit: any breaking schema/event change requires coordinated version bump + migration notes across dependent repos.
+
+### Dependency matrix
+
+**Legend:** `1` means row depends on column.
+
+| Row \ Col | CR-01 dome | CR-02 xtrlv2 SSOT | CR-03 watcher events | CR-04 opctrl gates | CR-05 Contract tests |
+|---|---:|---:|---:|---:|---:|
+| **CR-01 dome** | 0 | 1 | 1 | 1 | 1 |
+| **CR-02 xtrlv2 SSOT** | 0 | 0 | 0 | 0 | 0 |
+| **CR-03 watcher events** | 0 | 1 | 0 | 0 | 1 |
+| **CR-04 opctrl gates** | 1 | 1 | 0 | 0 | 1 |
+| **CR-05 Contract tests** | 1 | 1 | 1 | 1 | 0 |
+
+---
+
 ## TaskSpec backbone checklist
 
 - [ ] `TaskSpec` primitives are required on every planned task: `scope`, `target.kind`, `target.id`, `action.kind`, `failure_reason_code`.
