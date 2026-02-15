@@ -128,3 +128,10 @@ Just-based pipeline:
 just clean-runtime
 just ci
 ```
+
+## Latest release
+
+### v0.2.1 (2026-02-15)
+
+- Closed `#25` (main loop hardening follow-ups) after landing P0 concurrency/work-queue/structured-failure hardening in commit `51a1a8c`.
+- Closed `#1` (production readiness tracker execution/auditability upgrades) with tracker/execution updates including commits `91cf667` and `c3825eb`.
