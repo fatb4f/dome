@@ -13,9 +13,9 @@ The SSOT is `.specify/memory/constitution.md`.
 - **Execute:** run tools with rich signals and emit all decision-relevant signals into telemetry.
 - **Gate:** update state **only** from telemetry-derived evidence (trace data). DONE requires satisfied obligations and a recorded trace pointer.
 
-## Telemetry wiring (Option A + Langfuse)
+## Telemetry wiring (OTLP backend)
 
-- `ops/observability/` contains an OpenTelemetry Collector config that forwards OTLP/HTTP traces to Langfuse.
+- `ops/observability/` contains an OpenTelemetry Collector config for an OTLP backend (Langfuse example included).
 - `apps/python-demo/` contains a minimal runnable demo.
 
 ## Concurrent loop contracts (MVP)

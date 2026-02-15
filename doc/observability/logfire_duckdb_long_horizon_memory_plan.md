@@ -1,4 +1,4 @@
-# Logfire + DuckDB Long-Horizon Memory Plan
+# OTLP Backend + DuckDB Long-Horizon Memory Plan
 
 Date: 2026-02-15
 
@@ -7,7 +7,7 @@ Date: 2026-02-15
 Add durable long-horizon memory to `dome` by:
 
 1. Emitting stable OpenTelemetry signals from orchestrator runs.
-2. Exporting telemetry to Logfire (OTLP).
+2. Exporting telemetry to an OTLP backend (for example, Logfire or Langfuse).
 3. Running a daemon that materializes telemetry and evidence-capsule summaries into DuckDB.
 4. Exposing query/update operations via MCP/A2A so planner/checker can retrieve priors.
 
@@ -22,10 +22,11 @@ This keeps memory outside prompt context windows and grounded in replayable arti
 ## System Topology
 
 1. `dome` orchestrator emits events, task results, gate decisions, and evidence capsules.
-2. OTel instrumentation exports spans/events to Logfire.
+2. OTel instrumentation exports spans/events to an OTLP backend.
 3. `memoryd` daemon reads:
-   - Logfire traces (primary),
+   - OTLP backend traces (primary),
    - local fallback artifacts under `ops/runtime/runs/*` (secondary).
+   - current shipped implementation materializes from local artifacts and does not yet ingest backend cursors directly.
 4. `memoryd` computes rollups/features and writes normalized tables to `ops/memory/memory.duckdb`.
 5. MCP/A2A memory service exposes bounded queries and append operations for validated capsules.
 
@@ -157,7 +158,7 @@ Feature examples:
 
 Loop (default every 10s):
 
-1. Pull incremental traces/events from Logfire (cursor checkpoint).
+1. Pull incremental traces/events from OTLP backend provider (cursor checkpoint, when enabled).
 2. Parse and stage records.
 3. Merge with local artifact facts (`run.manifest.json`, `summary.json`, `*.evidence.capsule.json`) for consistency.
 4. Upsert normalized tables.
@@ -166,7 +167,7 @@ Loop (default every 10s):
 
 State/checkpoint files:
 
-- `ops/memory/checkpoints/logfire.cursor.json`
+- `ops/memory/checkpoints/otlp.cursor.json` (or provider-specific alias)
 - `ops/memory/checkpoints/materialize.state.json`
 
 Failure policy:
@@ -247,7 +248,7 @@ LIMIT 30;
 
 ## Rollout Plan
 
-Phase 1: OTel + Logfire baseline
+Phase 1: OTel + OTLP backend baseline
 
 1. Add/verify spans for planner/dispatcher/implementers/checker/promote/state writer.
 2. Verify required attrs are present in test runs.
@@ -289,4 +290,3 @@ Phase 4: Policy hardening
 4. `tests/test_memoryd_idempotency.py`
 5. `tests/test_memory_query_contract.py`
 6. `ops/memory/README.md` (ops runbook and retention policy)
-

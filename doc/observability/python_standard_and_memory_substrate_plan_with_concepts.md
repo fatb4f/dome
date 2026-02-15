@@ -8,7 +8,7 @@ This section sits *above* the checklists/matrices so they’re interpretable. It
 
 **Weak seam:** post-ingest.
 
-- **OTel → Logfire aggregation** is assumed “good enough”.
+- **OTel → OTLP backend aggregation** is assumed “good enough”.
 - The unstable/low-signal part is everything **after the aggregator**:
   - extracting patterns
   - deciding what is “high-signal”
@@ -363,7 +363,7 @@ This document consolidates:
 
 ## Checklist
 
-### A. Ingest & correlation (Logfire → DuckDB)
+### A. Ingest & correlation (OTLP backend → DuckDB)
 - [ ] Required telemetry fields are present on all tasks.
 - [ ] Correlation path is persisted: `summary.json → evidence_bundle_path → hashes` plus `(event_id, sequence, run_id)` for replay.
 - [ ] Daemon has a checkpointed ingest loop (restart-safe).
@@ -428,10 +428,10 @@ This document consolidates:
 
 **Legend:** `1` means row depends on column.
 
-| Row \ Col | MS-01 GuardrailsBundle | MS-02 Ingest (OTel+Logfire) | MS-03 Planner Wrappers | MS-04 Fact Tables | MS-05 Derivations (rollups+inference) | MS-06 Capsule Minting | MS-07 Replay/Fuzz | MS-08 Ops Gates |
+| Row \ Col | MS-01 GuardrailsBundle | MS-02 Ingest (OTel+OTLP backend) | MS-03 Planner Wrappers | MS-04 Fact Tables | MS-05 Derivations (rollups+inference) | MS-06 Capsule Minting | MS-07 Replay/Fuzz | MS-08 Ops Gates |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | **MS-01 GuardrailsBundle** | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| **MS-02 Ingest (OTel+Logfire)** | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| **MS-02 Ingest (OTel+OTLP backend)** | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 | **MS-03 Planner Wrappers** | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
 | **MS-04 Fact Tables** | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
 | **MS-05 Derivations (rollups+inference)** | 1 | 0 | 1 | 1 | 0 | 0 | 0 | 0 |

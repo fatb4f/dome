@@ -1,10 +1,10 @@
-# Observability (Option A + Langfuse)
+# Observability (OTLP backend, Langfuse example)
 
 This repo wires a **minimal standard-first** telemetry path:
 
 - **Instrumentation:** OpenLLMetry (Traceloop SDK)
 - **Semantic convention:** OpenTelemetry **GenAI** attributes (`gen_ai.*`) are the canonical span schema
-- **Backend:** **Langfuse**, via OTLP over an OpenTelemetry Collector
+- **Backend:** OTLP backend via OpenTelemetry Collector (Langfuse config is included in this repo)
 
 ## Why a Collector
 A local Collector gives you:

@@ -1,0 +1,29 @@
+{
+  "allowed_paths": ["doc/**", "ops/**", "README.md", "tests/**", "packets/**"],
+  "area": "engineering/dome_logfire_memory",
+  "base_ref": "main",
+  "branch": "packet/pkt-dome-lm-09-tracker-otlp-reconciliation",
+  "budgets": {"max_changed_files": 200, "max_changed_lines": 25000},
+  "evidence": {"include_git_diff_patch": false, "out_dir": "ops/runtime/lm-09"},
+  "forbidden_outputs": [],
+  "github": {
+    "issue": {
+      "body": "Execution packet for LM-09.\n\nTracker issue: #35",
+      "close_on_success": false,
+      "comment_on_run": true,
+      "ensure": true,
+      "labels": [],
+      "milestone": "LM-09 tracker truthfulness + OTLP backend naming",
+      "template": "packet-default.yml",
+      "title": "LM-09: Tracker truthfulness and OTLP backend naming reconciliation"
+    },
+    "repo": "fatb4f/dome"
+  },
+  "github_ops_required": false,
+  "net_ops_required": false,
+  "network_policy": {"additional_domains": [], "allowed_http_methods": [], "domain_allowlist_preset": "none", "internet_access": "off"},
+  "packet_id": "pkt-dome-lm-09-tracker-otlp-reconciliation",
+  "repo": "fatb4f/dome",
+  "run": {"commands": ["pytest -q tests/test_observability.py"], "regen_cmd": "", "test_cmd": "pytest -q tests/test_observability.py"},
+  "worktree_policy": {"allow_dirty_globs": [], "allow_untracked_globs": [], "deny_if_worktree_exists": true, "mode": "strict", "worktree_root": "/home/src404/.local/state/codex/xtrl/worktrees"}
+}
