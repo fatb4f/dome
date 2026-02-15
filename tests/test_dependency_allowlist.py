@@ -13,6 +13,6 @@ def _dep_name(spec: str) -> str:
 def test_project_dependencies_are_allowlisted() -> None:
     pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     deps = pyproject.get("project", {}).get("dependencies", [])
-    allowlist = {"jsonschema", "pytest", "opentelemetry-sdk"}
+    allowlist = {"duckdb", "jsonschema", "pytest", "opentelemetry-sdk"}
     unknown = sorted({name for name in (_dep_name(spec) for spec in deps) if name not in allowlist})
     assert not unknown, f"Dependencies outside allowlist: {unknown}"

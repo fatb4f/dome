@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.metadata
 import json
 import os
 import platform
@@ -73,18 +74,11 @@ def _git_commit_sha() -> str:
 
 def _tool_versions() -> dict[str, str]:
     out = {"python": sys.version.split(" ")[0]}
-    try:
-        import pytest  # type: ignore
-
-        out["pytest"] = str(getattr(pytest, "__version__", "unknown"))
-    except Exception:
-        out["pytest"] = "unavailable"
-    try:
-        import jsonschema  # type: ignore
-
-        out["jsonschema"] = str(getattr(jsonschema, "__version__", "unknown"))
-    except Exception:
-        out["jsonschema"] = "unavailable"
+    for package in ("pytest", "jsonschema"):
+        try:
+            out[package] = importlib.metadata.version(package)
+        except Exception:
+            out[package] = "unavailable"
     return out
 
 
