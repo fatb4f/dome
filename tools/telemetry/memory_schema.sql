@@ -56,3 +56,38 @@ CREATE INDEX IF NOT EXISTS idx_run_gate ON run_fact(gate_status);
 
 ALTER TABLE task_fact ADD COLUMN IF NOT EXISTS failure_reason_code TEXT;
 ALTER TABLE task_fact ADD COLUMN IF NOT EXISTS policy_reason_code TEXT;
+
+CREATE VIEW IF NOT EXISTS mv_recent_failures_by_taskspec AS
+SELECT
+  run_id,
+  task_id,
+  status,
+  COALESCE(failure_reason_code, reason_code) AS failure_reason_code,
+  policy_reason_code,
+  attempts,
+  duration_ms,
+  worker_model,
+  evidence_capsule_path,
+  updated_ts
+FROM task_fact
+WHERE status = 'FAIL'
+ORDER BY updated_ts DESC, run_id ASC, task_id ASC;
+
+CREATE VIEW IF NOT EXISTS mv_gate_rollup_by_failure_reason_code AS
+SELECT
+  COALESCE(failure_reason_code, reason_code) AS failure_reason_code,
+  worker_model,
+  status,
+  COUNT(*) AS task_count
+FROM task_fact
+GROUP BY 1, 2, 3;
+
+CREATE VIEW IF NOT EXISTS mv_guard_denials_by_policy_reason_code AS
+SELECT
+  run_id,
+  task_id,
+  policy_reason_code,
+  status,
+  updated_ts
+FROM task_fact
+WHERE COALESCE(policy_reason_code, '') != '';

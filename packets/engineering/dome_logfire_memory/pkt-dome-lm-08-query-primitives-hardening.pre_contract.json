@@ -1,0 +1,30 @@
+{
+  "schema_version": "xtrl.pre_contract/v0.2",
+  "packet_id": "pkt-dome-lm-08-query-primitives-hardening",
+  "component": "dome",
+  "repo": "dome",
+  "base_ref": "main",
+  "mode": "NORMAL",
+  "budgets": {"time_minutes": 60, "iteration_budget": 3},
+  "constraints": {
+    "clean_repo_required": true,
+    "allowed_paths": ["doc/**", "tools/**", "tests/**", "packets/**", "ssot/**", "Justfile"],
+    "forbidden_paths": [".git/**"]
+  },
+  "actions": {"test": ["bash", "-lc", "pytest -q tests/test_memory_query_primitives.py tests/test_memory_query_contract.py"]},
+  "plan_card": {
+    "why": "Execute LM-08 query primitive hardening",
+    "what": "Stable query primitives with deterministic behavior",
+    "how": "Implement code+tests+evidence with deterministic behavior",
+    "where": "dome repository",
+    "who": "orchestrator",
+    "when": "sequential milestone execution"
+  },
+  "lm": {
+    "id": "LM-08",
+    "priority": "P0",
+    "depends_on": ["LM-05"],
+    "tracker_issue": 34,
+    "milestone": "LM-08 query primitive hardening"
+  }
+}

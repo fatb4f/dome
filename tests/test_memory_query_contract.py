@@ -28,6 +28,7 @@ class FakeConn:
     def __init__(self):
         self.last_query = ""
         self.last_params = []
+        self.executed: list[tuple[str, list[object]]] = []
         self._select_task_rows = [
             (
                 "run-002",
@@ -58,6 +59,7 @@ class FakeConn:
     def execute(self, query, params=None):
         self.last_query = query
         self.last_params = list(params or [])
+        self.executed.append((query, self.last_params))
         q = " ".join(query.split()).lower()
         if "from task_fact where run_id =" in q:
             return FakeCursor(
@@ -157,6 +159,23 @@ def test_query_priors_reason_code_alias(monkeypatch):
     assert "coalesce(failure_reason_code, reason_code) = ?" in " ".join(
         fake.last_query.lower().split()
     )
+
+
+def test_upsert_capsule_uses_deterministic_updated_ts(monkeypatch):
+    fake = FakeConn()
+    monkeypatch.setattr(memory_api, "_connect", lambda _: fake)
+    payload = json.loads((ROOT / "ssot/examples/evidence.capsule.json").read_text(encoding="utf-8"))
+    memory_api.upsert_capsule(
+        db_path=Path("/tmp/memory.duckdb"),
+        capsule_payload=payload,
+        run_id="run-001",
+        task_id="task-001",
+        status="PASS",
+        failure_reason_code="TRANSIENT.NETWORK",
+        policy_reason_code="",
+        updated_ts="2026-02-15T00:00:00Z",
+    )
+    assert fake.last_params[-1] == "2026-02-15T00:00:00Z"
 
 
 def test_health_reports_checkpoint(tmp_path: Path) -> None:

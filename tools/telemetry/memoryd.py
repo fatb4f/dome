@@ -27,6 +27,7 @@ class RunSnapshot:
     promotion_decision: str
     risk_score: int
     confidence: float
+    observed_ts: str
     repo_commit_sha: str
     summary_path: str
     state_space_path: str
@@ -215,6 +216,7 @@ def snapshot_from_run_dir(run_dir: Path) -> RunSnapshot:
         promotion_decision=str(promotion.get("decision", "UNKNOWN")),
         risk_score=int(gate.get("risk_score", 0)),
         confidence=float(gate.get("confidence", 0.0)),
+        observed_ts=_deterministic_ts(summary_path),
         repo_commit_sha=str(manifest.get("runtime", {}).get("repo_commit_sha", "unknown")),
         summary_path=str(summary_path),
         state_space_path=str(state_space_path),
@@ -226,17 +228,24 @@ def apply_schema(conn: Any, schema_path: Path) -> None:
 
 
 def upsert_run_fact(conn: Any, snapshot: RunSnapshot) -> None:
-    now_expr = "current_timestamp"
     conn.execute(
-        f"""
+        """
         INSERT OR REPLACE INTO run_fact (
           run_id, first_seen_ts, last_seen_ts, base_ref, gate_status, substrate_status,
           promotion_decision, risk_score, confidence, repo_commit_sha, summary_path, state_space_path
         )
-        VALUES (?, {now_expr}, {now_expr}, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (
+          ?,
+          COALESCE((SELECT first_seen_ts FROM run_fact WHERE run_id = ?), ?),
+          ?,
+          ?, ?, ?, ?, ?, ?, ?, ?, ?
+        )
         """,
         [
             snapshot.run_id,
+            snapshot.run_id,
+            snapshot.observed_ts,
+            snapshot.observed_ts,
             snapshot.base_ref,
             snapshot.gate_status,
             snapshot.substrate_status,

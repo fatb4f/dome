@@ -1,0 +1,16 @@
+{
+  "source_repo": "fatb4f/xtrlv2",
+  "schema_version": "pin_manifest/v1",
+  "artifacts": [
+    {
+      "path": "ssot/pins/xtrlv2/reason_codes.json",
+      "source_path": "control/ssot/reason_codes.json",
+      "sha256": "1bc358383661e7f74162d63b12a67b04af717eb1b9715035b73b9465d74df106"
+    },
+    {
+      "path": "ssot/pins/xtrlv2/guardrails_bundle.schema.json",
+      "source_path": "control/ssot/schemas/guardrails_bundle.schema.json",
+      "sha256": "99c9b34f081bd71bfc73554550f9ad66060dcd09652cad05c078a287b80262c4"
+    }
+  ]
+}

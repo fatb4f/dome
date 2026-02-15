@@ -1,0 +1,2 @@
+$ pytest -q tests/test_memory_query_contract.py tests/test_memoryd_idempotency.py
+..............                                                           [100%]

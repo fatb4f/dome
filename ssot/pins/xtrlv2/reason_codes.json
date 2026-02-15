@@ -1,0 +1,48 @@
+{
+  "schema_version": "0.1",
+  "version": "0.1",
+  "classes_precedence": [
+    "stop",
+    "structural",
+    "repairable",
+    "advisory"
+  ],
+  "codes": {
+    "BUDGET_EXHAUSTED": {
+      "class": "stop"
+    },
+    "TOUCHED_FORBIDDEN_PATH": {
+      "class": "structural"
+    },
+    "DIFF_BUDGET_EXCEEDED": {
+      "class": "structural"
+    },
+    "SCHEMA_INVALID": {
+      "class": "structural"
+    },
+    "TESTS_FAILED": {
+      "class": "repairable"
+    },
+    "LINT_FAILED": {
+      "class": "repairable"
+    },
+    "TYPECHECK_FAILED": {
+      "class": "repairable"
+    },
+    "DIRTY_REPO_DENIED": {
+      "class": "structural"
+    },
+    "AMBIGUOUS_STATE_DENIED": {
+      "class": "structural"
+    },
+    "MISSING_EVIDENCE_DENIED": {
+      "class": "structural"
+    }
+  },
+  "restart_mode_by_class": {
+    "stop": "STOP",
+    "structural": "REITERATE_FROM_LAST_GOOD",
+    "repairable": "REITERATE_FROM_CANDIDATE",
+    "advisory": "REITERATE_FROM_CANDIDATE"
+  }
+}

@@ -100,6 +100,7 @@ def upsert_capsule(
     reason_code: str | None = None,
     failure_reason_code: str | None = None,
     policy_reason_code: str | None = None,
+    updated_ts: str | None = None,
     schema_path: Path = CAPSULE_SCHEMA,
 ) -> dict[str, Any]:
     try:
@@ -111,6 +112,11 @@ def upsert_capsule(
         jsonschema.validate(capsule_payload, schema)
 
     canonical_failure_reason = failure_reason_code if failure_reason_code is not None else reason_code
+    effective_updated_ts = updated_ts or str(capsule_payload.get("ts", "")) or str(
+        capsule_payload.get("trace", {}).get("ts", "")
+    )
+    if not effective_updated_ts:
+        effective_updated_ts = "1970-01-01T00:00:00Z"
 
     conn = _connect(db_path)
     try:
@@ -124,7 +130,7 @@ def upsert_capsule(
                     COALESCE((SELECT duration_ms FROM task_fact WHERE run_id = ? AND task_id = ?), 0),
                     COALESCE((SELECT worker_model FROM task_fact WHERE run_id = ? AND task_id = ?), 'unknown'),
                     COALESCE((SELECT evidence_bundle_path FROM task_fact WHERE run_id = ? AND task_id = ?), ''),
-                    ?, current_timestamp)
+                    ?, ?)
             """,
             [
                 run_id,
@@ -142,6 +148,7 @@ def upsert_capsule(
                 run_id,
                 task_id,
                 f"memory://capsule/{run_id}/{task_id}",
+                effective_updated_ts,
             ],
         )
     finally:
