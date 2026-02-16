@@ -256,8 +256,10 @@ Purpose:
   - verification type (`unit`, `integration`, `ci-gate`, `audit-query`, `manual-control`)
   - evidence artifact path
 - CI must fail if normative requirements are missing IDs or verification mappings.
+- Canonical requirement registry source of truth: `doc/reviews/dome_review_pack_v2/requirements.json`.
 
 ### Initial Requirement Registry
+Snapshot of `requirements.json` for human readability:
 
 | requirement_id | Requirement Summary | Source Section | Verification Type | evidence_artifact_path |
 |---|---|---|---|---|
