@@ -151,6 +151,46 @@ Boundary rule:
 - Worker can only act via ToolSDK calls permitted by `ToolContract`.
 - Tool contract violations must be returned as typed `ToolError` and surfaced as `ErrorSummary`.
 
+## 3.4 Typed `SpawnSpec` (illustrative schema)
+
+`SpawnSpec` is the bounded execution handoff created by `codex-cli` at worker spawn.
+
+```json
+{
+  "spawn_spec_version": "dome.spawn_spec.v1",
+  "run_id": "run-...",
+  "spawn_id": "spawn-...",
+  "loop_token": "ltok-...",
+  "task_ref": {
+    "task_id": "ts-...",
+    "task_spec_ref": "taskspec://run-.../ts-..."
+  },
+  "tool_contract_ref": "toolcontract://xtrlv2/v1",
+  "capability_scope": {
+    "containers": ["read", "update", "test"],
+    "capabilities": ["fs.read", "fs.write_atomic", "exec.run", "evidence.emit"]
+  },
+  "action_spec": {
+    "action_id": "act-...",
+    "capability_id": "fs.write_atomic",
+    "intent_args_ref": "artifact://run-.../intent-args/act-....json"
+  },
+  "limits": {
+    "max_tool_calls": 50,
+    "max_seconds": 600
+  },
+  "versions": {
+    "task_spec_version": "dome.taskspec.v1",
+    "tool_contract_version": "dome.tool_contract.v1"
+  }
+}
+```
+
+`SpawnSpec` authority rules:
+- `loop_token` is platform/coordinator-authored and immutable for workers.
+- workers must not widen `capability_scope` or mutate `task_ref`.
+- all ToolSDK calls must be validated against `tool_contract_ref` and `capability_scope`.
+
 ## 4. Packet as RunToken (handoff token)
 Packet is the pipeline init token. It is ingress-only and discardable after TaskSpec derivation. It must not contain sandbox/perms; those belong to TaskSpec and/or Codex runtime state.
 

@@ -88,6 +88,29 @@ Purpose:
 - ToolSDK types must include: `ToolContract`, `ToolCall`, `ToolResult`, `ToolError`.
 - Execution runtime must enforce a typed bridge: `Decision/Step -> ToolCall -> ToolResult -> Artifact/WorkerOutput`.
 
+## 3.4 `SpawnSpec` Schema Contract
+
+### Functional Requirements
+- Every worker invocation must be initialized from a typed `SpawnSpec`.
+- `SpawnSpec` must bind one worker to one bounded task slice and one scoped tool contract.
+- `SpawnSpec` must include an initial `action_spec` describing the next intended action.
+
+### Technical Requirements
+- `SpawnSpec` schema must include at minimum:
+  - `spawn_spec_version`
+  - `run_id`
+  - `spawn_id`
+  - `loop_token`
+  - `task_ref` (`task_id` + `task_spec_ref`)
+  - `tool_contract_ref`
+  - `capability_scope`
+  - `action_spec`
+  - `limits`
+  - `versions`
+- `loop_token` must be coordinator/platform-authored, injected at spawn time, and immutable for worker execution.
+- Runtime must reject any worker attempt to widen `capability_scope` or mutate `task_ref`.
+- Runtime must validate all ToolSDK calls against both `tool_contract_ref` and `capability_scope`.
+
 ## 4. Packet as RunToken
 
 ### Functional Requirements
