@@ -9,6 +9,10 @@ Define a deterministic, idempotent, telemetry-first execution pipeline where Tas
 ## 2. Roles and Ownership
 Note: the original PDF table wraps aggressively. Content below is normalized from extracted text.
 
+Starter operating mode:
+- `codex-cli` assumes both planner and coordinator roles.
+- AISDK is used for planning decisions and for generating worker instructions.
+
 ### Planner
 - Type: persistent controller (max-stats)
 - Owns: TaskSpec graph, wave snapshots, plan refinement state
@@ -61,23 +65,49 @@ Note: the original PDF table wraps aggressively. Content below is normalized fro
 - Coordinator-only repo authority: apply patch proposals, commit, promote
 - Never exposed to workers
 
-## 3.1 Consolidated Concept Flow: Pipeline -> Skills -> Tool Usage
+## 3.1 Core Definitions
+
+### `task_spec` = intent
+What the worker must accomplish, expressed in domain terms:
+- goal and acceptance criteria
+- inputs and constraints
+- non-goals
+- required evidence/artifacts to return
+
+Property:
+- mostly tool-agnostic; it may name required capabilities but should not encode exact method calls.
+
+### `tool_contract` = resolution surface
+What the worker is allowed/able to do to resolve the intent:
+- available tools and methods
+- typed request/response schemas
+- constraints (allowlists, rate limits, sandbox rules, IO limits)
+- error taxonomy
+- version and compatibility information
+
+Property:
+- environment-specific; binds execution to concrete interfaces.
+
+## 3.2 Consolidated Concept Flow: Pipeline -> Skills -> Tool Usage
 
 This section consolidates the operating model from intent ingress to promotion:
 
 1. Pipeline stage: Ingest and shape
 - Input enters as Packet/RunToken.
-- Skill used: `dome.api.taskspec.craft`.
+- `codex-cli` (planner role) uses AISDK and `dome.api.taskspec.craft`.
 - Output: immutable planning artifacts (`TaskSpec`, `WaveSpec`).
 
 2. Pipeline stage: Wave dispatch and orchestration
-- Coordinator dispatches wave tasks and tracks run ledger state.
-- Skill used: `dome.api.loop.*` (`init`, `dispatch_wave`, `status`).
+- `codex-cli` (coordinator role) dispatches wave tasks and tracks run ledger state via `dome.api.loop.*` (`init`, `dispatch_wave`, `status`).
 - Output: execution state transitions and control events.
 
 3. Pipeline stage: Worker execution
-- Workers execute TaskActions only via `tool.api`.
-- Skill used: `dome.api.tool.xtrlv2.*`.
+- `codex-cli` spawns ephemeral workers using typed `SpawnSpec` containing:
+  - `loop_token`
+  - `task_spec` slice or reference
+  - ToolSDK capability/allowlist for that spawn
+  - initial `action_spec` ("what to do next")
+- Workers execute TaskActions only via `tool.api` / ToolSDK calls permitted by `tool_contract`.
 - Tool usage boundary:
   - method-level allowlists by container
   - idempotency-keyed requests/responses
@@ -89,16 +119,37 @@ This section consolidates the operating model from intent ingress to promotion:
 - Output: decision artifacts tied to evidence references.
 
 5. Pipeline stage: Repository mutation
-- Coordinator applies worker PatchProposals and performs commit/promotion.
+- `codex-cli` applies worker PatchProposals and performs commit/promotion.
 - Skill used: `dome.api.repo.git.*`.
 - Tool usage boundary:
-  - coordinator-only authority
+  - coordinator authority (inside `codex-cli`)
   - auditable commit/promotion trail
 
 Consolidation principle:
 - Pipeline defines lifecycle order.
 - Skills define authority boundaries.
 - Tool usage defines allowable side effects and enforcement.
+
+## 3.3 Type Boundaries: AISDK vs ToolSDK
+
+AISDK types:
+- `TaskSpec`
+- `WorkerInput`
+- `WorkerOutput`
+- `Artifact`
+- `Decision` / `Step`
+- `ErrorSummary`
+
+ToolSDK types:
+- `ToolContract`
+- `ToolCall`
+- `ToolResult`
+- `ToolError`
+
+Boundary rule:
+- Worker can reason in AISDK space.
+- Worker can only act via ToolSDK calls permitted by `ToolContract`.
+- Tool contract violations must be returned as typed `ToolError` and surfaced as `ErrorSummary`.
 
 ## 4. Packet as RunToken (handoff token)
 Packet is the pipeline init token. It is ingress-only and discardable after TaskSpec derivation. It must not contain sandbox/perms; those belong to TaskSpec and/or Codex runtime state.

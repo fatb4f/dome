@@ -24,15 +24,16 @@ Purpose:
 ## 2. Roles and Ownership
 
 ### Functional Requirements
-- Planner must author TaskSpec graph and wave snapshots.
-- Coordinator must execute waves, maintain ledger state, and compute gate/promotion outcomes.
+- In starter mode, `codex-cli` must assume both planner and coordinator functions.
+- `codex-cli` must author TaskSpec graph and wave snapshots.
+- `codex-cli` must execute waves, maintain ledger state, and compute gate/promotion outcomes.
 - Workers must execute TaskActions and emit evidence only.
-- Git operations must be coordinator-only.
+- Git operations must be coordinator-only within `codex-cli`.
 
 ### Technical Requirements
 - Role boundaries must be enforced by API-level permissions.
 - Worker runtime must not include callable git-history methods.
-- Coordinator must expose auditable logs for gate/promotion actions.
+- `codex-cli` must expose auditable logs for gate/promotion actions.
 
 ## 3. Skills and API Surfaces
 
@@ -51,6 +52,7 @@ Purpose:
 - The system must preserve a strict lifecycle: `Packet -> TaskSpec/WaveSpec -> loop dispatch -> worker tool usage -> gate/promotion -> git mutation`.
 - Each pipeline stage must map to exactly one authoritative skill surface (craft, loop, tool, git).
 - Tool usage must remain subordinate to pipeline stage and role authority.
+- Worker spawns must be typed and bounded by `SpawnSpec`.
 
 ### Technical Requirements
 - Every stage transition must emit a typed control event with `run_id`, `wave_id` (if applicable), and stage name.
@@ -58,6 +60,32 @@ Purpose:
 - Coordinator-side repository mutations must be representable only as `dome.api.repo.git.*` calls.
 - Traceability must support reverse lookup:
   - from promotion decision -> gate input evidence -> tool calls -> originating TaskSpec action.
+- `SpawnSpec` must include:
+  - `loop_token`
+  - `task_spec` slice/reference
+  - scoped ToolSDK capability/allowlist
+  - initial `action_spec`
+
+## 3.2 Intent/Resolution Definitions
+
+### Functional Requirements
+- `task_spec` must encode intent in domain terms: goals, acceptance criteria, constraints, non-goals, and required evidence.
+- `tool_contract` must encode the allowed resolution surface for a specific runtime environment.
+
+### Technical Requirements
+- `task_spec` must remain mostly tool-agnostic and must not encode concrete method calls.
+- `tool_contract` must include method schemas, constraints, error taxonomy, and compatibility/version metadata.
+
+## 3.3 Type Boundaries: AISDK and ToolSDK
+
+### Functional Requirements
+- Workers may reason in AISDK space but may only perform side effects via ToolSDK.
+- Violations of `ToolContract` must produce typed errors, not untyped failures.
+
+### Technical Requirements
+- AISDK types must include: `TaskSpec`, `WorkerInput`, `WorkerOutput`, `Artifact`, `Decision/Step`, `ErrorSummary`.
+- ToolSDK types must include: `ToolContract`, `ToolCall`, `ToolResult`, `ToolError`.
+- Execution runtime must enforce a typed bridge: `Decision/Step -> ToolCall -> ToolResult -> Artifact/WorkerOutput`.
 
 ## 4. Packet as RunToken
 
