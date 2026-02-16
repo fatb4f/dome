@@ -3,6 +3,7 @@
 Source baseline PDF: `/home/src404/Downloads/dome_task_spec_skills_closed_loop_v2.pdf`
 Version: `v4`
 Generated: `2026-02-16 15:12 UTC`
+Canonical status: this is the active Mode A spec copy for implementation. Superseded revisions are archived under `docs/archive/reviews/` and are non-normative.
 ## 1. Purpose
 Define a deterministic, idempotent, telemetry-first execution pipeline where TaskSpec is authoritative at the intent layer, workers are ephemeral (`codex-cli`), execution is routed through a unified `tool.api`, and promotion/next-wave decisions are computed from committed control evidence in a closed loop.
 
@@ -21,7 +22,7 @@ Starter operating mode:
 
 ### Coordinator (loop daemon)
 - Type: persistent state (min-stats)
-- Owns: run ledger from OTel control evidence, TaskSpec staleness/hydration tracking, wave tracking, gating/promotion execution path
+- Owns: run ledger from authoritative ControlEvent records, TaskSpec staleness/hydration tracking, wave tracking, gating/promotion execution path
 - Does not own: TaskSpec authoring or wave mutation
 
 ### Workers
@@ -53,7 +54,7 @@ Starter operating mode:
   - `dome.api.loop.status`
   - `dome.api.loop.compute_gate`
   - `dome.api.loop.compute_promotion`
-- Implements closed loop: dispatch -> ingest OTel control evidence -> compute wave outcome -> gate/promo -> next wave request.
+- Implements closed loop: dispatch -> ingest committed ControlEvents (exportable to OTel) -> compute wave outcome -> gate/promo -> next wave request.
 
 ### Skill C - `tool.api` (xtrlv2)
 - API: `dome.api.tool.xtrlv2.*`
@@ -310,7 +311,7 @@ Idempotency chain:
 - `tool.api` returns cached responses for repeated keys
 
 ## 9. Closed loop: ControlEvent ledger and OTel export
-Coordinator uses an authoritative ControlEvent ledger for wave completion, gating, promotion, and next-wave computation. OTel MAY be used as an export/observability channel for the same control events. Workers must sync control events before exit.
+Coordinator uses an authoritative ControlEvent ledger for wave completion, gating, promotion, and next-wave computation. OTel MAY be used as an export/observability channel for the same control events. Worker must emit `task.completed` and block until coordinator `task.ack` (or deterministic timeout path) before exit.
 
 Commit barrier:
 - A task is complete only when coordinator has ingested the worker `task.completed` control event and acknowledged it.

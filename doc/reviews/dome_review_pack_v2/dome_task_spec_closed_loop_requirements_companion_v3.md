@@ -2,6 +2,7 @@
 
 Version: `v3`
 Generated: `2026-02-16 15:12 UTC`
+Canonical status: this is the active Mode A companion for implementation. Superseded revisions are archived under `docs/archive/reviews/` and are non-normative.
 
 Companion to:
 - `./dome_task_spec_skills_closed_loop_v4.md`
@@ -216,6 +217,7 @@ Purpose:
 
 ### Functional Requirements
 - Identical inputs, policies, and baseline refs must produce identical TaskSpec, wave order, gate result, and promotion result.
+- Determinism is defined modulo `run_id` (authoritative outputs must be equal up to run-scoped identifiers unless `run_id` is deterministically derived).
 - Replay execution must be behaviorally equivalent, including decision outcomes and evidence references.
 - Determinism applies to authoritative artifacts (`TaskSpec`, `WaveSpec`, `GateResult`, `PromotionResult`, `ControlEvent` ledger); telemetry exports must preserve identity/correlation but may vary in timing fields.
 
@@ -257,13 +259,13 @@ Purpose:
 
 ### Initial Requirement Registry
 
-| requirement_id | Requirement Summary | Source Section | Verification Type |
-|---|---|---|---|
-| CL-REQ-0001 | TaskSpec is intent-layer authority; ToolContract is method-layer authority | `doc/reviews/dome_review_pack_v2/dome_task_spec_skills_closed_loop_v4.md` §3.1 | `integration` |
-| CL-REQ-0002 | Worker side effects are ToolSDK-only and contract-validated | `doc/reviews/dome_review_pack_v2/dome_task_spec_closed_loop_requirements_companion_v3.md` §3.3 | `integration` |
-| CL-REQ-0003 | SpawnSpec required for every worker invocation | `doc/reviews/dome_review_pack_v2/dome_task_spec_closed_loop_requirements_companion_v3.md` §3.4 | `ci-gate` |
-| CL-REQ-0004 | ControlEvent ledger is authoritative; OTel is export projection | `doc/reviews/dome_review_pack_v2/dome_task_spec_closed_loop_requirements_companion_v3.md` §9, §14 | `integration` |
-| CL-REQ-0005 | Deterministic IDs and replay checks must pass | `doc/reviews/dome_review_pack_v2/dome_task_spec_closed_loop_requirements_companion_v3.md` §12 | `ci-gate` |
+| requirement_id | Requirement Summary | Source Section | Verification Type | evidence_artifact_path |
+|---|---|---|---|---|
+| CL-REQ-0001 | TaskSpec is intent-layer authority; ToolContract is method-layer authority | `doc/reviews/dome_review_pack_v2/dome_task_spec_skills_closed_loop_v4.md` §3.1 | `integration` | `TBD` |
+| CL-REQ-0002 | Worker side effects are ToolSDK-only and contract-validated | `doc/reviews/dome_review_pack_v2/dome_task_spec_closed_loop_requirements_companion_v3.md` §3.3 | `integration` | `TBD` |
+| CL-REQ-0003 | SpawnSpec required for every worker invocation | `doc/reviews/dome_review_pack_v2/dome_task_spec_closed_loop_requirements_companion_v3.md` §3.4 | `ci-gate` | `TBD` |
+| CL-REQ-0004 | ControlEvent ledger is authoritative; OTel is export projection | `doc/reviews/dome_review_pack_v2/dome_task_spec_closed_loop_requirements_companion_v3.md` §9, §14 | `integration` | `TBD` |
+| CL-REQ-0005 | Deterministic IDs and replay checks must pass | `doc/reviews/dome_review_pack_v2/dome_task_spec_closed_loop_requirements_companion_v3.md` §12 | `ci-gate` | `TBD` |
 
 ## 14. Evidence Authority and Retention Policy
 
