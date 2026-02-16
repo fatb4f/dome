@@ -63,3 +63,8 @@ live-fix-demo:
       --reason-codes ssot/policy/reason.codes.json
 
 ci: clean-runtime validate-ssot test smoke
+
+codex-meta:
+    python tools/codex/generate_context.py \
+      --project dome=/home/src404/src/dome \
+      --project oracle=/home/src404/src/oracle
