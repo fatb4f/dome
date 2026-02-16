@@ -75,7 +75,7 @@ What the worker must accomplish, expressed in domain terms:
 - required evidence/artifacts to return
 
 Property:
-- mostly tool-agnostic; it may name required capabilities but should not encode exact method calls.
+- mostly tool-agnostic; it may name required capabilities but must not encode exact method calls.
 
 ### `tool_contract` = resolution surface
 What the worker is allowed/able to do to resolve the intent:
@@ -103,7 +103,7 @@ This section consolidates the operating model from intent ingress to promotion:
 
 3. Pipeline stage: Worker execution
 - `codex-cli` spawns ephemeral workers using typed `SpawnSpec` containing:
-  - `loop_token`
+  - `loop_token` (platform/coordinator-authored, injected at spawn time, immutable for the worker)
   - `task_spec` slice or reference
   - ToolSDK capability/allowlist for that spawn
   - initial `action_spec` ("what to do next")
@@ -192,7 +192,7 @@ Packet minimal shape (illustrative):
 ## 5. Planner decomposition: layered primitives -> atomic sets -> TaskSpecs
 - Primitive: logical unit of work (diagnose, transform, verify, etc.)
 - Atomic set: minimum set of atomic actions required to resolve a primitive
-- Atomic action: one TaskAction bound to one container and one `tool.api` method
+- Atomic action: one TaskAction bound to one container and one capability requirement
 
 Layer model (planner-owned):
 - `L0 Observe -> L1 Diagnose -> L2 Transform -> L3 Verify -> L4 Gate Inputs`
@@ -220,7 +220,7 @@ WaveSpec immutability per wave:
 - Any planner revision creates a new `wave_id`
 
 ## 7. TaskSpec execution contract
-TaskSpec is authoritative and must declare deterministic containers, per-container tool allowlists, and TaskActions mapping 1:1 to `tool.api` calls.
+TaskSpec is authoritative and must declare deterministic containers, capability requirements, and TaskActions mapped to intent-level actions (not concrete tool methods).
 
 Containers:
 - `read`: observe-only
@@ -235,7 +235,7 @@ Git definition (skill boundary):
 - Coordinator applies/commits via Git skill after gating.
 
 ## 8. `tool.api` (xtrlv2) contract
-`tool.api` is the only worker-visible side-effect boundary. It enforces per-container method allowlists and implements idempotency via an internal ledger.
+`tool.api` is the only worker-visible side-effect boundary. It enforces per-container method allowlists resolved from `tool_contract` and implements idempotency via an internal ledger.
 
 ToolRequest envelope (illustrative):
 
@@ -262,12 +262,13 @@ ToolRequest envelope (illustrative):
 
 Idempotency chain:
 - `task_id = H(TaskSpec)`
-- `action_id = H(task_id + container + method + args)`
-- `idempotency_key = H(run_id + action_id + tool_version + constraints)`
+- `action_id = H(task_id + container + capability_id + canonical(intent_args))`
+- `tool_call_id = H(run_id + action_id + tool_id + tool_version + canonical(bound_args) + canonical(constraints))`
+- `idempotency_key = H(run_id + tool_call_id + tool_version + canonical(constraints))`
 - `tool.api` returns cached responses for repeated keys
 
-## 9. Closed loop: OTel control evidence as ledger
-Coordinator ingests control-plane OTel evidence and uses it as the ledger for wave completion, gating, promotion, and next-wave computation. Workers must sync OTel before exit.
+## 9. Closed loop: ControlEvent ledger and OTel export
+Coordinator uses an authoritative ControlEvent ledger for wave completion, gating, promotion, and next-wave computation. OTel MAY be used as an export/observability channel for the same control events. Workers must sync control events before exit.
 
 Commit barrier:
 - A task is complete only when coordinator has ingested the worker `task.completed` control event and acknowledged it.

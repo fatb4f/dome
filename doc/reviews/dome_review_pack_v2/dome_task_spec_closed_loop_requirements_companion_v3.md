@@ -61,7 +61,7 @@ Purpose:
 - Traceability must support reverse lookup:
   - from promotion decision -> gate input evidence -> tool calls -> originating TaskSpec action.
 - `SpawnSpec` must include:
-  - `loop_token`
+  - `loop_token` (platform/coordinator-authored, injected at spawn time, immutable for worker execution)
   - `task_spec` slice/reference
   - scoped ToolSDK capability/allowlist
   - initial `action_spec`
@@ -75,6 +75,7 @@ Purpose:
 ### Technical Requirements
 - `task_spec` must remain mostly tool-agnostic and must not encode concrete method calls.
 - `tool_contract` must include method schemas, constraints, error taxonomy, and compatibility/version metadata.
+- `task_spec` may declare container and capability requirements, while method-level binding must remain in `tool_contract`.
 
 ## 3.3 Type Boundaries: AISDK and ToolSDK
 
@@ -130,7 +131,7 @@ Purpose:
 - Workers must emit PatchProposal artifacts for coordinator-side git application.
 
 ### Technical Requirements
-- Container-to-method allowlists must be explicit and validated before dispatch.
+- Container-to-capability allowlists must be explicit and validated before dispatch.
 - Execution engine must reject undeclared actions and capability escalation attempts.
 - PatchProposal artifacts must include deterministic content hashes.
 - Worker runtime must be **schema-aware**: it must validate `task_spec` and `tool_contract` against versioned schemas before execution.
@@ -152,11 +153,12 @@ Purpose:
 - ToolRequest envelope must be versioned and schema-validated.
 - Idempotency ledger must return cached outcomes for repeated idempotency keys.
 - `tool.api` must exclude git-history methods by contract.
+- `tool_contract` must define capability-to-method bindings and resolver rules used to compile intent-level actions into concrete tool calls.
 
-## 9. Closed Loop and OTel Control Evidence
+## 9. Closed Loop, Authoritative Ledger, and OTel Export
 
 ### Functional Requirements
-- Coordinator must treat control-plane OTel evidence as the run ledger.
+- Coordinator must treat a ControlEvent ledger as the authoritative run ledger.
 - Task completion must require ingestion and acknowledgment of completion events.
 - Worker exit must be gated on acknowledgment or explicit timeout policy.
 
@@ -164,6 +166,7 @@ Purpose:
 - Control events must include event IDs, sequence numbers, timestamps, and correlation fields.
 - Coordinator must persist ack state transitions for every task completion event.
 - Timeout/recovery paths must be explicitly modeled and auditable.
+- ControlEvent ledger records must be exportable to OTel without loss of identity/correlation semantics.
 
 ## 10. Hard Gate Confirmation
 
@@ -197,8 +200,9 @@ Purpose:
 - Hashing: hash algorithm and version must be fixed and declared (for example `sha256:v1`).
 - Stable IDs:
   - `task_id = H(canonical(TaskSpec))`
-  - `action_id = H(task_id + container + method + canonical(args))`
-  - `idempotency_key = H(run_id + action_id + tool_version + canonical(constraints))`
+  - `action_id = H(task_id + container + capability_id + canonical(intent_args))`
+  - `tool_call_id = H(run_id + action_id + tool_id + tool_version + canonical(bound_args) + canonical(constraints))`
+  - `idempotency_key = H(run_id + tool_call_id + tool_version + canonical(constraints))`
 - Ordering:
   - Event ordering must use `(sequence, event_id)` tie-break semantics.
   - Scheduler ordering must use policy precedence + deterministic tie-break fields.
@@ -230,17 +234,13 @@ Purpose:
 ## 14. Evidence Authority and Retention Policy
 
 ### Functional Requirements
-- The system must define whether OTel control events are authoritative ledger data or observability exports.
+- The ControlEvent ledger is authoritative for execution decisions.
 - Control evidence used for gate/promotion decisions must be retained for replay and audit windows.
 
 ### Technical Requirements
-- If OTel is authoritative:
-  - control events must be unsampled
-  - event identity/order must be replay-safe
-  - retention and immutability guarantees must be documented and enforced
-- If OTel is non-authoritative:
-  - an internal authoritative event/history store must be defined
-  - export to OTel must preserve correlation IDs and decision references
+- OTel exports must be derived from authoritative ControlEvent ledger records.
+- OTel export must preserve correlation IDs and decision references.
+- Retention and immutability guarantees for the authoritative ledger must be documented and enforced.
 
 ## 15. Schema Evolution and Compatibility
 
