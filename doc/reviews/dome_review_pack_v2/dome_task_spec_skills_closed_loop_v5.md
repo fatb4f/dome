@@ -1,7 +1,7 @@
 # Dome TaskSpec Closed-Loop Pipeline - Single-Structure Spec
 
 Source baseline PDF: `/home/src404/Downloads/dome_task_spec_skills_closed_loop_v2.pdf`
-Version: `v4`
+Version: `v5`
 Generated: `2026-02-16 15:12 UTC`
 Canonical status: this is the active Mode A spec copy for implementation. Superseded revisions are archived under `docs/archive/reviews/` and are non-normative.
 ## 1. Purpose
@@ -112,7 +112,8 @@ This section consolidates the operating model from intent ingress to promotion:
   - initial `action_spec` ("what to do next")
 - Workers execute TaskActions only via `tool.api` / ToolSDK calls permitted by `tool_contract`.
 - Tool usage boundary:
-  - method-level allowlists by container
+  - container-level capability allowlists (intent-level)
+  - method-level allowlists enforced by `tool.api`, resolved from `tool_contract`
   - idempotency-keyed requests/responses
   - no git-history operations
 
