@@ -4,7 +4,7 @@ Source baseline PDF: `/home/src404/Downloads/dome_task_spec_skills_closed_loop_v
 Version: `v4`
 Generated: `2026-02-16 15:12 UTC`
 ## 1. Purpose
-Define a deterministic, idempotent, telemetry-first execution pipeline where TaskSpec is authoritative, workers are ephemeral (`codex-cli`), execution is routed through a unified `tool.api`, and promotion/next-wave decisions are computed from committed OTel evidence in a closed loop.
+Define a deterministic, idempotent, telemetry-first execution pipeline where TaskSpec is authoritative at the intent layer, workers are ephemeral (`codex-cli`), execution is routed through a unified `tool.api`, and promotion/next-wave decisions are computed from committed control evidence in a closed loop.
 
 ## 2. Roles and Ownership
 Note: the original PDF table wraps aggressively. Content below is normalized from extracted text.
@@ -12,6 +12,7 @@ Note: the original PDF table wraps aggressively. Content below is normalized fro
 Starter operating mode:
 - `codex-cli` assumes both planner and coordinator roles.
 - AISDK is used for planning decisions and for generating worker instructions.
+- In starter mode, `codex-cli` hosts both logical roles (Planner + Coordinator) in one process; ownership boundaries remain logical.
 
 ### Planner
 - Type: persistent controller (max-stats)
@@ -87,6 +88,7 @@ What the worker is allowed/able to do to resolve the intent:
 
 Property:
 - environment-specific; binds execution to concrete interfaces.
+- Authority split: `task_spec` is authoritative over intent-level actions, containers, and capability requirements; `tool_contract` is authoritative over method-level bindings and invocation semantics.
 
 ## 3.2 Consolidated Concept Flow: Pipeline -> Skills -> Tool Usage
 
@@ -286,7 +288,7 @@ ToolRequest envelope (illustrative):
   "task_id": "ts-...",
   "action_id": "ta-...",
   "container": "update",
-  "method": "tool.fs.write_atomic",
+  "method": "dome.api.tool.xtrlv2.fs.write_atomic",
   "args": {
     "path": "...",
     "content_ref": "..."
@@ -336,7 +338,7 @@ Packets and `tool.api` do not carry sandbox/permission mechanics. Sandbox/perms 
 
 After ingress, all execution must be type-interface-bound:
 
-- **Worker runtime is ai-sdk typed** and must parse/validate `task_spec` and the containing `tool_contract`.
+- **Worker runtime is ai-sdk typed** and must parse/validate `task_spec` and the associated `tool_contract` (provided in `WorkerInput`).
 - **Strong typing + runtime validation**: compile-time types (TS/Rust/Go/Python) **plus** runtime validators (JSON Schema / Zod / Pydantic).
 - **Validation gates**:
   - validate WorkerInput (`task_spec`, `tool_contract`) before any work

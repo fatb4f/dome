@@ -13,7 +13,7 @@ Purpose:
 
 ### Functional Requirements
 - The system must execute TaskSpec-driven work in a closed loop from planning through promotion decision.
-- The system must treat TaskSpec as the execution authority for worker actions.
+- The system must treat TaskSpec as the intent-layer authority for worker actions.
 - The system must use telemetry-backed evidence as the source for gate and promotion decisions.
 
 ### Technical Requirements
@@ -131,7 +131,7 @@ Purpose:
 - Planner must publish immutable WaveSpec snapshots.
 
 ### Technical Requirements
-- TaskSpec schema must require `primitive_id`, container, action bindings, and capability constraints.
+- TaskSpec schema must require `primitive_id`, container, ActionSpecs (capability requirements), and capability constraints.
 - WaveSpec must include `wave_id`, `plan_hash`, and ordered task references.
 - Planner revisions must create new `wave_id` values.
 
@@ -217,6 +217,7 @@ Purpose:
 ### Functional Requirements
 - Identical inputs, policies, and baseline refs must produce identical TaskSpec, wave order, gate result, and promotion result.
 - Replay execution must be behaviorally equivalent, including decision outcomes and evidence references.
+- Determinism applies to authoritative artifacts (`TaskSpec`, `WaveSpec`, `GateResult`, `PromotionResult`, `ControlEvent` ledger); telemetry exports must preserve identity/correlation but may vary in timing fields.
 
 ### Technical Requirements
 - Canonical serialization: all hashed payloads must use one canonical JSON format (UTF-8, sorted keys, stable number/string encoding).
@@ -253,6 +254,16 @@ Purpose:
   - verification type (`unit`, `integration`, `ci-gate`, `audit-query`, `manual-control`)
   - evidence artifact path
 - CI must fail if normative requirements are missing IDs or verification mappings.
+
+### Initial Requirement Registry
+
+| requirement_id | Requirement Summary | Source Section | Verification Type |
+|---|---|---|---|
+| CL-REQ-0001 | TaskSpec is intent-layer authority; ToolContract is method-layer authority | `doc/reviews/dome_review_pack_v2/dome_task_spec_skills_closed_loop_v4.md` §3.1 | `integration` |
+| CL-REQ-0002 | Worker side effects are ToolSDK-only and contract-validated | `doc/reviews/dome_review_pack_v2/dome_task_spec_closed_loop_requirements_companion_v3.md` §3.3 | `integration` |
+| CL-REQ-0003 | SpawnSpec required for every worker invocation | `doc/reviews/dome_review_pack_v2/dome_task_spec_closed_loop_requirements_companion_v3.md` §3.4 | `ci-gate` |
+| CL-REQ-0004 | ControlEvent ledger is authoritative; OTel is export projection | `doc/reviews/dome_review_pack_v2/dome_task_spec_closed_loop_requirements_companion_v3.md` §9, §14 | `integration` |
+| CL-REQ-0005 | Deterministic IDs and replay checks must pass | `doc/reviews/dome_review_pack_v2/dome_task_spec_closed_loop_requirements_companion_v3.md` §12 | `ci-gate` |
 
 ## 14. Evidence Authority and Retention Policy
 
