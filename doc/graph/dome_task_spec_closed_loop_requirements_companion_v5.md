@@ -263,11 +263,11 @@ Snapshot of `requirements.json` for human readability:
 
 | requirement_id | Requirement Summary | Source Section | Verification Type | evidence_artifact_path |
 |---|---|---|---|---|
-| CL-REQ-0001 | TaskSpec is intent-layer authority; ToolContract is method-layer authority | `doc/reviews/dome_review_pack_v2/dome_task_spec_skills_closed_loop_v5.md` §3.1 | `integration` | `TBD` |
-| CL-REQ-0002 | Worker side effects are ToolSDK-only and contract-validated | `doc/reviews/dome_review_pack_v2/dome_task_spec_closed_loop_requirements_companion_v5.md` §3.3 | `integration` | `TBD` |
-| CL-REQ-0003 | SpawnSpec required for every worker invocation | `doc/reviews/dome_review_pack_v2/dome_task_spec_closed_loop_requirements_companion_v5.md` §3.4 | `ci-gate` | `TBD` |
-| CL-REQ-0004 | ControlEvent ledger is authoritative; OTel is export projection | `doc/reviews/dome_review_pack_v2/dome_task_spec_closed_loop_requirements_companion_v5.md` §9, §14 | `integration` | `TBD` |
-| CL-REQ-0005 | Deterministic IDs and replay checks must pass | `doc/reviews/dome_review_pack_v2/dome_task_spec_closed_loop_requirements_companion_v5.md` §12 | `ci-gate` | `TBD` |
+| CL-REQ-0001 | TaskSpec is intent-layer authority; ToolContract is method-layer authority | `doc/graph/dome_task_spec_skills_closed_loop_v5.md` §3.1 | `integration` | `TBD` |
+| CL-REQ-0002 | Worker side effects are ToolSDK-only and contract-validated | `doc/graph/dome_task_spec_closed_loop_requirements_companion_v5.md` §3.3 | `integration` | `TBD` |
+| CL-REQ-0003 | SpawnSpec required for every worker invocation | `doc/graph/dome_task_spec_closed_loop_requirements_companion_v5.md` §3.4 | `ci-gate` | `TBD` |
+| CL-REQ-0004 | ControlEvent ledger is authoritative; OTel is export projection | `doc/graph/dome_task_spec_closed_loop_requirements_companion_v5.md` §9, §14 | `integration` | `TBD` |
+| CL-REQ-0005 | Deterministic IDs and replay checks must pass | `doc/graph/dome_task_spec_closed_loop_requirements_companion_v5.md` §12 | `ci-gate` | `TBD` |
 
 ## 14. Evidence Authority and Retention Policy
 

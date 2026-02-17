@@ -1,40 +1,40 @@
 {
   "schema_version": "dome.requirements.registry.v1",
   "generated_at": "2026-02-16T00:00:00Z",
-  "source_doc": "doc/reviews/dome_review_pack_v2/dome_task_spec_closed_loop_requirements_companion_v5.md",
+  "source_doc": "doc/graph/dome_task_spec_closed_loop_requirements_companion_v5.md",
   "requirements": [
     {
       "requirement_id": "CL-REQ-0001",
       "summary": "TaskSpec is intent-layer authority; ToolContract is method-layer authority",
-      "source_section": "doc/reviews/dome_review_pack_v2/dome_task_spec_skills_closed_loop_v5.md#3.1",
+      "source_section": "doc/graph/dome_task_spec_skills_closed_loop_v5.md#3.1",
       "verification_type": "integration",
       "evidence_artifact_path": "TBD"
     },
     {
       "requirement_id": "CL-REQ-0002",
       "summary": "Worker side effects are ToolSDK-only and contract-validated",
-      "source_section": "doc/reviews/dome_review_pack_v2/dome_task_spec_closed_loop_requirements_companion_v5.md#3.3",
+      "source_section": "doc/graph/dome_task_spec_closed_loop_requirements_companion_v5.md#3.3",
       "verification_type": "integration",
       "evidence_artifact_path": "TBD"
     },
     {
       "requirement_id": "CL-REQ-0003",
       "summary": "SpawnSpec required for every worker invocation",
-      "source_section": "doc/reviews/dome_review_pack_v2/dome_task_spec_closed_loop_requirements_companion_v5.md#3.4",
+      "source_section": "doc/graph/dome_task_spec_closed_loop_requirements_companion_v5.md#3.4",
       "verification_type": "ci-gate",
       "evidence_artifact_path": "TBD"
     },
     {
       "requirement_id": "CL-REQ-0004",
       "summary": "ControlEvent ledger is authoritative; OTel is export projection",
-      "source_section": "doc/reviews/dome_review_pack_v2/dome_task_spec_closed_loop_requirements_companion_v5.md#9-and-14",
+      "source_section": "doc/graph/dome_task_spec_closed_loop_requirements_companion_v5.md#9-and-14",
       "verification_type": "integration",
       "evidence_artifact_path": "TBD"
     },
     {
       "requirement_id": "CL-REQ-0005",
       "summary": "Deterministic IDs and replay checks must pass",
-      "source_section": "doc/reviews/dome_review_pack_v2/dome_task_spec_closed_loop_requirements_companion_v5.md#12",
+      "source_section": "doc/graph/dome_task_spec_closed_loop_requirements_companion_v5.md#12",
       "verification_type": "ci-gate",
       "evidence_artifact_path": "TBD"
     }
