@@ -165,6 +165,27 @@ For each node (or batch/wave):
 
 **Key property:** runtime + ToolProfile are regenerable on demand from graph + policy → scalable audit + reproducibility.
 
+### SpawnSpec (required boundary contract)
+Every worker invocation MUST be dispatched with a typed `SpawnSpec`. Coordinator MUST validate the schema before dispatch and fail closed on unknown or invalid fields.
+
+Required fields:
+- `run_id`
+- `wave_id`
+- `node_id`
+- `node_execution_id`
+- `task_spec_ref` (pinned ref/hash)
+- `tool_profile_ref` (pinned ref/hash)
+- `container_ref` (image digest)
+- `action_spec` (intent-level action only)
+- `determinism_seed`
+- `inputs_hash`
+
+Required validation contract:
+- Unknown fields at the SpawnSpec boundary are rejected.
+- Missing required fields are rejected.
+- `task_spec_ref` and `tool_profile_ref` must resolve to immutable refs.
+- Dispatch is denied unless coordinator-side validation passes.
+
 ---
 
 ## 4) Why this scales to “BitTorrent waves”
@@ -478,6 +499,21 @@ Promotion is permitted only when the coordinator can present a complete, signed 
 
 ## 10) Scheduler design (torrent-like)
 
+### ControlEvent authority and OTel derivation (required)
+`ControlEvent` is the authoritative control-plane event type for execution decisions. OTel is derived telemetry export and must never be used as control truth.
+
+Required ControlEvent contract:
+- Topic taxonomy includes, at minimum: `task.dispatched`, `task.progress`, `task.completed`, `task.ack`, `task.timeout`, `gate.computed`, `promotion.computed`.
+- Ordering keys include:
+  - `sequence` (monotonic per run) as primary
+  - `event_ts`, then `event_id` as deterministic tie-breakers
+- Correlation keys include `run_id`, `wave_id`, `node_id`, `node_execution_id`, `task_id`.
+
+Required OTel mapping contract:
+- OTel spans/logs are projections of ControlEvent records.
+- Export must preserve stable correlation IDs and decision references.
+- If OTel and ledger disagree, ControlEvent ledger wins.
+
 ### Ledger consistency model (required)
 The have/need ledger must define a concurrency contract.
 
@@ -502,6 +538,16 @@ Combine:
 - **rarity score** (scarce ToolProfiles/resources)
 - **confidence score** (prior success signals; low overlap)
 - **risk penalty** (broad changes, lockfiles, critical paths)
+
+### Deterministic tie-break contracts (required)
+When primary scores are equal, the system MUST apply deterministic tie-breakers.
+
+Required tie-break order:
+- Scheduling order (`SchedulingDecision`): `node_priority_group`, then `node_id`, then `task_spec_digest`.
+- Proposal selection (`SelectionDecision`): `proposal_id`, then `created_at`, then `diff_digest`.
+- Conflict arbitration (`ConflictDecision`): `policy_precedence`, then `proposal_id`, then `conflict_fingerprint`.
+
+These tie-break fields must be persisted in decision artifacts for replay audit.
 
 ### Endgame mode
 When remaining blockers are few:
@@ -782,3 +828,19 @@ Used by both planner and enforcer.
 3. **Apply mode is policy-driven:** coordinator selects `atomic_proposal` (default) vs `atomic_file` vs `hunk_split` based on policy and proposal metadata.
 4. **Event log is source of truth:** recommended append-only event log; ledger is a materialized view maintained by the coordinator.
 
+---
+
+## 21) Traceability and CI conformance (required)
+Requirement traceability is executable, not narrative.
+
+Required mapping:
+- Every `CL-REQ-XXXX` MUST map to one or more of:
+  - schema validation gate
+  - conformance test
+  - replay/determinism test
+- Mappings MUST be recorded in `doc/graph/reviewpack_requirements.json` and referenced by CI outputs.
+
+Required CI evidence:
+- CI artifacts must include requirement IDs covered in the run.
+- CI must fail if any required requirement ID lacks a mapped check.
+- CI must fail if deprecated path references (e.g., `doc/reviews/dome_review_pack_v2`) are introduced in active docs.
