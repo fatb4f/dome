@@ -1,0 +1,61 @@
+{
+  "allowed_paths": [
+    "tools/**",
+    "tests/**",
+    "ssot/**",
+    "doc/**",
+    "packets/**",
+    "ops/**",
+    ".github/workflows/**",
+    "Justfile"
+  ],
+  "area": "engineering/dome_graph_fold",
+  "base_ref": "main",
+  "branch": "packet/pkt-dome-graph-003-spawnspec-schema-gate",
+  "budgets": {
+    "max_changed_files": 220,
+    "max_changed_lines": 26000
+  },
+  "evidence": {
+    "include_git_diff_patch": false,
+    "out_dir": "ops/runtime/graph-003"
+  },
+  "forbidden_outputs": [],
+  "github": {
+    "issue": {
+      "body": "Execution packet for DOME-GRAPH-003.\\n\\nTracker issue: #47",
+      "close_on_success": false,
+      "comment_on_run": true,
+      "ensure": true,
+      "labels": [],
+      "milestone": "M1: Authority and Contracts Baseline",
+      "template": "packet-default.yml",
+      "title": "DOME-GRAPH-003: Implement SpawnSpec Schema Gate"
+    },
+    "repo": "fatb4f/dome"
+  },
+  "github_ops_required": false,
+  "net_ops_required": false,
+  "network_policy": {
+    "additional_domains": [],
+    "allowed_http_methods": [],
+    "domain_allowlist_preset": "none",
+    "internet_access": "off"
+  },
+  "packet_id": "pkt-dome-graph-003-spawnspec-schema-gate",
+  "repo": "fatb4f/dome",
+  "run": {
+    "commands": [
+      "pytest -q tests/test_planner.py tests/test_dispatcher.py tests/test_schema_examples_validate.py"
+    ],
+    "regen_cmd": "",
+    "test_cmd": "pytest -q tests/test_planner.py tests/test_dispatcher.py tests/test_schema_examples_validate.py"
+  },
+  "worktree_policy": {
+    "allow_dirty_globs": [],
+    "allow_untracked_globs": [],
+    "deny_if_worktree_exists": true,
+    "mode": "strict",
+    "worktree_root": "$CODEX_STATE/xtrl/worktrees"
+  }
+}

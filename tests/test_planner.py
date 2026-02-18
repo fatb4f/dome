@@ -81,3 +81,31 @@ def test_planner_detects_dependency_cycle() -> None:
                 {"task_id": "b", "dependencies": ["a"]},
             ]
         )
+
+
+def test_task_spec_authority_guard_rejects_direct_method_keys() -> None:
+    contract = {
+        "packet_id": "pkt-test-guard-001",
+        "base_ref": "main",
+        "task_spec": {
+            "intent": "refactor.module",
+            "method": "dangerous.raw.exec",
+        },
+    }
+    with pytest.raises(ValueError, match="unknown keys"):
+        planner.pre_contract_to_work_queue(contract)
+
+
+def test_task_spec_authority_guard_accepts_intent_shape() -> None:
+    contract = {
+        "packet_id": "pkt-test-guard-002",
+        "base_ref": "main",
+        "task_spec": {
+            "intent": "refactor.module",
+            "target": {"kind": "module", "id": "tools/orchestrator/planner.py"},
+            "constraints": {"allow_write": ["tools/**", "tests/**"]},
+            "inputs": {"reason_codes_ref": "ssot/policy/reason.codes.json"},
+        },
+    }
+    out = planner.pre_contract_to_work_queue(contract)
+    assert out["run_id"] == "pkt-test-guard-002"

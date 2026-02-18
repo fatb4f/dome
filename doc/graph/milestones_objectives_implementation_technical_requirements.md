@@ -65,7 +65,7 @@ This document defines milestone-level objectives and delivery requirements for w
 
 ### Implementation
 - Wire `reviewpack_requirements.json` to automated checks (`integration`, `ci-gate`).
-- Add doc lint/check to block deprecated path references (`doc/reviews/dome_review_pack_v2`).
+- Add doc lint/check to block deprecated path references (`<deprecated_review_pack_path>`).
 - Add conformance tests for TaskSpec/ToolContract split and SpawnSpec constraints.
 - Add replay test suite for deterministic IDs and scheduler ordering.
 

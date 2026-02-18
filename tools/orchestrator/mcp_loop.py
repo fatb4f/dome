@@ -43,6 +43,19 @@ class Event:
     ts: str = field(default_factory=utc_now)
 
 
+@dataclass(frozen=True)
+class ControlEvent:
+    """Authoritative control-plane event used for deterministic replay/materialization."""
+
+    sequence: int
+    event_id: str
+    ts: str
+    topic: str
+    run_id: str
+    payload: dict[str, Any]
+    schema_version: str = "0.2.0"
+
+
 class EventBus:
     """In-process pub/sub bus with optional JSONL event persistence."""
 
@@ -115,6 +128,48 @@ def load_event_envelopes(event_log: Path, run_id: str | None = None) -> list[dic
         )
     )
     return rows
+
+
+def load_control_events(event_log: Path, run_id: str | None = None) -> list[ControlEvent]:
+    rows = load_event_envelopes(event_log=event_log, run_id=run_id)
+    return [
+        ControlEvent(
+            sequence=int(item.get("sequence", 0)),
+            event_id=str(item.get("event_id", "")),
+            ts=str(item.get("ts", "")),
+            topic=str(item.get("topic", "")),
+            run_id=str(item.get("run_id", "")),
+            payload=dict(item.get("payload", {})),
+            schema_version=str(item.get("schema_version", "0.2.0")),
+        )
+        for item in rows
+    ]
+
+
+def materialize_control_ledger(control_events: list[ControlEvent]) -> dict[str, Any]:
+    """Deterministically materialize control events into a replayable ledger summary."""
+    task_assigned = 0
+    task_results = 0
+    gate_verdict = None
+    promotion_decision = None
+
+    for event in control_events:
+        if event.topic == TOPIC_TASK_ASSIGNED:
+            task_assigned += 1
+        elif event.topic in {TOPIC_TASK_RESULT_RAW, TOPIC_TASK_RESULT}:
+            task_results += 1
+        elif event.topic == TOPIC_GATE_VERDICT:
+            gate_verdict = dict(event.payload)
+        elif event.topic == TOPIC_PROMOTION_DECISION:
+            promotion_decision = dict(event.payload)
+
+    return {
+        "event_count": len(control_events),
+        "task_assigned_count": task_assigned,
+        "task_result_count": task_results,
+        "gate_verdict": gate_verdict,
+        "promotion_decision": promotion_decision,
+    }
 
 
 def replay_task_result_events(event_log: Path, run_id: str) -> list[dict[str, Any]]:

@@ -38,6 +38,8 @@ def test_replay_from_events_matches_state_space(tmp_path: Path) -> None:
     )
     run_id = summary["run_id"]
     run_dir = run_root / run_id
+    control_ledger = json.loads((run_dir / "control.ledger.json").read_text(encoding="utf-8"))
+    assert control_ledger["event_count"] >= 1
 
     state_original = json.loads((run_dir / "state.space.json").read_text(encoding="utf-8"))
     replayed = replay_state_space_from_events(

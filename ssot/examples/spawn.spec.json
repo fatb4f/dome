@@ -1,0 +1,15 @@
+{
+  "run_id": "wave-001",
+  "wave_id": "wave-a",
+  "node_id": "task-001",
+  "node_execution_id": "task-001-attempt-1",
+  "task_spec_ref": "ssot/examples/work.queue.json#tasks/0",
+  "tool_profile_ref": "ssot/examples/profile.catalog.map.json#default",
+  "container_ref": "ghcr.io/fatb4f/dome@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "action_spec": {
+    "intent": "code.apply",
+    "args": {}
+  },
+  "determinism_seed": "seed-001",
+  "inputs_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+}

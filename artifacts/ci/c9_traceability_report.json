@@ -1,0 +1,57 @@
+{
+  "missing_requirement_ids": [],
+  "requirements": {
+    "CL-REQ-0001": {
+      "checks": [
+        "tests/test_planner.py::test_task_spec_authority_guard_rejects_direct_method_keys"
+      ],
+      "existing_checks": [
+        "tests/test_planner.py::test_task_spec_authority_guard_rejects_direct_method_keys"
+      ],
+      "missing_checks": [],
+      "status": "PASS"
+    },
+    "CL-REQ-0002": {
+      "checks": [
+        "tests/test_dispatcher.py::test_dispatcher_rejects_out_of_contract_method"
+      ],
+      "existing_checks": [
+        "tests/test_dispatcher.py::test_dispatcher_rejects_out_of_contract_method"
+      ],
+      "missing_checks": [],
+      "status": "PASS"
+    },
+    "CL-REQ-0003": {
+      "checks": [
+        "tests/test_dispatcher.py::test_dispatcher_rejects_spawn_spec_unknown_fields"
+      ],
+      "existing_checks": [
+        "tests/test_dispatcher.py::test_dispatcher_rejects_spawn_spec_unknown_fields"
+      ],
+      "missing_checks": [],
+      "status": "PASS"
+    },
+    "CL-REQ-0004": {
+      "checks": [
+        "tests/test_mcp_events.py::test_control_events_materialize_deterministic_ledger"
+      ],
+      "existing_checks": [
+        "tests/test_mcp_events.py::test_control_events_materialize_deterministic_ledger"
+      ],
+      "missing_checks": [],
+      "status": "PASS"
+    },
+    "CL-REQ-0005": {
+      "checks": [
+        "tests/test_dispatcher.py::test_dispatcher_tiebreak_is_deterministic_across_input_order"
+      ],
+      "existing_checks": [
+        "tests/test_dispatcher.py::test_dispatcher_tiebreak_is_deterministic_across_input_order"
+      ],
+      "missing_checks": [],
+      "status": "PASS"
+    }
+  },
+  "status": "PASS",
+  "version": "0.1.0"
+}

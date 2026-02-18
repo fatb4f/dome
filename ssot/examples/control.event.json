@@ -1,0 +1,13 @@
+{
+  "schema_version": "0.2.0",
+  "sequence": 1,
+  "event_id": "evt-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "ts": "2026-02-18T00:00:00Z",
+  "topic": "task.assigned",
+  "run_id": "wave-001",
+  "payload": {
+    "task_id": "task-001",
+    "goal": "Run deterministic verification",
+    "worker_model": "gpt-5.3"
+  }
+}

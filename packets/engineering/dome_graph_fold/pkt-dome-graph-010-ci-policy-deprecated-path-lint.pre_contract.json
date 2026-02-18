@@ -1,0 +1,59 @@
+{
+  "schema_version": "xtrl.pre_contract/v0.2",
+  "packet_id": "pkt-dome-graph-010-ci-policy-deprecated-path-lint",
+  "component": "dome",
+  "repo": "dome",
+  "base_ref": "main",
+  "mode": "NORMAL",
+  "budgets": {
+    "time_minutes": 60,
+    "iteration_budget": 4
+  },
+  "constraints": {
+    "clean_repo_required": true,
+    "allowed_paths": [
+      "tools/**",
+      "tests/**",
+      "ssot/**",
+      "doc/**",
+      "packets/**",
+      "ops/**",
+      ".github/workflows/**",
+      "Justfile"
+    ],
+    "forbidden_paths": [
+      ".git/**"
+    ]
+  },
+  "actions": {
+    "test": [
+      "bash",
+      "-lc",
+      "pytest -q tests/test_ops_tools.py tests/test_schema_examples_validate.py"
+    ]
+  },
+  "plan_card": {
+    "why": "Execute DOME-GRAPH-010 sequentially from graph fold backlog",
+    "what": "CI policy gates + deprecated path lint enforcement",
+    "how": "Implement in-repo changes with deterministic tests and evidence artifacts",
+    "where": "dome repository",
+    "who": "orchestrator",
+    "when": "sequential issue execution"
+  },
+  "graph": {
+    "id": "DOME-GRAPH-010",
+    "priority": "P0",
+    "requirement_ids": [
+      "CL-REQ-0001",
+      "CL-REQ-0002",
+      "CL-REQ-0003",
+      "CL-REQ-0004",
+      "CL-REQ-0005"
+    ],
+    "depends_on": [
+      "DOME-GRAPH-009"
+    ],
+    "tracker_issue": 54,
+    "milestone": "M4: Traceability and CI Hard Gates"
+  }
+}

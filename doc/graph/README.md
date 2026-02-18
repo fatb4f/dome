@@ -8,3 +8,11 @@ Authoritative files include:
 - `dome_task_spec_closed_loop_requirements_companion_v5.md`
 - `dome_task_spec_skills_closed_loop_v5.md`
 - `reviewpack_requirements.json`
+
+Execution planning artifacts:
+- `milestones_objectives_implementation_technical_requirements.md`
+- `dependency_matrix.md`
+- `implementation_plan.md`
+- `ordering_dag.md`
+- `tracker.md`
+- `graph_execution_tracker.md`

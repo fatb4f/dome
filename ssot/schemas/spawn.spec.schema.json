@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "spawn.spec",
+  "type": "object",
+  "required": [
+    "run_id",
+    "wave_id",
+    "node_id",
+    "node_execution_id",
+    "task_spec_ref",
+    "tool_profile_ref",
+    "container_ref",
+    "action_spec",
+    "determinism_seed",
+    "inputs_hash"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "wave_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "node_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "node_execution_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_spec_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tool_profile_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "container_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "action_spec": {
+      "type": "object",
+      "required": [
+        "intent"
+      ],
+      "properties": {
+        "intent": {
+          "type": "string",
+          "minLength": 1
+        },
+        "args": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    },
+    "determinism_seed": {
+      "type": "string",
+      "minLength": 1
+    },
+    "inputs_hash": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": false
+}

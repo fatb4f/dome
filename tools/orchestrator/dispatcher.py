@@ -28,6 +28,29 @@ from tools.orchestrator.planner import validate_task_graph
 
 WorkerFn = Callable[[dict[str, Any]], dict[str, Any]]
 
+TASK_DIRECT_METHOD_KEYS = {"method", "tool_method", "raw_call", "command"}
+SPAWN_SPEC_REQUIRED_KEYS = {
+    "run_id",
+    "wave_id",
+    "node_id",
+    "node_execution_id",
+    "task_spec_ref",
+    "tool_profile_ref",
+    "container_ref",
+    "action_spec",
+    "determinism_seed",
+    "inputs_hash",
+}
+
+
+def _task_tiebreak_key(task: dict[str, Any]) -> tuple[str, str, str, str]:
+    """Deterministic scheduler ordering key: priority -> created_at -> payload_digest -> task_id."""
+    priority = str(task.get("priority", "normal"))
+    created_at = str(task.get("created_at", ""))
+    payload_digest = str(task.get("payload_digest", ""))
+    task_id = str(task.get("task_id", ""))
+    return (priority, created_at, payload_digest, task_id)
+
 
 def load_work_queue(path: Path) -> dict[str, Any]:
     payload = json.loads(path.read_text(encoding="utf-8"))
@@ -38,6 +61,58 @@ def load_work_queue(path: Path) -> dict[str, Any]:
         raise ValueError("work.queue tasks must be a non-empty list")
     validate_task_graph(payload["tasks"])
     return payload
+
+
+def _requested_method(task: dict[str, Any]) -> str | None:
+    if isinstance(task.get("requested_method"), str):
+        return str(task["requested_method"])
+    tool_call = task.get("tool_call")
+    if isinstance(tool_call, dict) and isinstance(tool_call.get("method"), str):
+        return str(tool_call["method"])
+    return None
+
+
+def validate_tool_contract(task: dict[str, Any]) -> None:
+    direct = sorted(TASK_DIRECT_METHOD_KEYS.intersection(task.keys()))
+    if direct:
+        raise ValueError(f"task '{task.get('task_id', '?')}' contains forbidden direct method keys: {direct}")
+
+    requested_method = _requested_method(task)
+    if requested_method is None:
+        return
+    contract = task.get("tool_contract")
+    if not isinstance(contract, dict):
+        raise ValueError(
+            f"task '{task.get('task_id', '?')}' requested method '{requested_method}' without tool_contract"
+        )
+    allowed = contract.get("allowed_methods")
+    if not isinstance(allowed, list) or not all(isinstance(item, str) for item in allowed):
+        raise ValueError(
+            f"task '{task.get('task_id', '?')}' has invalid tool_contract.allowed_methods"
+        )
+    if requested_method not in set(allowed):
+        raise ValueError(
+            f"task '{task.get('task_id', '?')}' requested out-of-contract method '{requested_method}'"
+        )
+
+
+def validate_spawn_spec(spawn_spec: dict[str, Any], expected_run_id: str) -> None:
+    if not isinstance(spawn_spec, dict):
+        raise ValueError("spawn_spec must be an object")
+    keys = set(spawn_spec.keys())
+    missing = sorted(SPAWN_SPEC_REQUIRED_KEYS - keys)
+    if missing:
+        raise ValueError(f"spawn_spec missing required keys: {missing}")
+    unknown = sorted(keys - SPAWN_SPEC_REQUIRED_KEYS)
+    if unknown:
+        raise ValueError(f"spawn_spec contains unknown keys: {unknown}")
+    if str(spawn_spec.get("run_id")) != expected_run_id:
+        raise ValueError("spawn_spec.run_id must match work_queue.run_id")
+    action_spec = spawn_spec.get("action_spec")
+    if not isinstance(action_spec, dict):
+        raise ValueError("spawn_spec.action_spec must be an object")
+    if not isinstance(action_spec.get("intent"), str) or not action_spec.get("intent"):
+        raise ValueError("spawn_spec.action_spec.intent must be a non-empty string")
 
 
 def _default_worker(task: dict[str, Any]) -> dict[str, Any]:
@@ -68,13 +143,19 @@ class DispatcherSupervisor:
 
     def dispatch(self, work_queue: dict[str, Any]) -> dict[str, Any]:
         run_id = str(work_queue["run_id"])
+        wave_id = f"{run_id}-wave-001"
         max_workers = max(1, int(work_queue["max_workers"]))
         validate_task_graph(work_queue["tasks"])
+        for task in work_queue["tasks"]:
+            validate_tool_contract(task)
+            if "spawn_spec" in task:
+                validate_spawn_spec(task["spawn_spec"], expected_run_id=run_id)
 
         tasks_by_id = {task["task_id"]: dict(task) for task in work_queue["tasks"]}
         pending = set(tasks_by_id.keys())
         completed: set[str] = set()
         results: list[dict[str, Any]] = []
+        dispatch_order: list[dict[str, Any]] = []
         model_cursor = 0
 
         while pending:
@@ -84,6 +165,7 @@ class DispatcherSupervisor:
                 deps = set(task.get("dependencies", []))
                 if deps.issubset(completed):
                     ready.append(task)
+            ready.sort(key=_task_tiebreak_key)
 
             if not ready:
                 raise ValueError("no dispatchable tasks remaining; dependency cycle or missing dependency")
@@ -98,11 +180,30 @@ class DispatcherSupervisor:
                         topic=TOPIC_TASK_ASSIGNED,
                         run_id=run_id,
                         payload={
+                            "wave_id": wave_id,
                             "task_id": task["task_id"],
                             "goal": task.get("goal", ""),
                             "worker_model": task["worker_model"],
+                            "dispatch_tiebreak": {
+                                "priority": str(task.get("priority", "normal")),
+                                "created_at": str(task.get("created_at", "")),
+                                "payload_digest": str(task.get("payload_digest", "")),
+                                "task_id": task["task_id"],
+                            },
                         },
                     )
+                )
+                dispatch_order.append(
+                    {
+                        "wave_id": wave_id,
+                        "task_id": task["task_id"],
+                        "dispatch_tiebreak": {
+                            "priority": str(task.get("priority", "normal")),
+                            "created_at": str(task.get("created_at", "")),
+                            "payload_digest": str(task.get("payload_digest", "")),
+                            "task_id": task["task_id"],
+                        },
+                    }
                 )
 
             with ThreadPoolExecutor(max_workers=max_workers) as pool:
@@ -155,7 +256,9 @@ class DispatcherSupervisor:
 
         return {
             "run_id": run_id,
+            "wave_id": wave_id,
             "dispatched_count": len(results),
+            "dispatch_order": dispatch_order,
             "results": sorted(results, key=lambda item: item["task_id"]),
         }
 

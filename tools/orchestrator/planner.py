@@ -17,6 +17,31 @@ def _required(payload: dict[str, Any], key: str) -> Any:
     return payload[key]
 
 
+TASKSPEC_ALLOWED_KEYS = {"intent", "target", "constraints", "inputs", "metadata"}
+TASKSPEC_FORBIDDEN_DIRECT_KEYS = {
+    "method",
+    "tool_method",
+    "tool_name",
+    "command",
+    "raw_call",
+    "script",
+    "exec",
+}
+
+
+def validate_task_spec_authority(task_spec: dict[str, Any]) -> None:
+    if not isinstance(task_spec, dict):
+        raise ValueError("task_spec must be an object")
+    if "intent" not in task_spec:
+        raise ValueError("task_spec must include intent")
+    unknown = sorted(set(task_spec.keys()) - TASKSPEC_ALLOWED_KEYS)
+    if unknown:
+        raise ValueError(f"task_spec contains unknown keys: {unknown}")
+    forbidden = sorted(TASKSPEC_FORBIDDEN_DIRECT_KEYS.intersection(task_spec.keys()))
+    if forbidden:
+        raise ValueError(f"task_spec contains forbidden direct execution keys: {forbidden}")
+
+
 def _build_default_tasks(contract: dict[str, Any]) -> list[dict[str, Any]]:
     packet_id = str(contract.get("packet_id", "packet"))
     plan_card = contract.get("plan_card", {})
@@ -85,6 +110,8 @@ def validate_task_graph(tasks: list[dict[str, Any]]) -> None:
 
 def pre_contract_to_work_queue(contract: dict[str, Any]) -> dict[str, Any]:
     _required(contract, "packet_id")
+    if "task_spec" in contract:
+        validate_task_spec_authority(contract["task_spec"])
     base_ref = str(contract.get("base_ref", "main"))
     budgets = contract.get("budgets", {})
     max_workers = max(1, int(budgets.get("iteration_budget", 2)))

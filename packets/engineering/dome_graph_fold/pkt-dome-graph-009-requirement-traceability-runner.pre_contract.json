@@ -1,0 +1,59 @@
+{
+  "schema_version": "xtrl.pre_contract/v0.2",
+  "packet_id": "pkt-dome-graph-009-requirement-traceability-runner",
+  "component": "dome",
+  "repo": "dome",
+  "base_ref": "main",
+  "mode": "NORMAL",
+  "budgets": {
+    "time_minutes": 60,
+    "iteration_budget": 4
+  },
+  "constraints": {
+    "clean_repo_required": true,
+    "allowed_paths": [
+      "tools/**",
+      "tests/**",
+      "ssot/**",
+      "doc/**",
+      "packets/**",
+      "ops/**",
+      ".github/workflows/**",
+      "Justfile"
+    ],
+    "forbidden_paths": [
+      ".git/**"
+    ]
+  },
+  "actions": {
+    "test": [
+      "bash",
+      "-lc",
+      "pytest -q tests/test_ssot_policy_validate.py tests/test_schema_examples_validate.py"
+    ]
+  },
+  "plan_card": {
+    "why": "Execute DOME-GRAPH-009 sequentially from graph fold backlog",
+    "what": "Requirement-to-check traceability coverage runner",
+    "how": "Implement in-repo changes with deterministic tests and evidence artifacts",
+    "where": "dome repository",
+    "who": "orchestrator",
+    "when": "sequential issue execution"
+  },
+  "graph": {
+    "id": "DOME-GRAPH-009",
+    "priority": "P0",
+    "requirement_ids": [
+      "CL-REQ-0001",
+      "CL-REQ-0002",
+      "CL-REQ-0003",
+      "CL-REQ-0004",
+      "CL-REQ-0005"
+    ],
+    "depends_on": [
+      "DOME-GRAPH-008"
+    ],
+    "tracker_issue": 53,
+    "milestone": "M4: Traceability and CI Hard Gates"
+  }
+}

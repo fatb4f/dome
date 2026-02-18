@@ -843,4 +843,4 @@ Required mapping:
 Required CI evidence:
 - CI artifacts must include requirement IDs covered in the run.
 - CI must fail if any required requirement ID lacks a mapped check.
-- CI must fail if deprecated path references (e.g., `doc/reviews/dome_review_pack_v2`) are introduced in active docs.
+- CI must fail if deprecated path references (e.g., `<deprecated_review_pack_path>`) are introduced in active docs.

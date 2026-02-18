@@ -28,6 +28,7 @@ from tools.orchestrator.checkers import (
 from tools.orchestrator.implementers import ImplementerHarness
 from tools.orchestrator.io_utils import atomic_write_json
 from tools.orchestrator.mcp_loop import EventBus
+from tools.orchestrator.mcp_loop import load_control_events, materialize_control_ledger
 from tools.orchestrator.planner import pre_contract_to_work_queue
 from tools.orchestrator.promote import (
     create_promotion_decision,
@@ -162,6 +163,10 @@ def run_demo(
         promotion = create_promotion_decision(gate_decision=gate_decision, max_risk=risk_threshold)
     validate_promotion_schema(promotion, ROOT / "ssot/schemas/promotion.decision.schema.json")
     promotion_path = persist_promotion_decision(run_root, run_id, promotion)
+    control_events = load_control_events(event_log=event_log, run_id=run_id)
+    control_ledger = materialize_control_ledger(control_events)
+    control_ledger_path = run_dir / "control.ledger.json"
+    atomic_write_json(control_ledger_path, control_ledger)
 
     state_space = json.loads(state_space_path.read_text(encoding="utf-8"))
     with stage_span(
@@ -215,6 +220,7 @@ def run_demo(
             "summary_path": str(run_dir / "summary.json"),
             "gate_decision_path": str(gate_path),
             "promotion_decision_path": str(promotion_path),
+            "control_ledger_path": str(control_ledger_path),
             "state_space_path": str(state_out_path),
         },
         "runtime": {

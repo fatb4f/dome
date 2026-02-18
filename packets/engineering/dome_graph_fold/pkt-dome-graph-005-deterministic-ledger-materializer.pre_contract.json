@@ -1,0 +1,56 @@
+{
+  "schema_version": "xtrl.pre_contract/v0.2",
+  "packet_id": "pkt-dome-graph-005-deterministic-ledger-materializer",
+  "component": "dome",
+  "repo": "dome",
+  "base_ref": "main",
+  "mode": "NORMAL",
+  "budgets": {
+    "time_minutes": 60,
+    "iteration_budget": 4
+  },
+  "constraints": {
+    "clean_repo_required": true,
+    "allowed_paths": [
+      "tools/**",
+      "tests/**",
+      "ssot/**",
+      "doc/**",
+      "packets/**",
+      "ops/**",
+      ".github/workflows/**",
+      "Justfile"
+    ],
+    "forbidden_paths": [
+      ".git/**"
+    ]
+  },
+  "actions": {
+    "test": [
+      "bash",
+      "-lc",
+      "pytest -q tests/test_state_replay.py tests/test_state_machine.py"
+    ]
+  },
+  "plan_card": {
+    "why": "Execute DOME-GRAPH-005 sequentially from graph fold backlog",
+    "what": "Deterministic ledger materializer + replay equivalence",
+    "how": "Implement in-repo changes with deterministic tests and evidence artifacts",
+    "where": "dome repository",
+    "who": "orchestrator",
+    "when": "sequential issue execution"
+  },
+  "graph": {
+    "id": "DOME-GRAPH-005",
+    "priority": "P0",
+    "requirement_ids": [
+      "CL-REQ-0004",
+      "CL-REQ-0005"
+    ],
+    "depends_on": [
+      "DOME-GRAPH-004"
+    ],
+    "tracker_issue": 49,
+    "milestone": "M2: Closed-Loop Ledger and Deterministic Execution"
+  }
+}

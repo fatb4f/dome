@@ -129,7 +129,7 @@
 - Requirements: CL-REQ-0001..0005
 - Deliverables:
   - CI rule for requirement coverage
-  - lint rule blocking `doc/reviews/dome_review_pack_v2` references in active docs
+  - lint rule blocking `<deprecated_review_pack_path>` references in active docs
 - Acceptance Criteria:
   - CI fails on missing coverage or deprecated reference regressions
   - CI publishes policy gate summary artifact

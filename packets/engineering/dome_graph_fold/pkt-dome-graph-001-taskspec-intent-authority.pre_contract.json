@@ -1,0 +1,53 @@
+{
+  "schema_version": "xtrl.pre_contract/v0.2",
+  "packet_id": "pkt-dome-graph-001-taskspec-intent-authority",
+  "component": "dome",
+  "repo": "dome",
+  "base_ref": "main",
+  "mode": "NORMAL",
+  "budgets": {
+    "time_minutes": 60,
+    "iteration_budget": 4
+  },
+  "constraints": {
+    "clean_repo_required": true,
+    "allowed_paths": [
+      "tools/**",
+      "tests/**",
+      "ssot/**",
+      "doc/**",
+      "packets/**",
+      "ops/**",
+      ".github/workflows/**",
+      "Justfile"
+    ],
+    "forbidden_paths": [
+      ".git/**"
+    ]
+  },
+  "actions": {
+    "test": [
+      "bash",
+      "-lc",
+      "pytest -q tests/test_planner.py tests/test_security.py"
+    ]
+  },
+  "plan_card": {
+    "why": "Execute DOME-GRAPH-001 sequentially from graph fold backlog",
+    "what": "TaskSpec authority guard implementation",
+    "how": "Implement in-repo changes with deterministic tests and evidence artifacts",
+    "where": "dome repository",
+    "who": "orchestrator",
+    "when": "sequential issue execution"
+  },
+  "graph": {
+    "id": "DOME-GRAPH-001",
+    "priority": "P0",
+    "requirement_ids": [
+      "CL-REQ-0001"
+    ],
+    "depends_on": [],
+    "tracker_issue": 45,
+    "milestone": "M1: Authority and Contracts Baseline"
+  }
+}
