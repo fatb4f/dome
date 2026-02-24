@@ -64,11 +64,11 @@ def _load_reason_codes(path: Path) -> set[str]:
     return codes
 
 
-def _run_verify_command(command: str | None) -> tuple[int, str]:
+def _run_verify_command(command: str | None, cwd: Path | None = None) -> tuple[int, str]:
     if not command:
         return 0, "verify skipped"
     argv = shlex.split(command)
-    proc = subprocess.run(argv, capture_output=True, text=True)
+    proc = subprocess.run(argv, capture_output=True, text=True, cwd=str(cwd) if cwd else None)
     output = "\n".join(filter(None, [proc.stdout.strip(), proc.stderr.strip()]))
     return int(proc.returncode), output[:4000]
 
@@ -98,11 +98,12 @@ def create_gate_decision(
     run_summary: dict[str, Any],
     reason_codes_catalog: set[str],
     verify_command: str | None = None,
+    verify_cwd: Path | None = None,
     risk_threshold: int = 60,
     otel_export: bool = False,
 ) -> tuple[dict[str, Any], str]:
     run_id = str(run_summary.get("run_id", "run-unknown"))
-    verify_rc, verify_output = _run_verify_command(verify_command)
+    verify_rc, verify_output = _run_verify_command(verify_command, cwd=verify_cwd)
     status, reason_codes, confidence, risk_score, notes = _compute_status(
         summary=run_summary,
         verify_rc=verify_rc,
@@ -159,6 +160,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--event-log", type=Path, default=Path("ops/runtime/mcp_events.jsonl"))
     parser.add_argument("--schema", type=Path, default=Path("ssot/schemas/gate.decision.schema.json"))
     parser.add_argument("--verify-command", default="")
+    parser.add_argument("--verify-cwd", type=Path)
     parser.add_argument("--risk-threshold", type=int, default=60)
     parser.add_argument("--otel-export", action="store_true")
     return parser.parse_args()
@@ -184,6 +186,7 @@ def main() -> int:
         run_summary=run_summary,
         reason_codes_catalog=reason_codes_catalog,
         verify_command=args.verify_command or None,
+        verify_cwd=args.verify_cwd,
         risk_threshold=args.risk_threshold,
         otel_export=args.otel_export,
     )

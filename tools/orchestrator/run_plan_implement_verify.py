@@ -333,6 +333,7 @@ def run_plan_implement_verify(args: argparse.Namespace) -> dict[str, Any]:
         run_summary=run_summary,
         reason_codes_catalog=reason_codes_catalog,
         verify_command=args.verify_cmd,
+        verify_cwd=args.verify_cwd or args.implement_cwd,
         risk_threshold=args.risk_threshold,
         otel_export=False,
     )
