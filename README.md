@@ -122,6 +122,20 @@ python tools/orchestrator/run_demo.py \
   --profile tdd
 ```
 
+Non-demo PLAN -> IMPLEMENT -> VERIFY loop (PLAN emits GitHub milestone + issue):
+
+```bash
+python tools/orchestrator/run_plan_implement_verify.py \
+  --repo fatb4f/codex-browse \
+  --milestone-title "Webstack v1 - M10" \
+  --issue-title "[Parent] Webstack v1 - M10 PLAN-IMPLEMENT-VERIFY" \
+  --issue-body-file /path/to/issue.md \
+  --implement-cmd "echo implement step" \
+  --verify-cmd "pytest -q"
+```
+
+Use `--dry-run-plan` to run the loop without mutating GitHub.
+
 Just-based pipeline:
 
 ```bash

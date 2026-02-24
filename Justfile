@@ -62,6 +62,9 @@ live-fix-demo:
       --state-space ssot/examples/state.space.json \
       --reason-codes ssot/policy/reason.codes.json
 
+plan-implement-verify:
+    @echo "Use tools/orchestrator/run_plan_implement_verify.py with explicit --repo/--milestone/--issue/--verify args."
+
 ci: clean-runtime validate-ssot test smoke
 
 codex-meta:
