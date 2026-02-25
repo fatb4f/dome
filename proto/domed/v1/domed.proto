@@ -1,0 +1,169 @@
+syntax = "proto3";
+
+package domed.v1;
+
+option java_multiple_files = true;
+
+service DomedService {
+  rpc Health(HealthRequest) returns (HealthResponse);
+  rpc ListCapabilities(ListCapabilitiesRequest) returns (ListCapabilitiesResponse);
+  rpc SkillExecute(SkillExecuteRequest) returns (SkillExecuteResponse);
+  rpc GetJobStatus(GetJobStatusRequest) returns (GetJobStatusResponse);
+  rpc CancelJob(CancelJobRequest) returns (CancelJobResponse);
+  rpc StreamJobEvents(StreamJobEventsRequest) returns (stream StreamJobEventsResponse);
+  rpc GetGateDecision(GetGateDecisionRequest) returns (GetGateDecisionResponse);
+  rpc GetPromotionDecision(GetPromotionDecisionRequest) returns (GetPromotionDecisionResponse);
+}
+
+enum JobState {
+  JOB_STATE_UNSPECIFIED = 0;
+  JOB_STATE_QUEUED = 1;
+  JOB_STATE_RUNNING = 2;
+  JOB_STATE_SUCCEEDED = 3;
+  JOB_STATE_FAILED = 4;
+  JOB_STATE_CANCELED = 5;
+}
+
+enum EventType {
+  EVENT_TYPE_UNSPECIFIED = 0;
+  EVENT_TYPE_STATE_CHANGE = 1;
+  EVENT_TYPE_LOG = 2;
+  EVENT_TYPE_GUARD = 3;
+  EVENT_TYPE_ERROR = 4;
+}
+
+enum ErrorCode {
+  ERROR_CODE_UNSPECIFIED = 0;
+  E_INVALID_REQUEST = 1;
+  E_INVALID_TRANSITION = 2;
+  E_NOT_FOUND = 3;
+  E_LOCK_CONFLICT = 4;
+  E_IDEMPOTENCY_KEY_REUSED = 5;
+  E_POLICY_DENIED = 6;
+  E_TIMEOUT = 7;
+  E_INTERNAL = 8;
+}
+
+message RpcStatus {
+  bool ok = 1;
+  ErrorCode code = 2;
+  string message = 3;
+  bool retryable = 4;
+}
+
+message HealthRequest {}
+
+message HealthResponse {
+  RpcStatus status = 1;
+  string ts = 2;
+  string daemon_version = 3;
+}
+
+message ListCapabilitiesRequest {
+  string profile = 1;
+}
+
+message Capability {
+  string name = 1;
+  string version = 2;
+  string schema_version = 3;
+  repeated string feature_flags = 4;
+}
+
+message ListCapabilitiesResponse {
+  RpcStatus status = 1;
+  string server_version = 2;
+  repeated string api_versions = 3;
+  repeated Capability capabilities = 4;
+}
+
+message SkillExecuteRequest {
+  string skill_id = 1;
+  string profile = 2;
+  string idempotency_key = 3;
+  string task_json = 4;
+  string constraints_json = 5;
+}
+
+message ArtifactRef {
+  string kind = 1;
+  string path = 2;
+}
+
+message SkillExecuteResponse {
+  RpcStatus status = 1;
+  string run_id = 2;
+  string job_id = 3;
+  JobState state = 4;
+  repeated ArtifactRef artifacts = 5;
+}
+
+message GetJobStatusRequest {
+  string job_id = 1;
+}
+
+message RunProvenance {
+  string repo = 1;
+  string commit_sha = 2;
+  bool dirty_flag = 3;
+  string contract_hashes_json = 4;
+  string tool_versions_json = 5;
+  string input_hash = 6;
+  string env_fingerprint = 7;
+}
+
+message GetJobStatusResponse {
+  RpcStatus status = 1;
+  string run_id = 2;
+  string job_id = 3;
+  JobState state = 4;
+  repeated ArtifactRef artifacts = 5;
+  RunProvenance provenance = 6;
+}
+
+message CancelJobRequest {
+  string job_id = 1;
+  string idempotency_key = 2;
+}
+
+message CancelJobResponse {
+  RpcStatus status = 1;
+  string job_id = 2;
+  JobState state = 3;
+}
+
+message StreamJobEventsRequest {
+  string job_id = 1;
+  bool follow = 2;
+  uint64 since_seq = 3;
+}
+
+message StreamJobEventsResponse {
+  uint64 seq = 1;
+  string event_id = 2;
+  string ts = 3;
+  string run_id = 4;
+  string job_id = 5;
+  EventType event_type = 6;
+  string payload_json = 7;
+}
+
+message GetGateDecisionRequest {
+  string run_id = 1;
+}
+
+message GetGateDecisionResponse {
+  RpcStatus status = 1;
+  string run_id = 2;
+  string gate_decision_path = 3;
+}
+
+message GetPromotionDecisionRequest {
+  string run_id = 1;
+}
+
+message GetPromotionDecisionResponse {
+  RpcStatus status = 1;
+  string run_id = 2;
+  string promotion_decision_path = 3;
+}

@@ -1,0 +1,11 @@
+{
+  "contract_set": "domed.v1",
+  "proto_file": "proto/domed/v1/domed.proto",
+  "proto_sha256": "04a1fc3860f3cc57f820fe710b7af4326e1d732ec3af066c893754677c8161b9",
+  "grpcio_tools_version": "1.76.0",
+  "protobuf_version": "6.33.5",
+  "generated": {
+    "python_root": "generated/python",
+    "descriptor": "generated/descriptors/domed_v1.pb"
+  }
+}

@@ -38,6 +38,14 @@ jobs:
         run: |
           python tools/orchestrator/deprecated_path_lint.py --doc-root doc
 
+      - name: Enforce domed codegen drift
+        run: |
+          bash tools/domed/check_codegen_drift.sh
+
+      - name: Enforce domed proto compatibility
+        run: |
+          bash tools/domed/check_proto_breaking.sh --base-ref origin/main
+
       - name: Lint
         run: python -m ruff check tools tests
 
