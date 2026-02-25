@@ -7,7 +7,8 @@ from pathlib import Path
 
 def main() -> int:
     root = Path(__file__).resolve().parents[2]
-    target = root / "tools/codex/dome_cli.py"
+    codex_root = root / "tools" / "codex"
+    target = codex_root / "dome_cli.py"
     tree = ast.parse(target.read_text(encoding="utf-8"))
 
     run_skill_uses_domed = False
@@ -38,10 +39,27 @@ def main() -> int:
         raise SystemExit("run-skill must call run_task_via_domed")
     if run_skill_uses_legacy:
         raise SystemExit("run-skill must not call legacy run_task")
+
+    # Enforce thin-client-only gRPC usage for codex consumers.
+    allowed = {
+        codex_root / "domed_client.py",
+        codex_root / "check_generated_client_only.py",
+    }
+    bad_refs: list[str] = []
+    for path in sorted(codex_root.glob("*.py")):
+        if path in allowed:
+            continue
+        text = path.read_text(encoding="utf-8")
+        if "grpc.insecure_channel(" in text:
+            bad_refs.append(f"{path.relative_to(root)} uses grpc.insecure_channel directly")
+        if "DomedServiceStub(" in text:
+            bad_refs.append(f"{path.relative_to(root)} uses DomedServiceStub directly")
+    if bad_refs:
+        raise SystemExit("generated-client-only policy violation:\n- " + "\n- ".join(bad_refs))
+
     print("generated-client-only check passed")
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

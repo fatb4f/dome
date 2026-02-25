@@ -1,0 +1,13 @@
+{
+  "tool_id": "job.fail",
+  "version": "v1",
+  "title": "Fail Job",
+  "short_description": "Synthetic failing job for failure-path validation",
+  "kind": "skill",
+  "description": "Synthetic failing job for failure-mode validation",
+  "input_schema_ref": "ssot/tools/job.fail/schema/input.schema.json",
+  "output_schema_ref": "ssot/tools/job.fail/schema/output.schema.json",
+  "executor_backend": "inmemory",
+  "permissions": [],
+  "side_effects": ["runtime-state-write", "event-log-write"]
+}

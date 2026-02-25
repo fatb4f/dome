@@ -36,6 +36,7 @@ def test_domed_service_lifecycle_roundtrip() -> None:
         assert tool_detail.status.ok is True
         assert tool_detail.tool.tool_id == "skill-execute"
         assert tool_detail.tool.executor_backend
+        assert tool_detail.tool.input_schema_ref.startswith("ssot/tools/")
 
         submit = client.skill_execute(
             skill_id="skill-execute",

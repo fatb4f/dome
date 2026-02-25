@@ -1,0 +1,13 @@
+{
+  "tool_id": "skill-execute",
+  "version": "v1",
+  "title": "Skill Execute",
+  "short_description": "Generic domed skill execution entrypoint",
+  "kind": "skill",
+  "description": "Generic skill execution entrypoint",
+  "input_schema_ref": "ssot/tools/skill-execute/schema/input.schema.json",
+  "output_schema_ref": "ssot/tools/skill-execute/schema/output.schema.json",
+  "executor_backend": "local-process",
+  "permissions": ["process"],
+  "side_effects": ["runtime-state-write"]
+}

@@ -1,5 +1,8 @@
 set shell := ["bash", "-lc"]
 
+gen:
+    bash tools/domed/gen.sh
+
 clean-runtime:
     rm -rf ops/runtime/runs ops/runtime/mcp_events.jsonl
 

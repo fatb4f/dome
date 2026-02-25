@@ -16,6 +16,7 @@ from tools.domed.runtime_state import JobRecord, RuntimeStateStore
 _GENERATED_ROOT = Path(__file__).resolve().parents[2] / "generated" / "python"
 _ROOT = Path(__file__).resolve().parents[2]
 _TOOL_REGISTRY = _ROOT / "ssot" / "domed" / "tool_registry.v1.json"
+_TOOLS_ROOT = _ROOT / "ssot" / "tools"
 if str(_GENERATED_ROOT) not in sys.path:
     sys.path.insert(0, str(_GENERATED_ROOT))
 
@@ -70,33 +71,54 @@ def _request_hash(req: Any) -> str:
     return hashlib.sha256(json.dumps(payload, sort_keys=True).encode("utf-8")).hexdigest()
 
 
+def _normalize_tool_item(item: dict[str, Any]) -> dict[str, Any]:
+    description = str(item.get("description", ""))
+    permissions = item.get("permissions", [])
+    if not isinstance(permissions, list):
+        permissions = []
+    side_effects = item.get("side_effects", [])
+    if not isinstance(side_effects, list):
+        side_effects = []
+    return {
+        "tool_id": str(item.get("tool_id", "")),
+        "version": str(item.get("version", "v1")),
+        "title": str(item.get("title", item.get("tool_id", ""))),
+        "description": description,
+        "short_description": str(item.get("short_description", description)),
+        "kind": str(item.get("kind", "skill")),
+        "input_schema_ref": str(item.get("input_schema_ref", "")),
+        "output_schema_ref": str(item.get("output_schema_ref", "")),
+        "executor_backend": str(item.get("executor_backend", "unknown")),
+        "permissions": [str(x) for x in permissions],
+        "side_effects": [str(x) for x in side_effects],
+    }
+
+
+def _load_tool_manifests() -> list[dict[str, Any]]:
+    if not _TOOLS_ROOT.exists():
+        return []
+    out: list[dict[str, Any]] = []
+    for path in sorted(_TOOLS_ROOT.glob("*/manifest.yaml")):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if not isinstance(payload, dict):
+            continue
+        out.append(_normalize_tool_item(payload))
+    return [item for item in out if item["tool_id"]]
+
+
 def _load_tool_registry() -> list[dict[str, Any]]:
+    manifests = _load_tool_manifests()
+    if manifests:
+        return manifests
     payload = json.loads(_TOOL_REGISTRY.read_text(encoding="utf-8"))
     tools = payload.get("tools", [])
     out: list[dict[str, Any]] = []
     for item in tools:
-        description = str(item.get("description", ""))
-        permissions = item.get("permissions", [])
-        if not isinstance(permissions, list):
-            permissions = []
-        side_effects = item.get("side_effects", [])
-        if not isinstance(side_effects, list):
-            side_effects = []
-        out.append(
-            {
-                "tool_id": str(item.get("tool_id", "")),
-                "version": str(item.get("version", "v1")),
-                "title": str(item.get("title", item.get("tool_id", ""))),
-                "description": description,
-                "short_description": str(item.get("short_description", description)),
-                "kind": str(item.get("kind", "skill")),
-                "input_schema_ref": str(item.get("input_schema_ref", "")),
-                "output_schema_ref": str(item.get("output_schema_ref", "")),
-                "executor_backend": str(item.get("executor_backend", "unknown")),
-                "permissions": [str(x) for x in permissions],
-                "side_effects": [str(x) for x in side_effects],
-            }
-        )
+        if isinstance(item, dict):
+            out.append(_normalize_tool_item(item))
     return out
 
 

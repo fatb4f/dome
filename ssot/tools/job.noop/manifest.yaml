@@ -1,0 +1,13 @@
+{
+  "tool_id": "job.noop",
+  "version": "v1",
+  "title": "Noop Job",
+  "short_description": "Synthetic success job for daemon smoke checks",
+  "kind": "skill",
+  "description": "Synthetic success job for daemon smoke and integration tests",
+  "input_schema_ref": "ssot/tools/job.noop/schema/input.schema.json",
+  "output_schema_ref": "ssot/tools/job.noop/schema/output.schema.json",
+  "executor_backend": "inmemory",
+  "permissions": [],
+  "side_effects": ["runtime-state-write"]
+}

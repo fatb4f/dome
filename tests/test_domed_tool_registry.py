@@ -26,3 +26,16 @@ def test_tool_registry_schema_minimum() -> None:
     }
     for item in tools:
         assert required.issubset(item.keys())
+
+
+def test_manifest_layout_exists_and_is_loadable() -> None:
+    root = Path(__file__).resolve().parents[1]
+    tools_root = root / "ssot" / "tools"
+    manifests = sorted(tools_root.glob("*/manifest.yaml"))
+    assert manifests, "Expected tool manifests under ssot/tools/*/manifest.yaml"
+    for manifest in manifests:
+        payload = json.loads(manifest.read_text(encoding="utf-8"))
+        assert payload.get("tool_id")
+        assert payload.get("title")
+        assert payload.get("input_schema_ref")
+        assert payload.get("output_schema_ref")
