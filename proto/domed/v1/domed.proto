@@ -8,6 +8,7 @@ service DomedService {
   rpc Health(HealthRequest) returns (HealthResponse);
   rpc ListCapabilities(ListCapabilitiesRequest) returns (ListCapabilitiesResponse);
   rpc ListTools(ListToolsRequest) returns (ListToolsResponse);
+  rpc GetTool(GetToolRequest) returns (GetToolResponse);
   rpc SkillExecute(SkillExecuteRequest) returns (SkillExecuteResponse);
   rpc GetJobStatus(GetJobStatusRequest) returns (GetJobStatusResponse);
   rpc CancelJob(CancelJobRequest) returns (CancelJobResponse);
@@ -80,6 +81,14 @@ message ListCapabilitiesResponse {
 
 message ListToolsRequest {}
 
+message ToolSummary {
+  string tool_id = 1;
+  string version = 2;
+  string title = 3;
+  string short_description = 4;
+  string kind = 5;
+}
+
 message ToolDescriptor {
   string tool_id = 1;
   string version = 2;
@@ -87,11 +96,25 @@ message ToolDescriptor {
   string input_schema_ref = 4;
   string output_schema_ref = 5;
   string executor_backend = 6;
+  string title = 7;
+  string short_description = 8;
+  string kind = 9;
+  repeated string permissions = 10;
+  repeated string side_effects = 11;
 }
 
 message ListToolsResponse {
   RpcStatus status = 1;
-  repeated ToolDescriptor tools = 2;
+  repeated ToolSummary tools = 2;
+}
+
+message GetToolRequest {
+  string tool_id = 1;
+}
+
+message GetToolResponse {
+  RpcStatus status = 1;
+  ToolDescriptor tool = 2;
 }
 
 message SkillExecuteRequest {

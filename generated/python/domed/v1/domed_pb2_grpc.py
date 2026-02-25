@@ -49,6 +49,11 @@ class DomedServiceStub(object):
                 request_serializer=domed_dot_v1_dot_domed__pb2.ListToolsRequest.SerializeToString,
                 response_deserializer=domed_dot_v1_dot_domed__pb2.ListToolsResponse.FromString,
                 _registered_method=True)
+        self.GetTool = channel.unary_unary(
+                '/domed.v1.DomedService/GetTool',
+                request_serializer=domed_dot_v1_dot_domed__pb2.GetToolRequest.SerializeToString,
+                response_deserializer=domed_dot_v1_dot_domed__pb2.GetToolResponse.FromString,
+                _registered_method=True)
         self.SkillExecute = channel.unary_unary(
                 '/domed.v1.DomedService/SkillExecute',
                 request_serializer=domed_dot_v1_dot_domed__pb2.SkillExecuteRequest.SerializeToString,
@@ -97,6 +102,12 @@ class DomedServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def ListTools(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetTool(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -155,6 +166,11 @@ def add_DomedServiceServicer_to_server(servicer, server):
                     servicer.ListTools,
                     request_deserializer=domed_dot_v1_dot_domed__pb2.ListToolsRequest.FromString,
                     response_serializer=domed_dot_v1_dot_domed__pb2.ListToolsResponse.SerializeToString,
+            ),
+            'GetTool': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetTool,
+                    request_deserializer=domed_dot_v1_dot_domed__pb2.GetToolRequest.FromString,
+                    response_serializer=domed_dot_v1_dot_domed__pb2.GetToolResponse.SerializeToString,
             ),
             'SkillExecute': grpc.unary_unary_rpc_method_handler(
                     servicer.SkillExecute,
@@ -268,6 +284,33 @@ class DomedService(object):
             '/domed.v1.DomedService/ListTools',
             domed_dot_v1_dot_domed__pb2.ListToolsRequest.SerializeToString,
             domed_dot_v1_dot_domed__pb2.ListToolsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetTool(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/domed.v1.DomedService/GetTool',
+            domed_dot_v1_dot_domed__pb2.GetToolRequest.SerializeToString,
+            domed_dot_v1_dot_domed__pb2.GetToolResponse.FromString,
             options,
             channel_credentials,
             insecure,

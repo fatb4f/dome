@@ -4,35 +4,54 @@
     {
       "tool_id": "skill-execute",
       "version": "v1",
+      "title": "Skill Execute",
+      "short_description": "Generic domed skill execution entrypoint",
+      "kind": "skill",
       "description": "Generic skill execution entrypoint",
       "input_schema_ref": "proto/domed/v1/domed.proto#SkillExecuteRequest",
       "output_schema_ref": "proto/domed/v1/domed.proto#SkillExecuteResponse",
-      "executor_backend": "local-process"
+      "executor_backend": "local-process",
+      "permissions": ["process"],
+      "side_effects": ["runtime-state-write"]
     },
     {
       "tool_id": "job.noop",
       "version": "v1",
+      "title": "Noop Job",
+      "short_description": "Synthetic success job for daemon smoke checks",
+      "kind": "skill",
       "description": "Synthetic success job for daemon smoke and integration tests",
       "input_schema_ref": "proto/domed/v1/domed.proto#SkillExecuteRequest",
       "output_schema_ref": "proto/domed/v1/domed.proto#SkillExecuteResponse",
-      "executor_backend": "inmemory"
+      "executor_backend": "inmemory",
+      "permissions": [],
+      "side_effects": ["runtime-state-write"]
     },
     {
       "tool_id": "job.log",
       "version": "v1",
+      "title": "Log Job",
+      "short_description": "Synthetic log-emitting job for stream validation",
+      "kind": "skill",
       "description": "Synthetic log-emitting job for stream-path validation",
       "input_schema_ref": "proto/domed/v1/domed.proto#SkillExecuteRequest",
       "output_schema_ref": "proto/domed/v1/domed.proto#SkillExecuteResponse",
-      "executor_backend": "inmemory"
+      "executor_backend": "inmemory",
+      "permissions": [],
+      "side_effects": ["runtime-state-write", "event-log-write"]
     },
     {
       "tool_id": "job.fail",
       "version": "v1",
+      "title": "Fail Job",
+      "short_description": "Synthetic failing job for failure-path validation",
+      "kind": "skill",
       "description": "Synthetic failing job for failure-mode validation",
       "input_schema_ref": "proto/domed/v1/domed.proto#SkillExecuteRequest",
       "output_schema_ref": "proto/domed/v1/domed.proto#SkillExecuteResponse",
-      "executor_backend": "inmemory"
+      "executor_backend": "inmemory",
+      "permissions": [],
+      "side_effects": ["runtime-state-write", "event-log-write"]
     }
   ]
 }
-

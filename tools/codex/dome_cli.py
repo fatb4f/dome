@@ -32,6 +32,10 @@ def _parse_args() -> argparse.Namespace:
 
     lt = sub.add_parser("list-tools", help="List discoverable domed tools")
     lt.add_argument("--domed-endpoint")
+
+    gt = sub.add_parser("get-tool", help="Get full descriptor for one domed tool")
+    gt.add_argument("--tool-id", required=True)
+    gt.add_argument("--domed-endpoint")
     return p.parse_args()
 
 
@@ -64,13 +68,37 @@ def main() -> int:
                 {
                     "tool_id": item.tool_id,
                     "version": item.version,
-                    "description": item.description,
-                    "input_schema_ref": item.input_schema_ref,
-                    "output_schema_ref": item.output_schema_ref,
-                    "executor_backend": item.executor_backend,
+                    "title": item.title,
+                    "short_description": item.short_description,
+                    "kind": item.kind,
                 }
             )
         json.dump({"ok": bool(resp.status.ok), "tools": out}, sys.stdout, indent=2, sort_keys=True)
+        print()
+        return 0
+    if args.cmd == "get-tool":
+        from tools.codex.domed_client import DomedClient, DomedClientConfig
+
+        client = DomedClient(DomedClientConfig(endpoint=args.domed_endpoint))
+        resp = client.get_tool(args.tool_id)
+        out = {
+            "ok": bool(resp.status.ok),
+            "tool": {
+                "tool_id": resp.tool.tool_id,
+                "version": resp.tool.version,
+                "title": resp.tool.title,
+                "description": resp.tool.description,
+                "short_description": resp.tool.short_description,
+                "kind": resp.tool.kind,
+                "input_schema_ref": resp.tool.input_schema_ref,
+                "output_schema_ref": resp.tool.output_schema_ref,
+                "executor_backend": resp.tool.executor_backend,
+                "permissions": list(resp.tool.permissions),
+                "side_effects": list(resp.tool.side_effects),
+            },
+            "status": {"code": int(resp.status.code), "message": resp.status.message},
+        }
+        json.dump(out, sys.stdout, indent=2, sort_keys=True)
         print()
         return 0
     raise RuntimeError(f"unsupported command {args.cmd}")

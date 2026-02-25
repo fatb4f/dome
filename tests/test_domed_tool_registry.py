@@ -14,11 +14,15 @@ def test_tool_registry_schema_minimum() -> None:
     required = {
         "tool_id",
         "version",
+        "title",
+        "short_description",
+        "kind",
         "description",
         "input_schema_ref",
         "output_schema_ref",
         "executor_backend",
+        "permissions",
+        "side_effects",
     }
     for item in tools:
         assert required.issubset(item.keys())
-

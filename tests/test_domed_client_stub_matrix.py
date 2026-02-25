@@ -21,6 +21,7 @@ class _FakePB2:
     HealthRequest = _Req
     ListCapabilitiesRequest = _Req
     ListToolsRequest = _Req
+    GetToolRequest = _Req
     SkillExecuteRequest = _Req
     GetJobStatusRequest = _Req
     CancelJobRequest = _Req
@@ -42,6 +43,11 @@ class _FakeStub:
     def ListTools(self, req: object) -> object:
         self.calls.append(("ListTools", req))
         return SimpleNamespace(status=SimpleNamespace(ok=True), tools=[])
+
+    def GetTool(self, req: object) -> object:
+        self.calls.append(("GetTool", req))
+        tool = SimpleNamespace(tool_id=getattr(req, "tool_id", ""), version="v1")
+        return SimpleNamespace(status=SimpleNamespace(ok=True), tool=tool)
 
     def SkillExecute(self, req: object) -> object:
         self.calls.append(("SkillExecute", req))
@@ -82,6 +88,16 @@ def test_stub_matrix_health_and_capabilities() -> None:
     assert caps.status.ok is True
     assert tools.status.ok is True
     assert [name for name, _ in stub.calls] == ["Health", "ListCapabilities", "ListTools"]
+
+
+def test_stub_matrix_get_tool() -> None:
+    c, stub = _client_with_fake_stub()
+    out = c.get_tool("skill-execute")
+    assert out.status.ok is True
+    assert out.tool.tool_id == "skill-execute"
+    name, req = stub.calls[-1]
+    assert name == "GetTool"
+    assert getattr(req, "tool_id") == "skill-execute"
 
 
 def test_stub_matrix_execute_and_status_and_cancel() -> None:

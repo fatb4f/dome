@@ -46,6 +46,9 @@ class DomedClient:
     def list_tools(self) -> Any:
         return self._stub.ListTools(self._pb2.ListToolsRequest())
 
+    def get_tool(self, tool_id: str) -> Any:
+        return self._stub.GetTool(self._pb2.GetToolRequest(tool_id=tool_id))
+
     def skill_execute(
         self,
         *,

@@ -31,6 +31,11 @@ def test_domed_service_lifecycle_roundtrip() -> None:
         tools = client.list_tools()
         assert tools.status.ok is True
         assert any(t.tool_id == "skill-execute" for t in tools.tools)
+        assert all(hasattr(t, "short_description") for t in tools.tools)
+        tool_detail = client.get_tool("skill-execute")
+        assert tool_detail.status.ok is True
+        assert tool_detail.tool.tool_id == "skill-execute"
+        assert tool_detail.tool.executor_backend
 
         submit = client.skill_execute(
             skill_id="skill-execute",

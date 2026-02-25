@@ -70,19 +70,31 @@ def _request_hash(req: Any) -> str:
     return hashlib.sha256(json.dumps(payload, sort_keys=True).encode("utf-8")).hexdigest()
 
 
-def _load_tool_registry() -> list[dict[str, str]]:
+def _load_tool_registry() -> list[dict[str, Any]]:
     payload = json.loads(_TOOL_REGISTRY.read_text(encoding="utf-8"))
     tools = payload.get("tools", [])
-    out: list[dict[str, str]] = []
+    out: list[dict[str, Any]] = []
     for item in tools:
+        description = str(item.get("description", ""))
+        permissions = item.get("permissions", [])
+        if not isinstance(permissions, list):
+            permissions = []
+        side_effects = item.get("side_effects", [])
+        if not isinstance(side_effects, list):
+            side_effects = []
         out.append(
             {
                 "tool_id": str(item.get("tool_id", "")),
                 "version": str(item.get("version", "v1")),
-                "description": str(item.get("description", "")),
+                "title": str(item.get("title", item.get("tool_id", ""))),
+                "description": description,
+                "short_description": str(item.get("short_description", description)),
+                "kind": str(item.get("kind", "skill")),
                 "input_schema_ref": str(item.get("input_schema_ref", "")),
                 "output_schema_ref": str(item.get("output_schema_ref", "")),
                 "executor_backend": str(item.get("executor_backend", "unknown")),
+                "permissions": [str(x) for x in permissions],
+                "side_effects": [str(x) for x in side_effects],
             }
         )
     return out
@@ -116,17 +128,41 @@ class InMemoryDomedService(domed_pb2_grpc.DomedServiceServicer):
 
     def ListTools(self, request: Any, context: Any) -> Any:  # noqa: N802
         tools = [
-            domed_pb2.ToolDescriptor(
+            domed_pb2.ToolSummary(
                 tool_id=item["tool_id"],
                 version=item["version"],
-                description=item["description"],
-                input_schema_ref=item["input_schema_ref"],
-                output_schema_ref=item["output_schema_ref"],
-                executor_backend=item["executor_backend"],
+                title=item["title"],
+                short_description=item["short_description"],
+                kind=item["kind"],
             )
             for item in _load_tool_registry()
         ]
         return domed_pb2.ListToolsResponse(status=_status_ok(), tools=tools)
+
+    def GetTool(self, request: Any, context: Any) -> Any:  # noqa: N802
+        target = request.tool_id.strip()
+        for item in _load_tool_registry():
+            if item["tool_id"] == target:
+                return domed_pb2.GetToolResponse(
+                    status=_status_ok(),
+                    tool=domed_pb2.ToolDescriptor(
+                        tool_id=item["tool_id"],
+                        version=item["version"],
+                        title=item["title"],
+                        description=item["description"],
+                        short_description=item["short_description"],
+                        kind=item["kind"],
+                        input_schema_ref=item["input_schema_ref"],
+                        output_schema_ref=item["output_schema_ref"],
+                        executor_backend=item["executor_backend"],
+                        permissions=item["permissions"],
+                        side_effects=item["side_effects"],
+                    ),
+                )
+        return domed_pb2.GetToolResponse(
+            status=_status_err(domed_pb2.E_NOT_FOUND, f"tool not found: {target}"),
+            tool=domed_pb2.ToolDescriptor(),
+        )
 
     def SkillExecute(self, request: Any, context: Any) -> Any:  # noqa: N802
         if not request.skill_id or not request.profile or not request.idempotency_key:

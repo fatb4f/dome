@@ -1,7 +1,7 @@
 {
   "contract_set": "domed.v1",
   "proto_file": "proto/domed/v1/domed.proto",
-  "proto_sha256": "407ad88f51802ccba8a69e72b562bbf0ebaa6993c9d64be85270f62b2ba25321",
+  "proto_sha256": "104417e3be4b2c2cf81883814f3286b5ee448e20949d4f44bbfc91159f822cc8",
   "grpcio_tools_version": "1.76.0",
   "protobuf_version": "6.33.5",
   "generated": {
