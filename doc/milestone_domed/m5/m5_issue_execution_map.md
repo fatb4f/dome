@@ -43,3 +43,9 @@ D5 artifacts:
 D6 artifacts:
 
 - `doc/milestone_domed/m5/m5_legacy_deprecation_schedule.md`
+
+D7 artifacts:
+
+- `doc/milestone_domed/m5/m5_production_cutover_runbook.md`
+- `tools/domed/operator_healthcheck.py`
+- `tests/test_domed_operator_healthcheck.py`
