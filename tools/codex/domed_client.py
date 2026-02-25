@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from pathlib import Path
+import sys
 from typing import Any
 
 
@@ -19,8 +21,12 @@ class DomedClient:
         except Exception as exc:  # pragma: no cover - dependency guard
             raise RuntimeError("grpc dependency missing; install grpcio/protobuf to use DomedClient") from exc
 
+        generated_root = Path(__file__).resolve().parents[2] / "generated" / "python"
+        if str(generated_root) not in sys.path:
+            sys.path.insert(0, str(generated_root))
+
         try:
-            from generated.python.domed.v1 import domed_pb2, domed_pb2_grpc
+            from domed.v1 import domed_pb2, domed_pb2_grpc
         except Exception as exc:  # pragma: no cover - dependency guard
             raise RuntimeError("generated domed stubs unavailable; run tools/domed/gen.sh") from exc
 
@@ -64,4 +70,3 @@ class DomedClient:
     def stream_job_events(self, *, job_id: str, since_seq: int = 0, follow: bool = False) -> Any:
         req = self._pb2.StreamJobEventsRequest(job_id=job_id, since_seq=since_seq, follow=follow)
         return self._stub.StreamJobEvents(req)
-

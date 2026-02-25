@@ -5,7 +5,9 @@ description = "MVP v0.2 consolidated agentic SSOT and orchestration scaffold"
 requires-python = ">=3.10"
 dependencies = [
   "duckdb>=1.0.0",
+  "grpcio>=1.76.0",
   "jsonschema>=4.0.0",
+  "protobuf>=6.33.5",
   "pytest>=8.0.0",
   "opentelemetry-sdk>=1.24.0"
 ]
