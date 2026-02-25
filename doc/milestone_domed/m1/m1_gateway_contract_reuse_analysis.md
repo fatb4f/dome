@@ -115,7 +115,7 @@ Date: 2026-02-25
   - `rationale`
 
 Outputs:
-- `doc/m0-runtime-contract-freeze/m1_contract_reuse_matrix.md` (new)
+- `doc/milestone_domed/m1/m1_contract_reuse_matrix.md` (new)
 
 ### Phase P2: Gap decisions and delta register
 
@@ -130,7 +130,7 @@ Outputs:
   - downstream consumer(s)
 
 Outputs:
-- `doc/m0-runtime-contract-freeze/m1_contract_delta_register.md` (new)
+- `doc/milestone_domed/m1/m1_contract_delta_register.md` (new)
 
 ### Phase P3: Dependency and CI policy definition
 
@@ -146,8 +146,8 @@ Outputs:
   - thin-client-only invocation policy gate
 
 Outputs:
-- `doc/m0-runtime-contract-freeze/m1_dependency_matrix.md` (new) or fold into this doc
-- `doc/m0-runtime-contract-freeze/m1_ci_enforcement_mapping.md` (new)
+- `doc/milestone_domed/m1/m1_dependency_matrix.md` (new) or fold into this doc
+- `doc/milestone_domed/m1/m1_ci_enforcement_mapping.md` (new)
 - issue `#57` body update with closure checklist linked to concrete files
 
 ### Phase P4: Handoff package to M2-M4
@@ -161,7 +161,7 @@ Outputs:
 
 Outputs:
 - Issue comment on `#57` referencing final M1 artifacts and ready-for-M2 gate
-- `doc/m0-runtime-contract-freeze/m1_to_m2_handoff.md` (new)
+- `doc/milestone_domed/m1/m1_to_m2_handoff.md` (new)
 
 ## 5) Verification Criteria for Closing `#57`
 
