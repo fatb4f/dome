@@ -13,9 +13,9 @@ Current register contains **zero** `ADAPTER_REQUIRED` rows.
 
 ### Reclassified entries
 
-1. `tools/codex/browse_skill.py:95`
-- New class: `DEPRECATE_REMOVE`
-- Rationale: path only supports `run-skill-legacy`, already marked non-production. Removal tracked under D8.
+1. `tools/codex/browse_skill.py` legacy subprocess callsite
+- D3 class: `DEPRECATE_REMOVE`
+- D8 status: removed from codebase and register.
 
 2. `tools/orchestrator/checkers.py:71`
 3. `tools/orchestrator/run_demo.py:65`
@@ -29,4 +29,3 @@ Current register contains **zero** `ADAPTER_REQUIRED` rows.
 
 - Production paths remain thin-client only (`dome-codex-skill run-skill` -> `DomedClient` -> `domed`).
 - Non-production local harnesses are explicitly tracked and bounded in the register.
-

@@ -1,5 +1,4 @@
 legacy_callsite_id,target_job_type,target_rpc,idempotency_key_source,status_mapping,notes
-tools/codex/browse_skill.py:95,job.codex_browse.task,SkillExecute,caller_supplied_or_hash(task),"RpcStatus.ok -> result.ok; job_id/run_id/state propagated",legacy adapter migration
 tools/orchestrator/checkers.py:71,job.orchestrator.checker,SkillExecute,run_id_plus_stage,"checker rc=0 -> JOB_STATE_SUCCEEDED; else JOB_STATE_FAILED + E_INTERNAL",checker subprocess replacement
 tools/orchestrator/run_demo.py:65,job.orchestrator.demo_step,SkillExecute,run_id_plus_step,"subprocess success -> succeeded; stderr/error -> failed",demo step migration
 tools/orchestrator/run_live_fix_demo.py:51,job.orchestrator.live_fix_step,SkillExecute,run_id_plus_step,"success -> succeeded; failure -> failed; emit log events",live-fix migration

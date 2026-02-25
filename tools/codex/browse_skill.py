@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
-import subprocess
 import time
 from pathlib import Path
 from typing import Any
@@ -84,28 +82,6 @@ def validate_identity_graph_contracts(identity_graph_root: Path) -> None:
         if not path.exists():
             raise RuntimeError(f"identity-graph schema missing: {path}")
         _ = _load_json(path)
-
-
-def run_task(codex_browse_root: Path, task: dict[str, Any], prefs_path: Path | None = None) -> dict[str, Any]:
-    paths = validate_codex_browse_contract(codex_browse_root)
-    _validate(paths["task"], task, "task")
-    env = os.environ.copy()
-    if prefs_path is not None:
-        env["CODEX_BROWSE_PREFS"] = str(prefs_path)
-        _validate(paths["prefs"], _load_json(prefs_path), "prefs")
-    proc = subprocess.run(
-        ["python3", str(paths["runner"])],
-        input=json.dumps(task),
-        text=True,
-        capture_output=True,
-        check=False,
-        env=env,
-    )
-    if proc.returncode != 0:
-        raise RuntimeError(f"runner failed rc={proc.returncode}: {proc.stderr.strip()}")
-    result = json.loads(proc.stdout)
-    _validate(paths["result"], result, "result")
-    return result
 
 
 def run_task_via_domed(

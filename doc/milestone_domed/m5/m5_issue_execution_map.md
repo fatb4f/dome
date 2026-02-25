@@ -49,3 +49,9 @@ D7 artifacts:
 - `doc/milestone_domed/m5/m5_production_cutover_runbook.md`
 - `tools/domed/operator_healthcheck.py`
 - `tests/test_domed_operator_healthcheck.py`
+
+D8 artifacts:
+
+- `tools/codex/dome_cli.py` (legacy command removed)
+- `tools/codex/browse_skill.py` (legacy subprocess path removed)
+- `doc/milestone_domed/m5/m5_legacy_deprecation_schedule.md` (updated completed removal status)

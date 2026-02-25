@@ -29,7 +29,7 @@ Implemented:
 - `domed.v1` proto + codegen checks.
 - `domed` runtime daemon with sqlite store + TTL GC.
 - Generated thin client wrapper + production `run-skill` path via `DomedClient`.
-- Explicit legacy path (`run-skill-legacy`) still present.
+- Legacy compatibility path removed in D8; production CLI path is daemonized only.
 
 Remaining migration targets:
 

@@ -26,5 +26,4 @@ Authoritative mapping table:
 ## Non-migrated classes
 
 - `KEEP_LOCAL` callsites remain local by design (CI tooling and read-only metadata helpers).
-- `DEPRECATE_REMOVE` callsites follow D6/D8 schedule.
-
+- `DEPRECATE_REMOVE` callsites were removed in D8.

@@ -27,9 +27,9 @@ dome-codex-skill run-skill \
   --profile work
 ```
 
-## Non-production path (deprecated)
+## Legacy status
 
-`run-skill-legacy` is explicitly deprecated and scheduled for removal (see D6 schedule).
+`run-skill-legacy` and the local `run_task` subprocess backend were removed in D8.
 
 ## Enforcement gates
 
@@ -42,4 +42,3 @@ dome-codex-skill run-skill \
 1. `run-skill` uses generated client path only.
 2. subprocess policy guard passes.
 3. operator healthcheck succeeds against running daemon.
-

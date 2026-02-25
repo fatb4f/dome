@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from tools.codex.browse_skill import run_task, validate_identity_graph_contracts
+from tools.codex.browse_skill import validate_codex_browse_contract, validate_identity_graph_contracts
 
 
 def _write(path: Path, obj: dict) -> None:
@@ -39,7 +39,7 @@ def test_validate_identity_graph_contracts(tmp_path: Path) -> None:
     validate_identity_graph_contracts(ig)
 
 
-def test_run_task_with_fake_codex_browse(tmp_path: Path) -> None:
+def test_validate_codex_browse_contract_with_fake_skill(tmp_path: Path) -> None:
     root = tmp_path / "codex-browse"
     skill = root / "docs" / "codex-web-browse-skill"
     schemas = skill / "schemas"
@@ -75,12 +75,6 @@ def test_run_task_with_fake_codex_browse(tmp_path: Path) -> None:
         },
     )
     _write(schemas / "prefs.schema.json", {"type": "object"})
-    (scripts / "runner.py").write_text(
-        "#!/usr/bin/env python3\nimport json,sys\n"
-        "task=json.load(sys.stdin)\njson.dump({'ok':True,'op':task['op']},sys.stdout)\n",
-        encoding="utf-8",
-    )
-
-    out = run_task(root, {"op": "health.check", "args": {}})
-    assert out["ok"] is True
-    assert out["op"] == "health.check"
+    (scripts / "runner.py").write_text("#!/usr/bin/env python3\nprint('ok')\n", encoding="utf-8")
+    paths = validate_codex_browse_contract(root)
+    assert paths["runner"].exists()

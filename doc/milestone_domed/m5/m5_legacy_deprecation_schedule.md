@@ -9,11 +9,11 @@ This schedule governs non-production legacy execution surfaces tracked in:
 ## Legacy surfaces
 
 1. `dome-codex-skill run-skill-legacy`
-- Status: deprecated (non-production compatibility path)
+- Status: removed in D8 (`February 25, 2026`)
 - Replacement: `dome-codex-skill run-skill` (generated client -> `domed`)
 
 2. `tools/codex/browse_skill.py::run_task` subprocess path
-- Status: deprecated backend used by `run-skill-legacy`
+- Status: removed in D8 (`February 25, 2026`)
 - Replacement: `run_task_via_domed`
 
 ## Timeline
@@ -34,12 +34,12 @@ Milestone start: February 25, 2026
   - disable legacy path in default operational docs/runbooks
   - require explicit override flag/env for any remaining local use
 
-3. Hard removal phase (D8 target)
-- Target date: March 24, 2026
-- Actions:
-  - remove `run-skill-legacy` command
-  - remove/retire `run_task` subprocess execution path
-  - update register entries from `DEPRECATE_REMOVE` to removed
+3. Hard removal phase (D8)
+- Completed: February 25, 2026
+- Actions completed:
+  - removed `run-skill-legacy` command
+  - removed `run_task` subprocess execution path
+  - updated migration register to remove deprecated callsite
 
 ## Enforcement linkage
 
@@ -47,4 +47,3 @@ Milestone start: February 25, 2026
   - `tools/codex/check_generated_client_only.py`
   - `tools/codex/check_subprocess_policy.py`
 - D8 issue: `#70`
-

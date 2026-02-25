@@ -10,7 +10,6 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from tools.codex.browse_skill import (
-    run_task,
     run_task_via_domed,
     validate_codex_browse_contract,
     validate_identity_graph_contracts,
@@ -30,11 +29,6 @@ def _parse_args() -> argparse.Namespace:
     r.add_argument("--domed-endpoint", default="127.0.0.1:50051")
     r.add_argument("--profile", default="work")
     r.add_argument("--idempotency-key", default="dome-cli")
-
-    rl = sub.add_parser("run-skill-legacy", help="Legacy direct codex-browse runner path (non-production)")
-    rl.add_argument("--codex-browse-root", type=Path, required=True)
-    rl.add_argument("--task-json", type=Path, required=True)
-    rl.add_argument("--prefs-json", type=Path)
     return p.parse_args()
 
 
@@ -53,17 +47,6 @@ def main() -> int:
             profile=args.profile,
             idempotency_key=args.idempotency_key,
         )
-        json.dump(result, sys.stdout, indent=2, sort_keys=True)
-        print()
-        return 0
-    if args.cmd == "run-skill-legacy":
-        print(
-            "warning: run-skill-legacy is deprecated and scheduled for removal on March 24, 2026; "
-            "use run-skill (domed) instead",
-            file=sys.stderr,
-        )
-        task = json.loads(args.task_json.read_text(encoding="utf-8"))
-        result = run_task(args.codex_browse_root, task, args.prefs_json)
         json.dump(result, sys.stdout, indent=2, sort_keys=True)
         print()
         return 0

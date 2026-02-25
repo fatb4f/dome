@@ -1,5 +1,4 @@
 callsite_id,mode,current_transport,migration_class,target_transport,notes
-tools/codex/browse_skill.py:96,legacy_adapter,local_subprocess,DEPRECATE_REMOVE,domed.grpc,legacy compatibility path behind run-skill-legacy slated for removal in D8
 tools/domed/check_proto_breaking.py:13,ci_tooling,local_subprocess,KEEP_LOCAL,local_process,internal subprocess wrapper for protoc execution
 tools/domed/check_proto_breaking.py:90,ci_tooling,local_subprocess,KEEP_LOCAL,local_process,git show baseline lookup for compatibility check
 tools/orchestrator/checkers.py:71,orchestrator_internal,local_subprocess,KEEP_LOCAL,local_process,non-production checker utility preserves deterministic local verify semantics
