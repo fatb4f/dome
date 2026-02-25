@@ -5,15 +5,16 @@ import hashlib
 import json
 from pathlib import Path
 import sys
-from time import time
+from time import sleep, time
 from typing import Any
 from uuid import uuid4
 
 import grpc  # type: ignore
 
-from tools.domed.runtime_state import JobRecord, RuntimeStateStore
+from tools.domed.runtime_state import JobRecord, RuntimeStateStore, TERMINAL_STATES
 from tools.domed.executor import ExecutionEvent, ExecutionRequest
 from tools.domed.executors.local_process import LocalProcessExecutor
+from tools.domed.provenance import collect_runtime_provenance
 
 _GENERATED_ROOT = Path(__file__).resolve().parents[2] / "generated" / "python"
 _ROOT = Path(__file__).resolve().parents[2]
@@ -70,6 +71,10 @@ def _request_hash(req: Any) -> str:
         "task_json": req.task_json,
         "constraints_json": req.constraints_json,
     }
+    return hashlib.sha256(json.dumps(payload, sort_keys=True).encode("utf-8")).hexdigest()
+
+
+def _hash_json_payload(payload: dict[str, Any]) -> str:
     return hashlib.sha256(json.dumps(payload, sort_keys=True).encode("utf-8")).hexdigest()
 
 
@@ -144,6 +149,29 @@ def _find_tool(tool_id: str) -> dict[str, Any] | None:
         if item["tool_id"] == target:
             return item
     return None
+
+
+def _build_provenance(job: JobRecord) -> dict[str, Any]:
+    tool = _find_tool(job.skill_id) or {
+        "executor_backend": "unknown",
+        "tool_id": job.skill_id,
+        "version": "unknown",
+    }
+    manifest_hash = _hash_json_payload(
+        {
+            "tool_id": tool.get("tool_id"),
+            "version": tool.get("version"),
+            "executor_backend": tool.get("executor_backend"),
+            "entrypoint": tool.get("entrypoint", []),
+            "input_schema_ref": tool.get("input_schema_ref", ""),
+            "output_schema_ref": tool.get("output_schema_ref", ""),
+        }
+    )
+    return collect_runtime_provenance(
+        _ROOT,
+        executor_backend=str(tool.get("executor_backend", "unknown")),
+        manifest_hash=manifest_hash,
+    )
 
 
 class InMemoryDomedService(domed_pb2_grpc.DomedServiceServicer):
@@ -421,6 +449,7 @@ class InMemoryDomedService(domed_pb2_grpc.DomedServiceServicer):
                 status=_status_err(domed_pb2.E_NOT_FOUND, f"job not found: {request.job_id}"),
                 state=domed_pb2.JOB_STATE_UNSPECIFIED,
             )
+        prov = _build_provenance(job)
         return domed_pb2.GetJobStatusResponse(
             status=_status_ok(),
             run_id=job.run_id,
@@ -428,13 +457,13 @@ class InMemoryDomedService(domed_pb2_grpc.DomedServiceServicer):
             state=_job_state_to_proto(job.state),
             artifacts=[],
             provenance=domed_pb2.RunProvenance(
-                repo="dome",
-                commit_sha="unknown",
-                dirty_flag=False,
-                contract_hashes_json="{}",
-                tool_versions_json="{}",
+                repo=prov["repo"],
+                commit_sha=prov["commit_sha"],
+                dirty_flag=bool(prov["dirty_flag"]),
+                contract_hashes_json=prov["contract_hashes_json"],
+                tool_versions_json=prov["tool_versions_json"],
                 input_hash=job.request_hash,
-                env_fingerprint="inmemory",
+                env_fingerprint=prov["env_fingerprint"],
             ),
         )
 
@@ -461,16 +490,31 @@ class InMemoryDomedService(domed_pb2_grpc.DomedServiceServicer):
     def StreamJobEvents(self, request: Any, context: Any) -> Any:  # noqa: N802
         if self.store.get(request.job_id) is None:
             return
-        for evt in self.store.events_since(job_id=request.job_id, since_seq=request.since_seq):
-            yield domed_pb2.StreamJobEventsResponse(
-                seq=evt.seq,
-                event_id=f"{request.job_id}-{evt.seq}",
-                ts=f"{evt.ts_epoch:.6f}",
-                run_id=self.store.get(request.job_id).run_id or "",
-                job_id=request.job_id,
-                event_type=_event_type_to_proto(evt.event_type),
-                payload_json=json.dumps(evt.payload, sort_keys=True),
-            )
+        cursor = int(request.since_seq)
+        poll_interval = 0.05
+        while True:
+            job = self.store.get(request.job_id)
+            if job is None:
+                return
+            events = self.store.events_since(job_id=request.job_id, since_seq=cursor)
+            for evt in events:
+                cursor = evt.seq
+                yield domed_pb2.StreamJobEventsResponse(
+                    seq=evt.seq,
+                    event_id=f"{request.job_id}-{evt.seq}",
+                    ts=f"{evt.ts_epoch:.6f}",
+                    run_id=job.run_id or "",
+                    job_id=request.job_id,
+                    event_type=_event_type_to_proto(evt.event_type),
+                    payload_json=json.dumps(evt.payload, sort_keys=True),
+                )
+            if not request.follow:
+                return
+            if job.state in TERMINAL_STATES and not events:
+                return
+            if hasattr(context, "is_active") and not context.is_active():
+                return
+            sleep(poll_interval)
 
     def GetGateDecision(self, request: Any, context: Any) -> Any:  # noqa: N802
         return domed_pb2.GetGateDecisionResponse(
