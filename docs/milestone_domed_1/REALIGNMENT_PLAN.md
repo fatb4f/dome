@@ -164,7 +164,7 @@ The discovery API reads the SSOT registry (and only that registry).
 ### Phase A — Operate `domed` as a user service (foundation)
 
 **Deliverables**
-- systemd user unit(s): `ops/systemd/user/domed.service`
+- systemd user unit(s): `deploy/systemd/user/domed.service`
 - install/uninstall helpers (Justfile targets)
 - defaults updated to XDG paths + UDS
 

@@ -45,6 +45,13 @@ Policy artifacts live in `ssot/policy/`.
 - `.specify/specs/001-mvpv0_2-memory-task-preferences/` — initial feature artifacts
 - `.claude/commands/` and `.github/prompts/` — minimal slash-command prompts
 
+## Top-level ownership
+
+- `proto/` — gRPC contracts
+- `scripts/` — operator/install helper scripts
+- `tools/` — runtime and CLI implementation code
+- `deploy/` — deployable assets (systemd units, packaging artifacts)
+
 ## Using with Spec Kit
 
 If you already use Spec Kit in your environment, you can initialize/upgrade templates as needed using `specify init --here --force` and your preferred agent.

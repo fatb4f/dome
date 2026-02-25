@@ -4,7 +4,7 @@ Phase A (`#73`) implementation status: **completed**.
 
 ## Delivered
 
-- User service unit (authoritative path): `ops/systemd/user/domed.service`
+- User service unit (authoritative path): `deploy/systemd/user/domed.service`
 - Installer/uninstaller helpers:
   - `scripts/install_domed_user_service.sh`
   - `scripts/uninstall_domed_user_service.sh`
@@ -25,4 +25,3 @@ Phase A (`#73`) implementation status: **completed**.
 - `systemctl --user restart domed.service` succeeds
 - `tools/domed/operator_healthcheck.py` succeeds without explicit endpoint
 - Runtime endpoint resolves to UDS by default when socket exists
-
