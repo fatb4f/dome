@@ -1,0 +1,6 @@
+entrypoint_path,mode,current_transport,migration_class,target_transport,notes
+tools/codex/dome_cli.py:run-skill,production,generated_client,MIGRATE_NOW,domed.grpc,already migrated baseline
+tools/codex/dome_cli.py:run-skill-legacy,non-production,local_subprocess,DEPRECATE_REMOVE,domed.grpc,retain temporary adapter then remove
+tools/codex/browse_skill.py:run_task,legacy_adapter,local_subprocess,ADAPTER_REQUIRED,domed.grpc,used for compatibility and tests
+tools/orchestrator/run_demo.py,orchestrator_internal,local_subprocess,ADAPTER_REQUIRED,domed.grpc,map execution segments to domed jobs
+tools/orchestrator/run_live_fix_demo.py,orchestrator_internal,local_subprocess,ADAPTER_REQUIRED,domed.grpc,map execution segments to domed jobs
