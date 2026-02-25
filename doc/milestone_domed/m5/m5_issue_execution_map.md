@@ -26,3 +26,7 @@ Suggested execution sequence:
 7. `#69`
 8. `#70`
 
+D2 artifacts:
+
+- `doc/milestone_domed/m5/m5_transport_mapping_spec.csv`
+- `doc/milestone_domed/m5/m5_transport_mapping_notes.md`
