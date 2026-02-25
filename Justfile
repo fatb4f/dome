@@ -13,7 +13,7 @@ lint:
     python -m ruff check tools tests
 
 validate-ssot:
-    pytest -q tests/test_schema_examples_validate.py tests/test_ssot_policy_validate.py tests/test_ssot_roundtrip.py
+    pytest -q tests/test_schema_examples_validate.py tests/test_ssot_policy_validate.py tests/test_ssot_roundtrip.py tests/test_ssot_tool_manifests_validate.py
 
 ingest-catalog:
     python tools/orchestrator/ingest_pattern_catalog.py \

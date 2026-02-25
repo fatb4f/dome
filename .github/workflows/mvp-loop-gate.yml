@@ -28,7 +28,7 @@ jobs:
           git restore --worktree ops/runtime || true
 
       - name: Validate SSOT contracts
-        run: pytest -q tests/test_schema_examples_validate.py tests/test_ssot_policy_validate.py tests/test_ssot_roundtrip.py
+        run: pytest -q tests/test_schema_examples_validate.py tests/test_ssot_policy_validate.py tests/test_ssot_roundtrip.py tests/test_ssot_tool_manifests_validate.py
 
       - name: Graph traceability report
         run: |

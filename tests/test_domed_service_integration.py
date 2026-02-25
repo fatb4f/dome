@@ -37,6 +37,9 @@ def test_domed_service_lifecycle_roundtrip() -> None:
         assert tool_detail.tool.tool_id == "skill-execute"
         assert tool_detail.tool.executor_backend
         assert tool_detail.tool.input_schema_ref.startswith("ssot/tools/")
+        missing_tool = client.get_tool("does-not-exist")
+        assert missing_tool.status.ok is False
+        assert "not found" in missing_tool.status.message
 
         submit = client.skill_execute(
             skill_id="skill-execute",
