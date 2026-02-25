@@ -11,22 +11,24 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from tools.codex.domed_client import DomedClient, DomedClientConfig
+from tools.domed.endpoints import default_client_endpoint
 
 
 def _parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="domed operator healthcheck")
-    p.add_argument("--endpoint", default="127.0.0.1:50051")
+    p.add_argument("--endpoint")
     p.add_argument("--profile", default="work")
     return p.parse_args()
 
 
 def main() -> int:
     args = _parse_args()
-    client = DomedClient(DomedClientConfig(endpoint=args.endpoint))
+    endpoint = args.endpoint or default_client_endpoint()
+    client = DomedClient(DomedClientConfig(endpoint=endpoint))
     health = client.health()
     caps = client.list_capabilities(args.profile)
     out = {
-        "endpoint": args.endpoint,
+        "endpoint": endpoint,
         "health_ok": bool(health.status.ok),
         "daemon_version": str(getattr(health, "daemon_version", "")),
         "capability_count": len(getattr(caps, "capabilities", [])),
@@ -38,4 +40,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

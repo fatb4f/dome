@@ -26,7 +26,7 @@ def _parse_args() -> argparse.Namespace:
 
     r = sub.add_parser("run-skill", help="Run a codex-browse skill task via DOME wrapper")
     r.add_argument("--task-json", type=Path, required=True)
-    r.add_argument("--domed-endpoint", default="127.0.0.1:50051")
+    r.add_argument("--domed-endpoint")
     r.add_argument("--profile", default="work")
     r.add_argument("--idempotency-key", default="dome-cli")
     return p.parse_args()

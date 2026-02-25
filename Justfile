@@ -71,3 +71,12 @@ codex-meta:
     python tools/codex/generate_context.py \
       --project dome=/home/src404/src/dome \
       --project oracle=/home/src404/src/oracle
+
+domed-install-user-service:
+    bash scripts/install_domed_user_service.sh
+
+domed-uninstall-user-service:
+    bash scripts/uninstall_domed_user_service.sh
+
+domed-status:
+    systemctl --user --no-pager --full status domed.service

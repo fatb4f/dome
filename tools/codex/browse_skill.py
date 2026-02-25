@@ -87,7 +87,7 @@ def validate_identity_graph_contracts(identity_graph_root: Path) -> None:
 def run_task_via_domed(
     *,
     task: dict[str, Any],
-    domed_endpoint: str,
+    domed_endpoint: str | None = None,
     profile: str = "work",
     idempotency_key: str = "dome-cli",
     max_attempts: int = 2,

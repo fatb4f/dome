@@ -6,10 +6,12 @@ from pathlib import Path
 import sys
 from typing import Any
 
+from tools.domed.endpoints import default_client_endpoint
+
 
 @dataclass(slots=True)
 class DomedClientConfig:
-    endpoint: str
+    endpoint: str | None = None
 
 
 class DomedClient:
@@ -31,7 +33,8 @@ class DomedClient:
             raise RuntimeError("generated domed stubs unavailable; run tools/domed/gen.sh") from exc
 
         self._pb2 = domed_pb2
-        self._channel = grpc.insecure_channel(cfg.endpoint)
+        endpoint = cfg.endpoint or default_client_endpoint()
+        self._channel = grpc.insecure_channel(endpoint)
         self._stub = domed_pb2_grpc.DomedServiceStub(self._channel)
 
     def health(self) -> Any:
