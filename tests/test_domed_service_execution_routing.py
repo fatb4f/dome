@@ -14,6 +14,7 @@ pytest.importorskip("grpc")
 pytest.importorskip("google.protobuf")
 
 from tools.codex.domed_client import DomedClient, DomedClientConfig
+from tools.domed import service as domed_service
 from tools.domed.service import start_insecure_server
 
 
@@ -58,3 +59,27 @@ def test_skill_execute_unknown_tool_rejected() -> None:
         assert out.job_id == ""
     finally:
         server.stop(grace=0).wait()
+
+
+def test_manifest_catalog_takes_precedence_over_registry(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    manifest_tools = [
+        {
+            "tool_id": "manifest.only",
+            "version": "v1",
+            "title": "Manifest Only",
+            "description": "from manifest",
+            "short_description": "from manifest",
+            "kind": "probe",
+            "input_schema_ref": "in",
+            "output_schema_ref": "out",
+            "executor_backend": "inmemory",
+            "permissions": [],
+            "side_effects": [],
+            "entrypoint": [],
+            "timeout_seconds": 60,
+            "env_allowlist": [],
+        }
+    ]
+    monkeypatch.setattr(domed_service, "_load_tool_manifests", lambda: manifest_tools)
+    out = domed_service._load_tool_registry()  # noqa: SLF001
+    assert out == manifest_tools
