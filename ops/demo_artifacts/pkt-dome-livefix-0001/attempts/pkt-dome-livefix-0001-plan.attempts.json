@@ -1,9 +1,0 @@
-[
-  {
-    "task_id": "pkt-dome-livefix-0001-plan",
-    "status": "PASS",
-    "notes": "reproduced failing test: F                                                                        [100%]\n=================================== FAILURES ===================================\n________________________________ test_add_basic ________________________________\n\n    def test_add_basic() -> None:\n>       assert add(2, 3) == 5\nE       assert -1 == 5\nE        +  where -1 = add(2, 3)\n\nops/runtime/runs/pkt-dome-livefix-0001/workbench/tests/test_calculator.py:11: AssertionError\n=========================== short test summary info ============================\nFAILED ops/runtime/runs/pkt-dome-livefix-0001/workbench/tests/test_calculator.py::test_add_basic\n1 failed in 0.02s",
-    "worker_model": "gpt-5.3",
-    "attempt": 1
-  }
-]

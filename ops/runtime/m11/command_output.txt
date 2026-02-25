@@ -1,2 +1,0 @@
-$ python ops/runbooks/run_drill.py --run-id pkt-dome-demo-0001 --out ops/runtime/m11/drill.json
-ops/runtime/m11/drill.json

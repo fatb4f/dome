@@ -1,3 +1,0 @@
-$ pytest -q tests/test_substrate_layout.py
-.                                                                        [100%]
-1 passed in 0.08s

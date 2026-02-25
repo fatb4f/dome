@@ -1,6 +1,0 @@
-$ pytest -q tests/test_evidence_capsule.py
-.                                                                        [100%]
-1 passed in 0.01s
-
-$ python tools/orchestrator/evidence_capsule.py --in ssot/examples/evidence.bundle.telemetry.json --out ops/runtime/xa-04/evidence.capsule.json
-ops/runtime/xa-04/evidence.capsule.json

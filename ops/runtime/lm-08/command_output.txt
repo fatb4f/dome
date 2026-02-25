@@ -1,2 +1,0 @@
-$ pytest -q tests/test_memory_query_primitives.py tests/test_memory_query_contract.py
-.....s                                                                   [100%]

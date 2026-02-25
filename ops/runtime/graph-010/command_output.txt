@@ -1,4 +1,0 @@
-$ python tools/orchestrator/traceability.py --repo-root . --out artifacts/ci/c9_traceability_report.json
-artifacts/ci/c9_traceability_report.json
-$ python tools/orchestrator/deprecated_path_lint.py --doc-root doc
-deprecated-path-lint: PASS

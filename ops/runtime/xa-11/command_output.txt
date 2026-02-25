@@ -1,3 +1,0 @@
-$ pytest -q tests/test_profile_catalog_map.py tests/test_runtime_config.py
-....                                                                     [100%]
-4 passed in 0.02s

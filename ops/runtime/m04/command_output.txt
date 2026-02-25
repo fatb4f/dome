@@ -1,7 +1,0 @@
-$ pytest -q tests/test_mcp_events.py tests/test_run_live_fix_demo.py
-...                                                                      [100%]
-3 passed in 3.25s
-
-$ just test
-....s..................s................                                 [100%]
-38 passed, 4 skipped in 3.63s

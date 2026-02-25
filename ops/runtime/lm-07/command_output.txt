@@ -1,2 +1,0 @@
-$ pytest -q tests/test_xtrlv2_contract_pin.py
-...                                                                      [100%]

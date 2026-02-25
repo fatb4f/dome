@@ -1,3 +1,0 @@
-$ pytest -q tests/test_memory_query_contract.py tests/test_memoryd_idempotency.py tests/test_observability.py tests/test_xtrlv2_contract_pin.py tests/test_memory_query_primitives.py
-.................s                                                       [100%]
-17 passed, 1 skipped in 0.12s

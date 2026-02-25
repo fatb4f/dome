@@ -1,9 +1,0 @@
-{
-  "version": "0.1.0",
-  "status": "PASS",
-  "checks": [
-    "traceability",
-    "deprecated_path_lint"
-  ],
-  "generated_at": "2026-02-18T16:11:06Z"
-}

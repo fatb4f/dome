@@ -1,6 +1,0 @@
-$ pytest -q tests/test_observability.py
-.                                                                        [100%]
-1 passed in 0.05s
-
-$ /home/src404/.local/share/codex/vendor/xtrl/skills-pack/xtrl.packet-runner/scripts/run_packet.sh packets/engineering/dome_logfire_memory/pkt-dome-lm-09-tracker-otlp-reconciliation/contract.json --repo-root /home/src404/src/dome
-target repo not clean: /home/src404/src/dome
