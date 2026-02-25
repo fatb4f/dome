@@ -1,0 +1,75 @@
+name: Parent Milestone
+description: Create a milestone-level parent issue with scope, exits, and traceability.
+title: "[Parent] <Milestone> - <Workstream>"
+labels:
+  - tracking
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for milestone parent issues only.
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: One sentence describing the objective.
+      placeholder: Define and deliver ...
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: In-scope work for this parent issue.
+      placeholder: |
+        - ...
+        - ...
+    validations:
+      required: true
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: Out of Scope
+      description: Explicitly excluded items.
+      placeholder: |
+        - ...
+        - ...
+  - type: textarea
+    id: deliverables
+    attributes:
+      label: Deliverables
+      description: Concrete artifacts to produce.
+      placeholder: |
+        - doc/...
+        - tools/...
+        - tests/...
+    validations:
+      required: true
+  - type: textarea
+    id: exit_criteria
+    attributes:
+      label: Exit Criteria
+      description: Required checks to close this issue.
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Upstream blockers / prerequisite issues.
+      placeholder: |
+        - Depends on #...
+  - type: textarea
+    id: traceability
+    attributes:
+      label: Traceability
+      description: Link to contracts/specs/packets this issue must follow.
+      placeholder: |
+        - ssot/schemas/...
+        - doc/...md
+    validations:
+      required: true
+

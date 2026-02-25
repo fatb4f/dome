@@ -1,0 +1,6 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Issue Comment Template
+    url: https://github.com/fatb4f/dome/blob/main/.github/ISSUE_COMMENT_TEMPLATE.md
+    about: Use this template when posting milestone/status comments.
+

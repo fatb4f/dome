@@ -1,0 +1,60 @@
+name: Spec Alignment
+description: Track schema/API/contract alignment work across milestones.
+title: "[Spec] <Area> alignment"
+labels:
+  - spec
+  - tracking
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use for contract/schema/API alignment tasks.
+  - type: input
+    id: area
+    attributes:
+      label: Area
+      description: Domain or component being aligned.
+      placeholder: gateway API / tool contract / schema pin
+    validations:
+      required: true
+  - type: textarea
+    id: current_state
+    attributes:
+      label: Current State
+      description: What exists now and what drifts.
+    validations:
+      required: true
+  - type: textarea
+    id: target_state
+    attributes:
+      label: Target State
+      description: Desired state after alignment.
+    validations:
+      required: true
+  - type: textarea
+    id: required_changes
+    attributes:
+      label: Required Changes
+      description: File-level and workflow-level changes required.
+      placeholder: |
+        - Update ...
+        - Add ...
+        - Remove ...
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation Plan
+      description: Commands/tests/checks proving alignment.
+      placeholder: |
+        - pytest ...
+        - schema gate ...
+    validations:
+      required: true
+  - type: textarea
+    id: risk
+    attributes:
+      label: Risk and Breakage Notes
+      description: Regression risk and mitigation.
+
