@@ -10,6 +10,7 @@
   - `health`, `list_capabilities`, `skill_execute`, `get_job_status`, `cancel_job`, `stream_job_events`.
 - Generated-stub import path alignment fixed (`generated/python` path bootstrap + `domed.v1.*` imports).
 - CI dependency pins added for grpc/protobuf in [`mvp-loop-gate.yml`](/home/src404/src/dome/.github/workflows/mvp-loop-gate.yml).
+- Consumer path exercised against live service in integration tests via [`tools/codex/domed_client.py`](/home/src404/src/dome/tools/codex/domed_client.py).
 
 ## Remaining
 

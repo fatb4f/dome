@@ -56,3 +56,31 @@ def test_domed_service_lifecycle_roundtrip() -> None:
     finally:
         server.stop(grace=0).wait()
 
+
+def test_domed_service_concrete_job_types() -> None:
+    server, port, _service = start_insecure_server()
+    endpoint = f"127.0.0.1:{port}"
+    client = DomedClient(DomedClientConfig(endpoint=endpoint))
+    try:
+        log_job = client.skill_execute(
+            skill_id="job.log",
+            profile="work",
+            idempotency_key="idem-log",
+            task={"lines": ["a", "b"]},
+            constraints={},
+        )
+        assert log_job.status.ok is True
+        log_events = list(client.stream_job_events(job_id=log_job.job_id, since_seq=0, follow=False))
+        assert any(e.event_type != 0 and "line" in e.payload_json for e in log_events)
+
+        fail_job = client.skill_execute(
+            skill_id="job.fail",
+            profile="work",
+            idempotency_key="idem-fail",
+            task={"reason": "expected"},
+            constraints={},
+        )
+        fail_status = client.get_job_status(fail_job.job_id)
+        assert fail_status.state != 0
+    finally:
+        server.stop(grace=0).wait()

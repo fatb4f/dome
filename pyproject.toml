@@ -26,3 +26,4 @@ build-backend = "setuptools.build_meta"
 
 [project.scripts]
 dome-codex-skill = "tools.codex.dome_cli:main"
+domed = "tools.domed.daemon:main"

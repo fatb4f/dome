@@ -125,6 +125,7 @@ class InMemoryDomedService(domed_pb2_grpc.DomedServiceServicer):
                 event_type="state_change",
                 payload={"from": "unspecified", "to": "queued"},
             )
+            self._execute_job(stored.job_id, request.skill_id, request.task_json)
 
         return domed_pb2.SkillExecuteResponse(
             status=_status_ok("replayed" if replay else "submitted"),
@@ -132,6 +133,75 @@ class InMemoryDomedService(domed_pb2_grpc.DomedServiceServicer):
             job_id=stored.job_id,
             state=_job_state_to_proto(stored.state),
             artifacts=[],
+        )
+
+    def _execute_job(self, job_id: str, skill_id: str, task_json: str) -> None:
+        try:
+            task = json.loads(task_json) if task_json else {}
+            if not isinstance(task, dict):
+                task = {}
+        except Exception:
+            task = {}
+
+        self.store.transition(job_id=job_id, to_state="running")
+        self.store.append_event(
+            job_id=job_id,
+            event_type="state_change",
+            payload={"from": "queued", "to": "running"},
+        )
+
+        if skill_id in {"skill-execute", "job.noop"}:
+            self.store.transition(job_id=job_id, to_state="succeeded")
+            self.store.append_event(
+                job_id=job_id,
+                event_type="state_change",
+                payload={"from": "running", "to": "succeeded", "job_type": "noop"},
+            )
+            return
+
+        if skill_id == "job.log":
+            lines = task.get("lines", [])
+            if not isinstance(lines, list):
+                lines = [str(lines)]
+            for line in lines[:100]:
+                self.store.append_event(
+                    job_id=job_id,
+                    event_type="log",
+                    payload={"line": str(line)},
+                )
+            self.store.transition(job_id=job_id, to_state="succeeded")
+            self.store.append_event(
+                job_id=job_id,
+                event_type="state_change",
+                payload={"from": "running", "to": "succeeded", "job_type": "log"},
+            )
+            return
+
+        if skill_id == "job.fail":
+            reason = str(task.get("reason", "simulated failure"))
+            self.store.append_event(
+                job_id=job_id,
+                event_type="error",
+                payload={"reason": reason},
+            )
+            self.store.transition(job_id=job_id, to_state="failed")
+            self.store.append_event(
+                job_id=job_id,
+                event_type="state_change",
+                payload={"from": "running", "to": "failed", "job_type": "fail"},
+            )
+            return
+
+        self.store.append_event(
+            job_id=job_id,
+            event_type="error",
+            payload={"reason": f"unsupported skill_id: {skill_id}"},
+        )
+        self.store.transition(job_id=job_id, to_state="failed")
+        self.store.append_event(
+            job_id=job_id,
+            event_type="state_change",
+            payload={"from": "running", "to": "failed", "job_type": "unsupported"},
         )
 
     def GetJobStatus(self, request: Any, context: Any) -> Any:  # noqa: N802
@@ -207,9 +277,12 @@ class InMemoryDomedService(domed_pb2_grpc.DomedServiceServicer):
         )
 
 
-def start_insecure_server(bind: str = "127.0.0.1:0") -> tuple[grpc.Server, int, InMemoryDomedService]:
+def start_insecure_server(
+    bind: str = "127.0.0.1:0",
+    service: InMemoryDomedService | None = None,
+) -> tuple[grpc.Server, int, InMemoryDomedService]:
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=8))
-    service = InMemoryDomedService()
+    service = service or InMemoryDomedService()
     domed_pb2_grpc.add_DomedServiceServicer_to_server(service, server)
     port = server.add_insecure_port(bind)
     server.start()
