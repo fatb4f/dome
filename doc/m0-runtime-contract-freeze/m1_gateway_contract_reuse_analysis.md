@@ -1,6 +1,7 @@
 # M1 Gateway Contract Reuse: Baseline, Gaps, Dependencies, Plan
 
 Issue: `#57`  
+Depends on: `#61` (Runtime Contract Freeze, decision-only)  
 Date: 2026-02-25
 
 ## 1) Baseline: What Is Already Defined in `dome`
@@ -55,6 +56,17 @@ Date: 2026-02-25
 | Idempotency contract for gateway submissions | Idempotency behavior exists in telemetry/orchestrator paths | Missing gateway-level request semantics |
 | Stability tiers/ownership per schema | Implicit only | Missing declared ownership/stability metadata |
 | Reuse-only guard | No explicit "no duplicate schema family" gate | Missing policy/check definition |
+
+### 2.3 Missing-contract resolution checklist
+
+- [ ] `skill-execute` entrypoint resolved by reuse/extend/new decision.
+- [ ] Capability discovery contract resolved by reuse/extend/new decision.
+- [ ] API-first gateway wire contract path frozen (proto/openapi).
+- [ ] Thin-client-only invocation policy encoded as enforceable checks.
+- [ ] Canonical run provenance record fields frozen and mapped to `run.manifest`.
+- [ ] Idempotency submission semantics frozen.
+- [ ] Ownership/stability metadata attached for each reused family.
+- [ ] Reuse-only duplication guard defined for CI/runtime.
 
 ### 2.2 Areas with overlap risk
 
@@ -126,6 +138,12 @@ Outputs:
   - no duplicate schema family
   - schema evolution requirements per tier
   - required checks before merging M2+ changes
+- Define CI enforcement mapping:
+  - schema/example validation gate
+  - proto compatibility gate (breaking-change detection)
+  - reuse-only duplication guard
+  - provenance contract presence/shape gate
+  - thin-client-only invocation policy gate
 
 Outputs:
 - `doc/m0-runtime-contract-freeze/m1_dependency_matrix.md` (new) or fold into this doc
@@ -138,6 +156,7 @@ Outputs:
   - provenance constraints
   - id/correlation conventions
   - CI gate contract
+  - M2 proto/service item list: capabilities, skill-execute, submit/status/cancel, stream events/logs
 
 Outputs:
 - Issue comment on `#57` referencing final M1 artifacts and ready-for-M2 gate

@@ -1,6 +1,7 @@
 # M1 Contract Reuse Matrix
 
 Issue: `#57`  
+Depends on: `#61` (Runtime Contract Freeze, decision-only)  
 Last updated: 2026-02-25
 
 ## Purpose
@@ -9,24 +10,24 @@ Identify which existing `dome` contract families are reused as-is for gateway wo
 
 ## Matrix
 
-| Contract family | Intent class | Owner | Stability tier | Current usage | Candidate gateway usage | Decision | Rationale |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `work.queue` | job/invocation | `dome` | stable/v1 | Planner output for orchestrator waves | Internal planning artifact for gateway jobs | extend | Reuse core queue semantics, add gateway-specific linkage fields only if required. |
-| `task.result` | status | `dome` | stable/v1 | Implementer/checker result emission | Base execution result envelope | extend | Keep status shape; gateway needs richer rpc status mapping. |
-| `gate.decision` | status/decision | `dome` | stable/v1 | Deterministic gate verdicts | Post-run policy decision artifact | reuse | Semantics already match gate outcome and reason linkage. |
-| `promotion.decision` | status/decision | `dome` | stable/v1 | Promotion policy output | Promotion artifact after gateway execution | reuse | Already captures decision/risk/confidence linkage. |
-| `run.manifest` | provenance/event-log | `dome` | stable/v1 | Run-level command/artifact provenance | Canonical run provenance record | extend | Freeze required provenance fields from `#61` while preserving existing structure. |
-| `event.envelope` / `control.event` | event/log | `dome` | stable/v1 | Event bus and replay materialization | Stream event/log frame | extend | Reuse sequence/run/event identity fields; add explicit cursor/resume semantics in gateway API. |
-| `spawn.spec` | job/invocation | `dome` | stable/v1 | Worker spawn contract | Internal execution binding for gateway jobs | reuse | Core determinism/task binding is already applicable. |
-| `runtime.config` | resource spec | `dome` | stable/v1 | Runtime profile defaults/config | Gateway runtime config and defaults | reuse | Directly maps to daemon configuration needs. |
-| `orchestrator.secure_defaults` | policy | `dome` | stable/v1 | Path and redaction safety defaults | Gateway secure runtime defaults | reuse | Same operational safety concerns. |
-| `reason.codes` | error/reason catalog | `dome` | stable/v1 | Gate/promo reason classifications | Policy-layer reason catalog for gateway decisions | extend | Keep policy reasons; define distinct RPC error namespace for transport/runtime failures. |
-| `evidence.capsule` / `evidence.bundle.telemetry` | event/log evidence | `dome` | experimental | Evidence consolidation for runs | Optional gateway evidence export | reuse | Can remain downstream artifact without changing core gateway rpc contracts. |
-| `control.strategies` / `profile.catalog.map` | resource/policy | `dome` | internal | Strategy ranking/profile mapping | Capability/routing policy input | extend | Reusable policy source; requires explicit mapping to gateway capability discovery. |
-| `skill-execute` envelope | job/invocation | `dome` | new | Not present | Canonical task execution entrypoint | new | Required by `#61` target model. |
-| Capability discovery envelope | resource spec | `dome` | new | Not present | `gw-daemon` discovery/version negotiation | new | Required by `#61` target model. |
-| Gateway wire API (proto/OpenAPI) | transport | `dome` | new | Not present | Canonical daemon interface | new | Required by `#58`; no existing wire contract family. |
-| RPC error namespace + mapping | error | `dome` | new | Not present | Typed rpc failure semantics | new | Must not overload policy reason codes. |
+| Contract family | Intent class | Canonical owner | Stability tier | Candidate gateway usage | Decision | Wire mapping pointer | Representation deltas | Version policy | Rationale |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `work.queue` | job/invocation | SSOT (`dome`) | stable/v1 | Internal planning artifact for gateway jobs | extend | `Gateway.SubmitJob` internal mapping input | `budgets`/task graph to rpc options | additive only | Reuse core queue semantics, add linkage only if needed. |
+| `task.result` | status | SSOT (`dome`) | stable/v1 | Base execution result envelope | extend | `Gateway.GetJobStatus` result payload | map status/reasons to rpc status + details | additive only | Keep status shape; gateway needs transport-oriented wrappers. |
+| `gate.decision` | status/decision | SSOT (`dome`) | stable/v1 | Post-run policy decision artifact | reuse | `Gateway.GetGateDecision` artifact ref | none | non-breaking only | Already aligned with decision semantics. |
+| `promotion.decision` | status/decision | SSOT (`dome`) | stable/v1 | Promotion artifact after execution | reuse | `Gateway.GetPromotionDecision` artifact ref | none | non-breaking only | Already captures decision/risk/confidence linkage. |
+| `run.manifest` | event/log + provenance | SSOT (`dome`) | stable/v1 | Canonical run provenance record | extend | shared in all terminal job responses | provenance subrecord freeze from `#61` | additive only | Preserve existing structure while freezing required fields. |
+| `event.envelope` / `control.event` | event/log | SSOT (`dome`) | stable/v1 | Stream event/log frame | extend | `Gateway.StreamJobEvents` | explicit cursor/sequence semantics | additive + behavior-stable | Reuse identity fields and formalize resume contract. |
+| `spawn.spec` | job/invocation | SSOT (`dome`) | stable/v1 | Internal execution binding for jobs | reuse | internal daemon runtime only | none | non-breaking only | Determinism/task binding already applies. |
+| `runtime.config` | resource spec | SSOT (`dome`) | stable/v1 | Gateway runtime defaults/config | reuse | daemon config load endpoint/internal | none | non-breaking only | Directly maps to runtime configuration needs. |
+| `orchestrator.secure_defaults` | policy | SSOT (`dome`) | stable/v1 | Gateway secure runtime defaults | reuse | daemon startup policy validation | none | non-breaking only | Same safety boundary requirements. |
+| `reason.codes` | error/reason catalog | SSOT (`dome`) | stable/v1 | Policy reason catalog for decisions | extend | referenced by gate/promotion responses | separate from rpc transport errors | additive only | Keep policy reasons distinct from rpc error namespace. |
+| `evidence.capsule` / `evidence.bundle.telemetry` | event/log evidence | SSOT (`dome`) | experimental | Optional evidence export | reuse | `Gateway.GetEvidenceCapsule` or artifact refs | none | controlled by tier | Remains downstream evidence layer; no core rpc coupling required. |
+| `control.strategies` / `profile.catalog.map` | resource/policy | SSOT (`dome`) | internal | Capability/routing policy input | extend | `Gateway.ListCapabilities` policy derivation | profile-to-capability mapping | additive only | Reusable policy source with explicit mapping layer. |
+| `skill-execute` envelope | job/invocation | Gateway (`dome`) | stable/v1 (new) | Canonical task execution entrypoint | new | `Gateway.SkillExecute` | define canonical request/response + errors | freeze in v1 | Required by `#61` target model. |
+| Capability discovery envelope | resource spec | Gateway (`dome`) | stable/v1 (new) | `gw-daemon` discovery/version negotiation | new | `Gateway.ListCapabilities` | include versions/schema/features fields | freeze in v1 | Required by `#61` target model. |
+| Gateway wire API (proto/OpenAPI) | transport | Gateway (`dome`) | stable/v1 (new) | Canonical daemon interface | new | proto service + optional REST bridge | proto/json mapping table required | freeze + compatibility gates | Required by `#58`; no existing wire family. |
+| RPC error namespace + mapping | error | Gateway (`dome`) | stable/v1 (new) | Typed rpc failure semantics | new | shared rpc status/error detail envelope | strict map to transport status + codes | freeze + additive only | Must not overload policy reason codes. |
 
 ## Reuse policy
 
@@ -38,3 +39,4 @@ Identify which existing `dome` contract families are reused as-is for gateway wo
 
 - No duplicate schema family may be introduced when a `reuse` or `extend` path exists.
 - All `new` rows require explicit non-reuse rationale and downstream consumer mapping.
+- Every row must have an explicit version policy entry and wire mapping pointer before M2 freeze.
