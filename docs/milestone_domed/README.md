@@ -12,3 +12,7 @@ This directory contains milestone planning and delivery documentation for the `d
 Notes:
 - Existing milestone docs under `doc/milestone_domed/` may reflect earlier iteration steps.
 - This directory (`docs/milestone_domed/`) is the current SSOT for the re-alignment program.
+
+## Planning docs
+
+- [`IMPLEMENTATION_DEPENDENCY_MATRIX.md`](./IMPLEMENTATION_DEPENDENCY_MATRIX.md)

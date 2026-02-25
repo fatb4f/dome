@@ -107,3 +107,21 @@ Scope: re-check Phase B against the authoritative plan after constraints update.
    - `just gen`
    - stronger generated-client-only policy checks
 
+## Suggestions incorporated from recent `#72` comments
+
+1. Keep discovery progressive by contract:
+   - `ListTools` returns summary only.
+   - `GetTool` (or `DescribeTool`) returns full descriptor.
+
+2. Treat `ssot/tools/**` as the target canonical shape:
+   - move from registry-first to manifest-first.
+   - keep `ssot/domed/tool_registry.v1.json` temporarily as compatibility/generated index only.
+
+3. Enforce generated-client-only policy as a repo rule, not a single-path assertion:
+   - CI should block handwritten gRPC channel/stub calls outside approved thin-client modules.
+
+4. Standardize generation entrypoint and CI freshness:
+   - add `just gen` (or documented equivalent) and keep generated drift checks mandatory.
+
+5. Tracker hygiene recommendation:
+   - because `#74` is closed while these deltas remain, record this as “Phase B.1 completion” (either by reopening `#74` or tracking a dedicated follow-up issue linked from `#72`).
