@@ -4,6 +4,11 @@ This directory contains milestone planning and delivery documentation for the `d
 
 - **Authoritative plan:** [`REALIGNMENT_PLAN.md`](./REALIGNMENT_PLAN.md)
 
+## Program constraints (SSOT)
+
+- Everything is spec’ed in git.
+- All usage must involve generated clients.
+
 Notes:
 - Existing milestone docs under `doc/milestone_domed/` may reflect earlier iteration steps.
 - This directory (`docs/milestone_domed/`) is the current SSOT for the re-alignment program.
