@@ -3,7 +3,7 @@
 Source baseline PDF: `/home/src404/Downloads/dome_task_spec_skills_closed_loop_v2.pdf`
 Version: `v5`
 Generated: `2026-02-16 15:12 UTC`
-Canonical status: this is the active Mode A spec copy for implementation. Superseded revisions are archived under `docs/archive/reviews/` and are non-normative.
+Canonical status: this is the active Mode A spec copy for implementation. Superseded revisions are archived under `doc/archive/reviews/` and are non-normative.
 ## 1. Purpose
 Define a deterministic, idempotent, telemetry-first execution pipeline where TaskSpec is authoritative at the intent layer, workers are ephemeral (`codex-cli`), execution is routed through a unified `tool.api`, and promotion/next-wave decisions are computed from committed control evidence in a closed loop.
 

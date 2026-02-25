@@ -3,7 +3,7 @@
 ## Implemented
 - DOME wrapper module: `tools/codex/browse_skill.py`
 - DOME CLI bridge: `tools/codex/dome_cli.py`
-- Skill declaration: `docs/skills/codex_web_browse/SKILL.md`
+- Skill declaration: `doc/skills/codex_web_browse/SKILL.md`
 
 ## Contract gates
 - Validates codex-browse `task/result/prefs` schemas before/after runner invocation.

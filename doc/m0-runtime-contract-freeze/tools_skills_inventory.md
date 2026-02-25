@@ -65,7 +65,7 @@ This inventory captures tool and skill surfaces currently present in `dome` to s
 
 | Skill | Path | Entrypoint | Contract dependency | Current status |
 | --- | --- | --- | --- | --- |
-| `codex_web_browse` | `docs/skills/codex_web_browse/SKILL.md` | `tools/codex/dome_cli.py` | `codex-browse` schemas + `identity-graph` contract pins | Active |
+| `codex_web_browse` | `doc/skills/codex_web_browse/SKILL.md` | `tools/codex/dome_cli.py` | `codex-browse` schemas + `identity-graph` contract pins | Active |
 
 ### Notes
 

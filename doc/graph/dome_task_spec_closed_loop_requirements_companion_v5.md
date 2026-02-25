@@ -2,7 +2,7 @@
 
 Version: `v5`
 Generated: `2026-02-16 15:12 UTC`
-Canonical status: this is the active Mode A companion for implementation. Superseded revisions are archived under `docs/archive/reviews/` and are non-normative.
+Canonical status: this is the active Mode A companion for implementation. Superseded revisions are archived under `doc/archive/reviews/` and are non-normative.
 
 Companion to:
 - `./dome_task_spec_skills_closed_loop_v5.md`
