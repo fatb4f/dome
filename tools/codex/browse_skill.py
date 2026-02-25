@@ -105,3 +105,29 @@ def run_task(codex_browse_root: Path, task: dict[str, Any], prefs_path: Path | N
     result = json.loads(proc.stdout)
     _validate(paths["result"], result, "result")
     return result
+
+
+def run_task_via_domed(
+    *,
+    task: dict[str, Any],
+    domed_endpoint: str,
+    profile: str = "work",
+    idempotency_key: str = "dome-cli",
+) -> dict[str, Any]:
+    from tools.codex.domed_client import DomedClient, DomedClientConfig
+
+    client = DomedClient(DomedClientConfig(endpoint=domed_endpoint))
+    resp = client.skill_execute(
+        skill_id="skill-execute",
+        profile=profile,
+        idempotency_key=idempotency_key,
+        task=task,
+        constraints={},
+    )
+    return {
+        "ok": bool(resp.status.ok),
+        "job_id": resp.job_id,
+        "run_id": resp.run_id,
+        "state": int(resp.state),
+        "status_message": resp.status.message,
+    }
