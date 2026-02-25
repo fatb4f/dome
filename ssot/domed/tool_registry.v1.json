@@ -10,8 +10,8 @@
       "description": "Generic skill execution entrypoint",
       "input_schema_ref": "proto/domed/v1/domed.proto#SkillExecuteRequest",
       "output_schema_ref": "proto/domed/v1/domed.proto#SkillExecuteResponse",
-      "executor_backend": "local-process",
-      "permissions": ["process"],
+      "executor_backend": "inmemory",
+      "permissions": [],
       "side_effects": ["runtime-state-write"]
     },
     {
@@ -51,6 +51,21 @@
       "output_schema_ref": "proto/domed/v1/domed.proto#SkillExecuteResponse",
       "executor_backend": "inmemory",
       "permissions": [],
+      "side_effects": ["runtime-state-write", "event-log-write"]
+    },
+    {
+      "tool_id": "domed.exec-probe",
+      "version": "v1",
+      "title": "Domed Executor Probe",
+      "short_description": "Local-process probe for execution routing and event emission",
+      "kind": "skill",
+      "description": "Runs a local probe command that emits stdout/stderr/progress and returns a controlled exit code",
+      "input_schema_ref": "ssot/tools/domed.exec-probe/schema/input.schema.json",
+      "output_schema_ref": "ssot/tools/domed.exec-probe/schema/output.schema.json",
+      "executor_backend": "local-process",
+      "entrypoint": ["python3", "-m", "tools.domed.executor_probe"],
+      "timeout_seconds": 60,
+      "permissions": ["process"],
       "side_effects": ["runtime-state-write", "event-log-write"]
     }
   ]

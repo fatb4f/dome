@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "skill-execute input",
+  "type": "object",
+  "properties": {
+    "skill_id": { "type": "string" },
+    "profile": { "type": "string" },
+    "idempotency_key": { "type": "string" },
+    "task_json": { "type": "string" },
+    "constraints_json": { "type": "string" }
+  },
+  "additionalProperties": true
+}

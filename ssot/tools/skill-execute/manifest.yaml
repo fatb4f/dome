@@ -7,7 +7,7 @@
   "description": "Generic skill execution entrypoint",
   "input_schema_ref": "ssot/tools/skill-execute/schema/input.schema.json",
   "output_schema_ref": "ssot/tools/skill-execute/schema/output.schema.json",
-  "executor_backend": "local-process",
-  "permissions": ["process"],
+  "executor_backend": "inmemory",
+  "permissions": [],
   "side_effects": ["runtime-state-write"]
 }

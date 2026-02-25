@@ -12,6 +12,8 @@ from uuid import uuid4
 import grpc  # type: ignore
 
 from tools.domed.runtime_state import JobRecord, RuntimeStateStore
+from tools.domed.executor import ExecutionEvent, ExecutionRequest
+from tools.domed.executors.local_process import LocalProcessExecutor
 
 _GENERATED_ROOT = Path(__file__).resolve().parents[2] / "generated" / "python"
 _ROOT = Path(__file__).resolve().parents[2]
@@ -79,6 +81,17 @@ def _normalize_tool_item(item: dict[str, Any]) -> dict[str, Any]:
     side_effects = item.get("side_effects", [])
     if not isinstance(side_effects, list):
         side_effects = []
+    entrypoint = item.get("entrypoint", [])
+    if not isinstance(entrypoint, list):
+        entrypoint = []
+    timeout_seconds = item.get("timeout_seconds", 120)
+    try:
+        timeout_seconds = int(timeout_seconds)
+    except Exception:
+        timeout_seconds = 120
+    env_allowlist = item.get("env_allowlist", [])
+    if not isinstance(env_allowlist, list):
+        env_allowlist = []
     return {
         "tool_id": str(item.get("tool_id", "")),
         "version": str(item.get("version", "v1")),
@@ -91,6 +104,9 @@ def _normalize_tool_item(item: dict[str, Any]) -> dict[str, Any]:
         "executor_backend": str(item.get("executor_backend", "unknown")),
         "permissions": [str(x) for x in permissions],
         "side_effects": [str(x) for x in side_effects],
+        "entrypoint": [str(x) for x in entrypoint if str(x).strip()],
+        "timeout_seconds": max(timeout_seconds, 1),
+        "env_allowlist": [str(x) for x in env_allowlist],
     }
 
 
@@ -122,9 +138,18 @@ def _load_tool_registry() -> list[dict[str, Any]]:
     return out
 
 
+def _find_tool(tool_id: str) -> dict[str, Any] | None:
+    target = tool_id.strip()
+    for item in _load_tool_registry():
+        if item["tool_id"] == target:
+            return item
+    return None
+
+
 class InMemoryDomedService(domed_pb2_grpc.DomedServiceServicer):
     def __init__(self, store: RuntimeStateStore | None = None) -> None:
         self.store = store or RuntimeStateStore()
+        self.local_executor = LocalProcessExecutor()
 
     def Health(self, request: Any, context: Any) -> Any:  # noqa: N802
         return domed_pb2.HealthResponse(
@@ -192,6 +217,12 @@ class InMemoryDomedService(domed_pb2_grpc.DomedServiceServicer):
                 status=_status_err(domed_pb2.E_INVALID_REQUEST, "missing required request fields"),
                 state=domed_pb2.JOB_STATE_UNSPECIFIED,
             )
+        tool = _find_tool(request.skill_id)
+        if tool is None:
+            return domed_pb2.SkillExecuteResponse(
+                status=_status_err(domed_pb2.E_NOT_FOUND, f"tool not found: {request.skill_id}"),
+                state=domed_pb2.JOB_STATE_UNSPECIFIED,
+            )
 
         run_id = f"run-{uuid4().hex[:12]}"
         job_id = f"job-{uuid4().hex[:12]}"
@@ -218,7 +249,7 @@ class InMemoryDomedService(domed_pb2_grpc.DomedServiceServicer):
                 event_type="state_change",
                 payload={"from": "unspecified", "to": "queued"},
             )
-            self._execute_job(stored.job_id, request.skill_id, request.task_json)
+            self._execute_job(stored.job_id, tool, request.task_json, request.constraints_json)
 
         return domed_pb2.SkillExecuteResponse(
             status=_status_ok("replayed" if replay else "submitted"),
@@ -228,27 +259,91 @@ class InMemoryDomedService(domed_pb2_grpc.DomedServiceServicer):
             artifacts=[],
         )
 
-    def _execute_job(self, job_id: str, skill_id: str, task_json: str) -> None:
+    def _execute_job(
+        self,
+        job_id: str,
+        tool: dict[str, Any],
+        task_json: str,
+        constraints_json: str,
+    ) -> None:
         try:
             task = json.loads(task_json) if task_json else {}
             if not isinstance(task, dict):
                 task = {}
         except Exception:
             task = {}
+        try:
+            constraints = json.loads(constraints_json) if constraints_json else {}
+            if not isinstance(constraints, dict):
+                constraints = {}
+        except Exception:
+            constraints = {}
+
+        skill_id = tool["tool_id"]
+        job = self.store.get(job_id)
+        run_id = job.run_id if job is not None else ""
+        profile = job.profile if job is not None else ""
 
         self.store.transition(job_id=job_id, to_state="running")
         self.store.append_event(
             job_id=job_id,
             event_type="state_change",
-            payload={"from": "queued", "to": "running"},
+            payload={
+                "from": "queued",
+                "to": "running",
+                "tool_id": tool["tool_id"],
+                "tool_version": tool["version"],
+                "executor_backend": tool["executor_backend"],
+            },
         )
+
+        if tool["executor_backend"] == "local-process":
+            req = ExecutionRequest(
+                run_id=run_id,
+                job_id=job_id,
+                tool_id=tool["tool_id"],
+                profile=profile,
+                task=task,
+                constraints=constraints,
+                entrypoint=list(tool.get("entrypoint", [])),
+                cwd=_ROOT,
+                timeout_seconds=int(tool.get("timeout_seconds", 120)),
+                env_allowlist=list(tool.get("env_allowlist", [])),
+            )
+
+            def _sink(evt: ExecutionEvent) -> None:
+                if evt.kind == "error":
+                    self.store.append_event(job_id=job_id, event_type="error", payload=evt.payload)
+                    return
+                self.store.append_event(job_id=job_id, event_type="log", payload=evt.payload)
+
+            result = self.local_executor.execute(req, _sink)
+            self.store.transition(job_id=job_id, to_state=result.terminal_state)
+            self.store.append_event(
+                job_id=job_id,
+                event_type="state_change",
+                payload={
+                    "from": "running",
+                    "to": result.terminal_state,
+                    "tool_id": tool["tool_id"],
+                    "exit_code": result.exit_code,
+                    "message": result.message,
+                },
+            )
+            return
 
         if skill_id in {"skill-execute", "job.noop"}:
             self.store.transition(job_id=job_id, to_state="succeeded")
             self.store.append_event(
                 job_id=job_id,
                 event_type="state_change",
-                payload={"from": "running", "to": "succeeded", "job_type": "noop"},
+                payload={
+                    "from": "running",
+                    "to": "succeeded",
+                    "job_type": "noop",
+                    "tool_id": tool["tool_id"],
+                    "exit_code": 0,
+                },
             )
             return
 
@@ -266,7 +361,13 @@ class InMemoryDomedService(domed_pb2_grpc.DomedServiceServicer):
             self.store.append_event(
                 job_id=job_id,
                 event_type="state_change",
-                payload={"from": "running", "to": "succeeded", "job_type": "log"},
+                payload={
+                    "from": "running",
+                    "to": "succeeded",
+                    "job_type": "log",
+                    "tool_id": tool["tool_id"],
+                    "exit_code": 0,
+                },
             )
             return
 
@@ -281,20 +382,36 @@ class InMemoryDomedService(domed_pb2_grpc.DomedServiceServicer):
             self.store.append_event(
                 job_id=job_id,
                 event_type="state_change",
-                payload={"from": "running", "to": "failed", "job_type": "fail"},
+                payload={
+                    "from": "running",
+                    "to": "failed",
+                    "job_type": "fail",
+                    "tool_id": tool["tool_id"],
+                    "exit_code": 1,
+                },
             )
             return
 
         self.store.append_event(
             job_id=job_id,
             event_type="error",
-            payload={"reason": f"unsupported skill_id: {skill_id}"},
+            payload={
+                "reason": f"unsupported skill_id: {skill_id}",
+                "tool_id": tool["tool_id"],
+                "executor_backend": tool["executor_backend"],
+            },
         )
         self.store.transition(job_id=job_id, to_state="failed")
         self.store.append_event(
             job_id=job_id,
             event_type="state_change",
-            payload={"from": "running", "to": "failed", "job_type": "unsupported"},
+            payload={
+                "from": "running",
+                "to": "failed",
+                "job_type": "unsupported",
+                "tool_id": tool["tool_id"],
+                "exit_code": 2,
+            },
         )
 
     def GetJobStatus(self, request: Any, context: Any) -> Any:  # noqa: N802
