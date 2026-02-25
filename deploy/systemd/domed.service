@@ -1,0 +1,21 @@
+[Unit]
+Description=domed runtime daemon
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/src/dome
+Environment=PYTHONPATH=%h/src/dome
+ExecStart=%h/src/dome/.venv-domed/bin/python -m tools.domed.daemon --bind 127.0.0.1:50051 --db-path %h/src/dome/ops/runtime/domed/domed.sqlite --ttl-seconds 86400 --gc-interval-seconds 300
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=%h/src/dome/ops/runtime/domed
+
+[Install]
+WantedBy=default.target
+

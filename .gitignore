@@ -29,6 +29,9 @@ out/
 # Generated runtime outputs (curated evidence lives under ops/demo_artifacts/ and ops/runtime/m*/).
 ops/runtime/runs/
 ops/runtime/mcp_events.jsonl
+ops/runtime/domed/*.sqlite
+ops/runtime/domed/*.sqlite-wal
+ops/runtime/domed/*.sqlite-shm
 
 # Generated long-horizon memory outputs.
 ops/memory/*.duckdb
