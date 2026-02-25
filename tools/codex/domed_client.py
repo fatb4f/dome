@@ -43,6 +43,9 @@ class DomedClient:
     def list_capabilities(self, profile: str) -> Any:
         return self._stub.ListCapabilities(self._pb2.ListCapabilitiesRequest(profile=profile))
 
+    def list_tools(self) -> Any:
+        return self._stub.ListTools(self._pb2.ListToolsRequest())
+
     def skill_execute(
         self,
         *,

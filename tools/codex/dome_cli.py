@@ -29,6 +29,9 @@ def _parse_args() -> argparse.Namespace:
     r.add_argument("--domed-endpoint")
     r.add_argument("--profile", default="work")
     r.add_argument("--idempotency-key", default="dome-cli")
+
+    lt = sub.add_parser("list-tools", help="List discoverable domed tools")
+    lt.add_argument("--domed-endpoint")
     return p.parse_args()
 
 
@@ -48,6 +51,26 @@ def main() -> int:
             idempotency_key=args.idempotency_key,
         )
         json.dump(result, sys.stdout, indent=2, sort_keys=True)
+        print()
+        return 0
+    if args.cmd == "list-tools":
+        from tools.codex.domed_client import DomedClient, DomedClientConfig
+
+        client = DomedClient(DomedClientConfig(endpoint=args.domed_endpoint))
+        resp = client.list_tools()
+        out = []
+        for item in resp.tools:
+            out.append(
+                {
+                    "tool_id": item.tool_id,
+                    "version": item.version,
+                    "description": item.description,
+                    "input_schema_ref": item.input_schema_ref,
+                    "output_schema_ref": item.output_schema_ref,
+                    "executor_backend": item.executor_backend,
+                }
+            )
+        json.dump({"ok": bool(resp.status.ok), "tools": out}, sys.stdout, indent=2, sort_keys=True)
         print()
         return 0
     raise RuntimeError(f"unsupported command {args.cmd}")

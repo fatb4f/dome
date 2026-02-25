@@ -98,8 +98,11 @@ def main() -> int:
         print(f"proto baseline not found at {args.base_ref}:{proto_rel}; skipping breaking check")
         return 0
 
-    pybin = str((root / args.python).resolve())
-    if not Path(pybin).exists():
+    pybin_path = Path(args.python)
+    if not pybin_path.is_absolute():
+        pybin_path = root / pybin_path
+    pybin = str(pybin_path)
+    if not pybin_path.exists():
         raise SystemExit(f"missing python runtime: {pybin} (run tools/domed/gen.sh first)")
 
     with tempfile.TemporaryDirectory(prefix="domed-proto-break-") as td:

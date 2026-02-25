@@ -14,6 +14,8 @@ import grpc  # type: ignore
 from tools.domed.runtime_state import JobRecord, RuntimeStateStore
 
 _GENERATED_ROOT = Path(__file__).resolve().parents[2] / "generated" / "python"
+_ROOT = Path(__file__).resolve().parents[2]
+_TOOL_REGISTRY = _ROOT / "ssot" / "domed" / "tool_registry.v1.json"
 if str(_GENERATED_ROOT) not in sys.path:
     sys.path.insert(0, str(_GENERATED_ROOT))
 
@@ -68,6 +70,24 @@ def _request_hash(req: Any) -> str:
     return hashlib.sha256(json.dumps(payload, sort_keys=True).encode("utf-8")).hexdigest()
 
 
+def _load_tool_registry() -> list[dict[str, str]]:
+    payload = json.loads(_TOOL_REGISTRY.read_text(encoding="utf-8"))
+    tools = payload.get("tools", [])
+    out: list[dict[str, str]] = []
+    for item in tools:
+        out.append(
+            {
+                "tool_id": str(item.get("tool_id", "")),
+                "version": str(item.get("version", "v1")),
+                "description": str(item.get("description", "")),
+                "input_schema_ref": str(item.get("input_schema_ref", "")),
+                "output_schema_ref": str(item.get("output_schema_ref", "")),
+                "executor_backend": str(item.get("executor_backend", "unknown")),
+            }
+        )
+    return out
+
+
 class InMemoryDomedService(domed_pb2_grpc.DomedServiceServicer):
     def __init__(self, store: RuntimeStateStore | None = None) -> None:
         self.store = store or RuntimeStateStore()
@@ -80,11 +100,12 @@ class InMemoryDomedService(domed_pb2_grpc.DomedServiceServicer):
         )
 
     def ListCapabilities(self, request: Any, context: Any) -> Any:  # noqa: N802
+        tools = _load_tool_registry()
         cap = domed_pb2.Capability(
             name="skill-execute",
             version="v1",
             schema_version="v1",
-            feature_flags=["inmemory", "stream-events"],
+            feature_flags=[f"tool_count:{len(tools)}", "inmemory", "stream-events"],
         )
         return domed_pb2.ListCapabilitiesResponse(
             status=_status_ok(),
@@ -92,6 +113,20 @@ class InMemoryDomedService(domed_pb2_grpc.DomedServiceServicer):
             api_versions=["domed.v1"],
             capabilities=[cap],
         )
+
+    def ListTools(self, request: Any, context: Any) -> Any:  # noqa: N802
+        tools = [
+            domed_pb2.ToolDescriptor(
+                tool_id=item["tool_id"],
+                version=item["version"],
+                description=item["description"],
+                input_schema_ref=item["input_schema_ref"],
+                output_schema_ref=item["output_schema_ref"],
+                executor_backend=item["executor_backend"],
+            )
+            for item in _load_tool_registry()
+        ]
+        return domed_pb2.ListToolsResponse(status=_status_ok(), tools=tools)
 
     def SkillExecute(self, request: Any, context: Any) -> Any:  # noqa: N802
         if not request.skill_id or not request.profile or not request.idempotency_key:

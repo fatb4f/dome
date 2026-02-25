@@ -28,6 +28,9 @@ def test_domed_service_lifecycle_roundtrip() -> None:
         caps = client.list_capabilities("work")
         assert caps.status.ok is True
         assert any(c.name == "skill-execute" for c in caps.capabilities)
+        tools = client.list_tools()
+        assert tools.status.ok is True
+        assert any(t.tool_id == "skill-execute" for t in tools.tools)
 
         submit = client.skill_execute(
             skill_id="skill-execute",

@@ -20,6 +20,7 @@ class _Req:
 class _FakePB2:
     HealthRequest = _Req
     ListCapabilitiesRequest = _Req
+    ListToolsRequest = _Req
     SkillExecuteRequest = _Req
     GetJobStatusRequest = _Req
     CancelJobRequest = _Req
@@ -37,6 +38,10 @@ class _FakeStub:
     def ListCapabilities(self, req: object) -> object:
         self.calls.append(("ListCapabilities", req))
         return SimpleNamespace(status=SimpleNamespace(ok=True), capabilities=[])
+
+    def ListTools(self, req: object) -> object:
+        self.calls.append(("ListTools", req))
+        return SimpleNamespace(status=SimpleNamespace(ok=True), tools=[])
 
     def SkillExecute(self, req: object) -> object:
         self.calls.append(("SkillExecute", req))
@@ -72,9 +77,11 @@ def test_stub_matrix_health_and_capabilities() -> None:
     c, stub = _client_with_fake_stub()
     h = c.health()
     caps = c.list_capabilities("work")
+    tools = c.list_tools()
     assert h.status.ok is True
     assert caps.status.ok is True
-    assert [name for name, _ in stub.calls] == ["Health", "ListCapabilities"]
+    assert tools.status.ok is True
+    assert [name for name, _ in stub.calls] == ["Health", "ListCapabilities", "ListTools"]
 
 
 def test_stub_matrix_execute_and_status_and_cancel() -> None:
@@ -102,4 +109,3 @@ def test_stub_matrix_stream_resume_cursor() -> None:
     name, req = stub.calls[-1]
     assert name == "StreamJobEvents"
     assert getattr(req, "since_seq") == 1
-

@@ -1,0 +1,38 @@
+{
+  "version": "1.0.0",
+  "tools": [
+    {
+      "tool_id": "skill-execute",
+      "version": "v1",
+      "description": "Generic skill execution entrypoint",
+      "input_schema_ref": "proto/domed/v1/domed.proto#SkillExecuteRequest",
+      "output_schema_ref": "proto/domed/v1/domed.proto#SkillExecuteResponse",
+      "executor_backend": "local-process"
+    },
+    {
+      "tool_id": "job.noop",
+      "version": "v1",
+      "description": "Synthetic success job for daemon smoke and integration tests",
+      "input_schema_ref": "proto/domed/v1/domed.proto#SkillExecuteRequest",
+      "output_schema_ref": "proto/domed/v1/domed.proto#SkillExecuteResponse",
+      "executor_backend": "inmemory"
+    },
+    {
+      "tool_id": "job.log",
+      "version": "v1",
+      "description": "Synthetic log-emitting job for stream-path validation",
+      "input_schema_ref": "proto/domed/v1/domed.proto#SkillExecuteRequest",
+      "output_schema_ref": "proto/domed/v1/domed.proto#SkillExecuteResponse",
+      "executor_backend": "inmemory"
+    },
+    {
+      "tool_id": "job.fail",
+      "version": "v1",
+      "description": "Synthetic failing job for failure-mode validation",
+      "input_schema_ref": "proto/domed/v1/domed.proto#SkillExecuteRequest",
+      "output_schema_ref": "proto/domed/v1/domed.proto#SkillExecuteResponse",
+      "executor_backend": "inmemory"
+    }
+  ]
+}
+

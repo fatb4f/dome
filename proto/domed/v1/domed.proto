@@ -7,6 +7,7 @@ option java_multiple_files = true;
 service DomedService {
   rpc Health(HealthRequest) returns (HealthResponse);
   rpc ListCapabilities(ListCapabilitiesRequest) returns (ListCapabilitiesResponse);
+  rpc ListTools(ListToolsRequest) returns (ListToolsResponse);
   rpc SkillExecute(SkillExecuteRequest) returns (SkillExecuteResponse);
   rpc GetJobStatus(GetJobStatusRequest) returns (GetJobStatusResponse);
   rpc CancelJob(CancelJobRequest) returns (CancelJobResponse);
@@ -75,6 +76,22 @@ message ListCapabilitiesResponse {
   string server_version = 2;
   repeated string api_versions = 3;
   repeated Capability capabilities = 4;
+}
+
+message ListToolsRequest {}
+
+message ToolDescriptor {
+  string tool_id = 1;
+  string version = 2;
+  string description = 3;
+  string input_schema_ref = 4;
+  string output_schema_ref = 5;
+  string executor_backend = 6;
+}
+
+message ListToolsResponse {
+  RpcStatus status = 1;
+  repeated ToolDescriptor tools = 2;
 }
 
 message SkillExecuteRequest {
