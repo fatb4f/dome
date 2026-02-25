@@ -3,6 +3,13 @@
 Date: 2026-02-25
 Scope: re-check Phase B against the authoritative plan after constraints update.
 
+Update (2026-02-25, Phase B.1 closeout):
+- Progressive discovery contract implemented (`ListTools` summary + `GetTool` detail).
+- Manifest-first SSOT introduced under `ssot/tools/**` with compatibility fallback.
+- Generated-client-only enforcement broadened.
+- `just gen` and CI generation/drift gates in place.
+- Manifest schema validation added to `validate-ssot` and CI.
+
 ## Status snapshot
 
 - Issue `#73`: already closed.
