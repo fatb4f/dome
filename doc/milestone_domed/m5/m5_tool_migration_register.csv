@@ -1,12 +1,12 @@
 callsite_id,mode,current_transport,migration_class,target_transport,notes
-tools/codex/browse_skill.py:95,legacy_adapter,local_subprocess,ADAPTER_REQUIRED,domed.grpc,compatibility path used by run-skill-legacy
+tools/codex/browse_skill.py:95,legacy_adapter,local_subprocess,DEPRECATE_REMOVE,domed.grpc,legacy compatibility path behind run-skill-legacy slated for removal in D8
 tools/domed/check_proto_breaking.py:13,ci_tooling,local_subprocess,KEEP_LOCAL,local_process,internal subprocess wrapper for protoc execution
 tools/domed/check_proto_breaking.py:90,ci_tooling,local_subprocess,KEEP_LOCAL,local_process,git show baseline lookup for compatibility check
-tools/orchestrator/checkers.py:71,orchestrator_internal,local_subprocess,ADAPTER_REQUIRED,domed.grpc,route checker execution through daemon job types
+tools/orchestrator/checkers.py:71,orchestrator_internal,local_subprocess,KEEP_LOCAL,local_process,non-production checker utility preserves deterministic local verify semantics
 tools/orchestrator/ingest_pattern_catalog.py:15,orchestrator_internal,local_subprocess,KEEP_LOCAL,local_process,repo static scan helper
-tools/orchestrator/run_demo.py:65,orchestrator_internal,local_subprocess,ADAPTER_REQUIRED,domed.grpc,migrate demo execution path to daemonized jobs
-tools/orchestrator/run_live_fix_demo.py:51,orchestrator_internal,local_subprocess,ADAPTER_REQUIRED,domed.grpc,migrate live-fix flow execution path to daemonized jobs
+tools/orchestrator/run_demo.py:65,orchestrator_internal,local_subprocess,KEEP_LOCAL,local_process,non-production demo harness retains local subprocess for deterministic fixture behavior
+tools/orchestrator/run_live_fix_demo.py:51,orchestrator_internal,local_subprocess,KEEP_LOCAL,local_process,non-production live-fix demo harness retains local subprocess worker execution
 tools/orchestrator/run_live_fix_demo.py:96,orchestrator_internal,local_subprocess,KEEP_LOCAL,local_process,local git metadata command
-tools/orchestrator/run_plan_implement_verify.py:51,orchestrator_internal,local_subprocess,ADAPTER_REQUIRED,domed.grpc,migrate codex execution path to daemonized jobs
-tools/orchestrator/run_plan_implement_verify.py:68,orchestrator_internal,local_subprocess,ADAPTER_REQUIRED,domed.grpc,migrate checker execution path to daemonized jobs
+tools/orchestrator/run_plan_implement_verify.py:51,orchestrator_internal,local_subprocess,KEEP_LOCAL,local_process,non-production ops automation script for repo/milestone actions remains local
+tools/orchestrator/run_plan_implement_verify.py:68,orchestrator_internal,local_subprocess,KEEP_LOCAL,local_process,non-production ops automation checker step remains local
 tools/orchestrator/run_plan_implement_verify.py:389,orchestrator_internal,local_subprocess,KEEP_LOCAL,local_process,local git metadata capture

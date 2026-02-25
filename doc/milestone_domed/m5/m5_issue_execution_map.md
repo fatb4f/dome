@@ -30,3 +30,8 @@ D2 artifacts:
 
 - `doc/milestone_domed/m5/m5_transport_mapping_spec.csv`
 - `doc/milestone_domed/m5/m5_transport_mapping_notes.md`
+
+D3 artifacts:
+
+- `doc/milestone_domed/m5/m5_d3_adapter_resolution.md`
+- `tests/test_m5_d3_resolution.py`
