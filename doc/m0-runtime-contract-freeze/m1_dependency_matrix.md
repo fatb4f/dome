@@ -51,3 +51,5 @@ Last updated: 2026-02-25
 | `m1_contract_reuse_matrix.md` | Reuse/extend/new decisions by contract family |
 | `m1_contract_delta_register.md` | Delta scope, compatibility rules, consumers |
 | `m1_dependency_matrix.md` | Internal and cross-milestone dependency structure |
+| `m1_ci_enforcement_mapping.md` | CI/policy gate mapping and ownership |
+| `m1_to_m2_handoff.md` | Exact M2 service/API freeze handoff requirements |

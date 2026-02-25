@@ -147,6 +147,7 @@ Outputs:
 
 Outputs:
 - `doc/m0-runtime-contract-freeze/m1_dependency_matrix.md` (new) or fold into this doc
+- `doc/m0-runtime-contract-freeze/m1_ci_enforcement_mapping.md` (new)
 - issue `#57` body update with closure checklist linked to concrete files
 
 ### Phase P4: Handoff package to M2-M4
@@ -160,6 +161,7 @@ Outputs:
 
 Outputs:
 - Issue comment on `#57` referencing final M1 artifacts and ready-for-M2 gate
+- `doc/m0-runtime-contract-freeze/m1_to_m2_handoff.md` (new)
 
 ## 5) Verification Criteria for Closing `#57`
 
