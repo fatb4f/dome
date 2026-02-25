@@ -1,13 +1,12 @@
-entrypoint_path,mode,current_transport,migration_class,target_transport,notes
-tools/codex/dome_cli.py:run-skill,production,generated_client,MIGRATE_NOW,domed.grpc,already migrated baseline
-tools/codex/dome_cli.py:run-skill-legacy,non-production,local_subprocess,DEPRECATE_REMOVE,domed.grpc,retain temporary adapter then remove
-tools/codex/browse_skill.py:run_task,legacy_adapter,local_subprocess,ADAPTER_REQUIRED,domed.grpc,used for compatibility and tests
-tools/orchestrator/run_demo.py:_run_and_capture,orchestrator_internal,local_subprocess,ADAPTER_REQUIRED,domed.grpc,map execution segments to domed jobs
-tools/orchestrator/run_live_fix_demo.py:_run_cmd,orchestrator_internal,local_subprocess,ADAPTER_REQUIRED,domed.grpc,map execution segments to domed jobs
-tools/orchestrator/run_live_fix_demo.py:git_rev_parse,orchestrator_internal,local_subprocess,KEEP_LOCAL,local_process,read-only local git metadata
-tools/orchestrator/run_plan_implement_verify.py:_run_codex,orchestrator_internal,local_subprocess,ADAPTER_REQUIRED,domed.grpc,planner-execute path should submit domed jobs
-tools/orchestrator/run_plan_implement_verify.py:_run_checker,orchestrator_internal,local_subprocess,ADAPTER_REQUIRED,domed.grpc,checker path should use job type wrapper
-tools/orchestrator/run_plan_implement_verify.py:git_rev_parse,orchestrator_internal,local_subprocess,KEEP_LOCAL,local_process,read-only local git metadata
-tools/orchestrator/checkers.py:_run,orchestrator_internal,local_subprocess,ADAPTER_REQUIRED,domed.grpc,tool checker invocation should route via daemonized runner
-tools/orchestrator/ingest_pattern_catalog.py:rg_scan,orchestrator_internal,local_subprocess,KEEP_LOCAL,local_process,static repo scan utility; no runtime tool execution
-tools/domed/check_proto_breaking.py:subprocess_wrappers,ci_tooling,local_subprocess,KEEP_LOCAL,local_process,CI contract tooling remains local
+callsite_id,mode,current_transport,migration_class,target_transport,notes
+tools/codex/browse_skill.py:95,legacy_adapter,local_subprocess,ADAPTER_REQUIRED,domed.grpc,compatibility path used by run-skill-legacy
+tools/domed/check_proto_breaking.py:13,ci_tooling,local_subprocess,KEEP_LOCAL,local_process,internal subprocess wrapper for protoc execution
+tools/domed/check_proto_breaking.py:90,ci_tooling,local_subprocess,KEEP_LOCAL,local_process,git show baseline lookup for compatibility check
+tools/orchestrator/checkers.py:71,orchestrator_internal,local_subprocess,ADAPTER_REQUIRED,domed.grpc,route checker execution through daemon job types
+tools/orchestrator/ingest_pattern_catalog.py:15,orchestrator_internal,local_subprocess,KEEP_LOCAL,local_process,repo static scan helper
+tools/orchestrator/run_demo.py:65,orchestrator_internal,local_subprocess,ADAPTER_REQUIRED,domed.grpc,migrate demo execution path to daemonized jobs
+tools/orchestrator/run_live_fix_demo.py:51,orchestrator_internal,local_subprocess,ADAPTER_REQUIRED,domed.grpc,migrate live-fix flow execution path to daemonized jobs
+tools/orchestrator/run_live_fix_demo.py:96,orchestrator_internal,local_subprocess,KEEP_LOCAL,local_process,local git metadata command
+tools/orchestrator/run_plan_implement_verify.py:51,orchestrator_internal,local_subprocess,ADAPTER_REQUIRED,domed.grpc,migrate codex execution path to daemonized jobs
+tools/orchestrator/run_plan_implement_verify.py:68,orchestrator_internal,local_subprocess,ADAPTER_REQUIRED,domed.grpc,migrate checker execution path to daemonized jobs
+tools/orchestrator/run_plan_implement_verify.py:389,orchestrator_internal,local_subprocess,KEEP_LOCAL,local_process,local git metadata capture

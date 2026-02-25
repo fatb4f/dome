@@ -54,6 +54,11 @@ Artifacts:
 
 - `doc/milestone_domed/m5/m5_tool_migration_register.csv`
 - `doc/milestone_domed/m5/m5_tool_migration_dependency_matrix.md`
+- `doc/milestone_domed/m5/m5_tool_callsite_inventory.csv` (generated)
+
+Inventory generation command:
+
+- `python tools/codex/migration_inventory.py --repo-root . --out doc/milestone_domed/m5/m5_tool_callsite_inventory.csv`
 
 ### Phase 2: Adapter and contract alignment
 
@@ -118,4 +123,3 @@ Mitigation: daemon health checks + retry policy + explicit operator runbooks.
 - All production execution paths use generated clients to `domed`.
 - Legacy bypasses deprecated or removed with explicit date and commit references.
 - CI gates prevent regression to direct execution paths.
-
