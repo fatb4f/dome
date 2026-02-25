@@ -50,6 +50,10 @@ jobs:
         run: |
           python tools/codex/check_generated_client_only.py
 
+      - name: Enforce subprocess policy register
+        run: |
+          python tools/codex/check_subprocess_policy.py
+
       - name: Lint
         run: python -m ruff check tools tests
 
