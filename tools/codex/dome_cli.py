@@ -57,6 +57,11 @@ def main() -> int:
         print()
         return 0
     if args.cmd == "run-skill-legacy":
+        print(
+            "warning: run-skill-legacy is deprecated and scheduled for removal on March 24, 2026; "
+            "use run-skill (domed) instead",
+            file=sys.stderr,
+        )
         task = json.loads(args.task_json.read_text(encoding="utf-8"))
         result = run_task(args.codex_browse_root, task, args.prefs_json)
         json.dump(result, sys.stdout, indent=2, sort_keys=True)

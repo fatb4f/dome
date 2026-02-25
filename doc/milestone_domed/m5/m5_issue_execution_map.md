@@ -39,3 +39,7 @@ D3 artifacts:
 D5 artifacts:
 
 - `tests/test_m5_failure_modes.py`
+
+D6 artifacts:
+
+- `doc/milestone_domed/m5/m5_legacy_deprecation_schedule.md`
