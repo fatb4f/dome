@@ -1,5 +1,5 @@
 callsite_id,path,line,snippet
-tools/codex/browse_skill.py:95,tools/codex/browse_skill.py,95,proc = subprocess.run(
+tools/codex/browse_skill.py:96,tools/codex/browse_skill.py,96,proc = subprocess.run(
 tools/domed/check_proto_breaking.py:13,tools/domed/check_proto_breaking.py,13,"p = subprocess.run(cmd, cwd=str(cwd) if cwd else None, text=True, capture_output=True)"
 tools/domed/check_proto_breaking.py:90,tools/domed/check_proto_breaking.py,90,show = subprocess.run(
 tools/orchestrator/checkers.py:71,tools/orchestrator/checkers.py,71,"proc = subprocess.run(argv, capture_output=True, text=True, cwd=str(cwd) if cwd else None)"

@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import subprocess
+import time
 from pathlib import Path
 from typing import Any
 
@@ -113,17 +114,34 @@ def run_task_via_domed(
     domed_endpoint: str,
     profile: str = "work",
     idempotency_key: str = "dome-cli",
+    max_attempts: int = 2,
+    retry_sleep_seconds: float = 0.05,
 ) -> dict[str, Any]:
     from tools.codex.domed_client import DomedClient, DomedClientConfig
 
     client = DomedClient(DomedClientConfig(endpoint=domed_endpoint))
-    resp = client.skill_execute(
-        skill_id="skill-execute",
-        profile=profile,
-        idempotency_key=idempotency_key,
-        task=task,
-        constraints={},
-    )
+    if max_attempts < 1:
+        raise ValueError("max_attempts must be >= 1")
+    last_exc: Exception | None = None
+    for attempt in range(1, max_attempts + 1):
+        try:
+            resp = client.skill_execute(
+                skill_id="skill-execute",
+                profile=profile,
+                idempotency_key=idempotency_key,
+                task=task,
+                constraints={},
+            )
+            break
+        except Exception as exc:  # noqa: BLE001
+            last_exc = exc
+            if attempt >= max_attempts:
+                raise RuntimeError(
+                    f"domed skill_execute failed after {attempt} attempts: {exc}"
+                ) from exc
+            time.sleep(retry_sleep_seconds)
+    else:  # pragma: no cover
+        raise RuntimeError(f"domed skill_execute failed: {last_exc}")
     return {
         "ok": bool(resp.status.ok),
         "job_id": resp.job_id,

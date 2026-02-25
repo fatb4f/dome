@@ -35,3 +35,7 @@ D3 artifacts:
 
 - `doc/milestone_domed/m5/m5_d3_adapter_resolution.md`
 - `tests/test_m5_d3_resolution.py`
+
+D5 artifacts:
+
+- `tests/test_m5_failure_modes.py`
