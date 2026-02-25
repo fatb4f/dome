@@ -7,7 +7,7 @@ Date: 2026-02-25
 ## Decision
 
 `dome` is the specification/control plane.  
-`gw-daemon` is the runtime/data plane.
+`domed` is the runtime/data plane.
 
 This is a hard architectural boundary.
 

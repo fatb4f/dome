@@ -29,7 +29,7 @@ Date: 2026-02-25
 | --- | --- | --- |
 | Orchestrator pipeline | `tools/orchestrator/*` | Script-driven PIV/MCP flows already emit schema-backed artifacts. |
 | Contract validation | `tests/test_schema_examples_validate.py`, `tests/test_ssot_policy_validate.py` | Schema/example gates exist. |
-| Skill wrapper bridge | `tools/codex/dome_cli.py`, `tools/codex/browse_skill.py` | Contract-validated wrapper for `codex-browse`; no gateway daemon. |
+| Skill wrapper bridge | `tools/codex/dome_cli.py`, `tools/codex/browse_skill.py` | Contract-validated wrapper for `codex-browse`; no `domed` runtime yet. |
 | Contract pinning | `ssot/pins/xtrlv2/*`, `tests/test_xtrlv2_contract_pin.py` | Upstream pin model exists and is reusable. |
 
 ### 1.3 Existing intent mapping (resource/job/event/error)
@@ -49,7 +49,7 @@ Date: 2026-02-25
 | Required target contract | Current state | Gap |
 | --- | --- | --- |
 | `skill-execute` entrypoint contract | Not defined in SSOT | Missing schema family |
-| Capability discovery contract (`gw-daemon`) | Mentioned in docs/comments only | Missing schema + wire contract |
+| Capability discovery contract (`domed`) | Mentioned in docs/comments only | Missing schema + wire contract |
 | API-first gateway contract (proto/openapi) | None in `dome` | Missing canonical wire spec |
 | Thin-client-only invocation policy | Policy intent stated in issues | Missing enforceable contract + CI rule definition |
 | Canonical run provenance record | `run.manifest` exists but not frozen to target fields from `#61` | Partial; needs explicit field freeze |
