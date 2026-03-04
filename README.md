@@ -15,8 +15,25 @@ The SSOT is `.specify/memory/constitution.md`.
 
 ## Telemetry wiring (OTLP backend)
 
-- `ops/observability/` contains an OpenTelemetry Collector config for an OTLP backend (Langfuse example included).
-- `apps/python-demo/` contains a minimal runnable demo.
+- Observability planning and tracker docs live under `docs/observability/`.
+- The runtime demo tooling is in `tools/orchestrator/` and supports `--otel-export`.
+
+## Langfuse (OTLP backend)
+
+`dome` treats Langfuse as one OTLP backend option for trace export.
+
+- Contract example:
+  - `ssot/examples/evidence.bundle.telemetry.json` uses `"backend": "langfuse"`.
+- Runtime support:
+  - `tools/orchestrator/run_demo.py --otel-export`
+  - `tools/orchestrator/run_live_fix_demo.py --otel-export`
+- Planning docs:
+  - `docs/observability/logfire_duckdb_long_horizon_memory_plan.md`
+  - `docs/observability/implementation_kickoff_plan.md`
+
+Current state:
+- Langfuse is documented and schema-represented.
+- A production collector/export pipeline is tracked in observability docs and should be promoted into deployable assets when finalized.
 
 ## Concurrent loop contracts (MVP)
 
